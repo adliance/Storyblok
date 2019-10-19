@@ -1,0 +1,4 @@
+﻿@using Markdig
+@model Saxx.Storyblok.Components.Text
+
+@Html.Raw(Markdown.ToHtml(Model.Content))

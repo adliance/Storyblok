@@ -1,0 +1,10 @@
+﻿@using Saxx.Storyblok.Example.ViewModels.Shared
+@inject HeaderViewModel HeaderViewModel
+
+
+<header class="container">
+    @foreach (var story in HeaderViewModel.StoriesForNavigation)
+    {
+        <a href="@story.FullSlug">@story.Title</a>
+    }
+</header>

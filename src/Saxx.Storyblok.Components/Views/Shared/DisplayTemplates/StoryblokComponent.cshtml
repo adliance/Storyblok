@@ -1,0 +1,23 @@
+﻿@using Saxx.Storyblok
+@model StoryblokComponent
+
+@{
+    Type concreteType = null;
+    @foreach (var mapping in StoryblokMappings.Mappings)
+    {
+        if (Model.GetType() == mapping.Value)
+        {
+            concreteType = mapping.Value;
+            break;
+        }
+    }
+}
+
+@if (concreteType != null)
+{
+    @Html.DisplayFor(x => Model, concreteType.Name)
+}
+else
+{
+    <div>Unable to render component "@Model.Component".</div>
+}

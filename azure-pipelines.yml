@@ -18,17 +18,7 @@ jobs:
       projects: '**/*.csproj'
       arguments: '--configuration $(buildConfiguration)'
 
-- job: Pack_Nuget
-  steps:
-  - task: DotNetCoreCLI@2
-    displayName: 'DotNet Pack'
-    inputs:
-      command: pack
-      packagesToPack: 'src/Saxx.Storyblok/*.csproj'
-      arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)'
-      versioningScheme: byBuildNumber
-
-- job: Pack_Web
+- job: Pack
   steps:
   - task: DotNetCoreCLI@2
     displayName: Publish
@@ -37,14 +27,22 @@ jobs:
       publishWebProjects: True
       arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)'
       zipAfterPublish: True
+  - task: DotNetCoreCLI@2
+    displayName: 'DotNet Pack'
+    inputs:
+      command: pack
+      packagesToPack: 'src/Saxx.Storyblok/*.csproj'
+      arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)'
+      versioningScheme: byBuildNumber
 
-- job: Publish_Artifacts
+- job: Publish
   steps:
   - task: NuGetCommand@2
     displayName: 'NuGet Push'
     inputs:
       command: push
-
+      nuGetFeedType: external
+      publishFeedCredentials: 'Public NuGet'
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact'
     inputs:

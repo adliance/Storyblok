@@ -18,7 +18,8 @@ jobs:
       projects: '**/*.csproj'
       arguments: '--configuration $(buildConfiguration)'
 
-- job: Publish Example Website
+- job: Publish
+  steps:
   - task: DotNetCoreCLI@2
     displayName: Publish
     inputs:

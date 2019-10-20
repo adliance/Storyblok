@@ -2,6 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Version>0.0.0</Version>
+    <Authors>Hannes Sachsenhofer</Authors>
+    <Company />
+    <Product />
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Copyright>(c) Hannes Sachsenhofer</Copyright>
+    <PackageProjectUrl>https://github.com/saxx/Saxx.Storyblok/</PackageProjectUrl>
+    <Description>Easily integrate the Storyblok headless CMS into your ASP.NET core application.</Description>
   </PropertyGroup>
 
   <ItemGroup>

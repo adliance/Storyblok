@@ -3,16 +3,23 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+    <Version>0.0.0</Version>
+    <Authors>Hannes Sachsenhofer</Authors>
+    <Company />
+    <Product />
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Copyright>(c) Hannes Sachsenhofer</Copyright>
+    <PackageProjectUrl>https://github.com/saxx/Saxx.Storyblok/</PackageProjectUrl>
+    <Description>
+      This package contains default components for the Saxx.Storyblok library. It is strictly optional, but may you get started faster.
+    </Description>
   </PropertyGroup>
 
   <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Markdig" Version="0.17.1" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Saxx.Storyblok\Saxx.Storyblok.csproj" />
+    <PackageReference Include="Saxx.Storyblok" Version="0.2.1" />
   </ItemGroup>
   
 </Project>

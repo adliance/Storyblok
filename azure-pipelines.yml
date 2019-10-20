@@ -19,6 +19,7 @@ jobs:
       arguments: '--configuration $(buildConfiguration)'
 
 - job: Pack
+  dependsOn: Build_and_Test
   steps:
   - task: DotNetCoreCLI@2
     displayName: Publish
@@ -36,6 +37,7 @@ jobs:
       versioningScheme: byBuildNumber
 
 - job: Publish
+  dependsOn: Pack
   steps:
   - task: NuGetCommand@2
     displayName: 'NuGet Push'

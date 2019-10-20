@@ -15,6 +15,17 @@ steps:
   clean: true
 
 - task: DotNetCoreCLI@2
+  displayName: Restore
+  inputs:
+    command: restore
+    projects: '**/*.csproj'
+
+- script: |
+   cd $(Build.SourcesDirectory)/src/Saxx.Storyblok.Example
+   dotnet setversion $(Build.BuildNumber)
+  displayName: Set Version
+
+- task: DotNetCoreCLI@2
   displayName: Build
   inputs:
     projects: '**/*.csproj'
@@ -33,6 +44,14 @@ steps:
   inputs:
     command: pack
     packagesToPack: 'src/Saxx.Storyblok/*.csproj'
+    arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)'
+    versioningScheme: byBuildNumber
+
+- task: DotNetCoreCLI@2
+  displayName: Pack Saxx.Storyblok.Components NuGet package
+  inputs:
+    command: pack
+    packagesToPack: 'src/Saxx.Storyblok.Components/*.csproj'
     arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)'
     versioningScheme: byBuildNumber
 

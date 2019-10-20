@@ -7,6 +7,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Saxx.Storyblok.Components\Saxx.Storyblok.Components.csproj" />
     <ProjectReference Include="..\Saxx.Storyblok\Saxx.Storyblok.csproj" />
+    <DotNetCliToolReference Include="dotnet-setversion" Version="2.0.0" />
   </ItemGroup>
   
 </Project>

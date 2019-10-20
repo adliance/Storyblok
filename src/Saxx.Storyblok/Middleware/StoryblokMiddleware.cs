@@ -76,8 +76,21 @@ namespace Saxx.Storyblok.Middleware
                 return;
             }
 
+            var componentName = story.Content.Component;
+            var componentMappings = StoryblokMappings.Mappings;
+            if (!componentMappings.ContainsKey(componentName))
+            {
+                throw new Exception($"No component mapping found for a component '{componentName}'.");
+            }
+
+            var componentMapping = componentMappings[componentName];
+            if (string.IsNullOrWhiteSpace(componentMapping.View))
+            {
+                throw new Exception($"No view specified on component of type '{componentMapping.Type.FullName}'.");
+            }
+
             // we have a story, yay! Lets render it and stop with the middleware chain
-            var result = new ViewResult { ViewName = "Story" };
+            var result = new ViewResult { ViewName = componentMapping.View };
             var modelMetadata = new EmptyModelMetadataProvider();
             result.ViewData = new ViewDataDictionary(modelMetadata, new ModelStateDictionary())
             {

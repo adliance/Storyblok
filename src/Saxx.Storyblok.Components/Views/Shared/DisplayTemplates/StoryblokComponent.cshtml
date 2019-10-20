@@ -5,9 +5,9 @@
     Type concreteType = null;
     @foreach (var mapping in StoryblokMappings.Mappings)
     {
-        if (Model.GetType() == mapping.Value)
+        if (Model.GetType() == mapping.Value.Type)
         {
-            concreteType = mapping.Value;
+            concreteType = mapping.Value.Type;
             break;
         }
     }

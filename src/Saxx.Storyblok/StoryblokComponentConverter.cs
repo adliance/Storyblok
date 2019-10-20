@@ -25,8 +25,8 @@ namespace Saxx.Storyblok
 
             if (componentMappings.ContainsKey(componentName))
             {
-                var type = componentMappings[componentName];
-                var concreteComponent = Activator.CreateInstance(type);
+                var mapping = componentMappings[componentName];
+                var concreteComponent = Activator.CreateInstance(mapping.Type);
                 serializer.Populate(jsonToken.CreateReader(), concreteComponent);
                 return concreteComponent;
             }

@@ -3,7 +3,7 @@ using Saxx.Storyblok.Attributes;
 
 namespace Saxx.Storyblok.Components
 {
-    [StoryblokComponent("page")]
+    [StoryblokComponent("page", "Story")]
     public class Page : StoryblokComponent
     {
         [JsonProperty("title")] public string Title { get; set; }

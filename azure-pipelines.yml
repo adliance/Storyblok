@@ -21,8 +21,9 @@ steps:
     projects: '**/*.csproj'
 
 - script: |
+   dotnet tool install -g dotnet-setversion
    cd $(Build.SourcesDirectory)/src/Saxx.Storyblok.Example
-   dotnet setversion $(Build.BuildNumber)
+   setversion $(Build.BuildNumber)
   displayName: Set Version
 
 - task: DotNetCoreCLI@2

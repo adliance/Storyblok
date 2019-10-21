@@ -1,4 +1,7 @@
+using System.Collections.Generic;
+using System.Globalization;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.DependencyInjection;
 using Saxx.Storyblok.Example.ViewModels.Shared;
 using Saxx.Storyblok.Extensions;
@@ -30,12 +33,10 @@ namespace Saxx.Storyblok.Example
             app.UseHsts();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+            app.UseRouting();
 
             // add Storyblok before the MVC middleware, so we render the Storyblok story if it exists, or fall back to controller actions
             app.UseStoryblok();
-
-            // and finally, the MVC middleware
-            app.UseRouting();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapDefaultControllerRoute();

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -30,7 +31,7 @@ namespace Saxx.Storyblok
 
             ValidateSettings(settings);
             _cacheDuration = settings.CacheDurationSeconds;
-            _cultures = settings.Cultures ?? new CultureInfo[0];
+            _cultures = settings.Cultures ?? new[] { CultureInfo.CurrentUICulture };
             _apiKey = _isInEditor ? settings.ApiKeyPreview : settings.ApiKeyPublic;
             _baseUrl = settings.BaseUrl;
         }
@@ -115,7 +116,7 @@ namespace Saxx.Storyblok
             var url = $"{_baseUrl}/stories/{slug}?token={_apiKey}";
 
             // add the culture to the URL, as long as it's not the default culture
-            if (_cultures.Length > 1 && culture != null && !_cultures[0].ToString().Equals(culture.ToString(), StringComparison.InvariantCultureIgnoreCase))
+            if (_cultures.Length > 1 && culture != null && _cultures.Skip(1).Any(x => x.ToString().Equals(culture.ToString(), StringComparison.InvariantCultureIgnoreCase)))
             {
                 url = $"{_baseUrl}/stories/{culture.ToString().ToLower()}/{slug}?token={_apiKey}";
             }

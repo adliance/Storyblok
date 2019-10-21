@@ -19,7 +19,10 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Markdig" Version="0.17.1" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
-    <PackageReference Include="Saxx.Storyblok" Version="0.2.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Saxx.Storyblok\Saxx.Storyblok.csproj" />
   </ItemGroup>
   
 </Project>

@@ -36,14 +36,15 @@ namespace Saxx.Storyblok.Middleware
             {
                 slug = settings.HandleRootWithSlug;
             }
-            
+
             StoryblokStory story = null;
+            var cultures = settings.Cultures ?? new[] { CultureInfo.CurrentUICulture };
 
             // special handling of Storyblok preview URLs that contain the language, like ~/de/home vs. ~/home
             // if we have such a URL, we also change the current culture accordingly
-            if (settings.Cultures != null && settings.Cultures.Length > 1)
+            if (cultures.Length > 1)
             {
-                foreach (var culture in settings.Cultures.Skip(1))
+                foreach (var culture in cultures.Skip(1))
                 {
                     if (slug.StartsWith($"/{culture}/"))
                     {
@@ -56,9 +57,9 @@ namespace Saxx.Storyblok.Middleware
 
             // we're in the editor, but we don't have the language in the URL
             // so we force the default language
-            if (story == null && settings.Cultures != null && settings.Cultures.Any() && context.Request.Query.IsInStoryblokEditor(settings))
+            if (story == null && cultures.Any() && context.Request.Query.IsInStoryblokEditor(settings))
             {
-                var defaultCulture = settings.Cultures[0];
+                var defaultCulture = cultures[0];
                 CultureInfo.CurrentUICulture = CultureInfo.CurrentCulture = defaultCulture;
                 story = await storyblokClient.LoadStory(defaultCulture, slug);
             }
@@ -110,16 +111,14 @@ namespace Saxx.Storyblok.Middleware
             }
 
             var executor = context.RequestServices.GetRequiredService<IActionResultExecutor<TResult>>();
-
             if (executor == null)
             {
                 throw new InvalidOperationException($"No result executor for '{typeof(TResult).FullName}' has been registered.");
             }
 
             var routeData = context.GetRouteData() ?? EmptyRouteData;
-
             var actionContext = new ActionContext(context, routeData, EmptyActionDescriptor);
-
+           
             return executor.ExecuteAsync(actionContext, result);
         }
     }

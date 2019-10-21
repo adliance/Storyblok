@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -21,7 +21,8 @@ namespace Saxx.Storyblok
         private readonly string _apiKey;
         private readonly string _baseUrl;
         private readonly int _cacheDuration;
-        private readonly CultureInfo[] _cultures;
+        private readonly IDictionary<CultureInfo, CultureInfo> _cultureMappings;
+        private readonly CultureInfo _defaultCulture;
 
         public StoryblokClient(StoryblokSettings settings, IHttpClientFactory clientFactory, IHttpContextAccessor httpContext, IMemoryCache memoryCache)
         {
@@ -31,7 +32,8 @@ namespace Saxx.Storyblok
 
             ValidateSettings(settings);
             _cacheDuration = settings.CacheDurationSeconds;
-            _cultures = settings.Cultures ?? new[] { CultureInfo.CurrentUICulture };
+            _cultureMappings = settings.CultureMappings ?? new ConcurrentDictionary<CultureInfo, CultureInfo>();
+            _defaultCulture = settings.DefaultCulture ?? CultureInfo.CurrentUICulture;
             _apiKey = _isInEditor ? settings.ApiKeyPreview : settings.ApiKeyPublic;
             _baseUrl = settings.BaseUrl;
         }
@@ -113,14 +115,18 @@ namespace Saxx.Storyblok
 
         private async Task<StoryblokStory> LoadStoryFromStoryblok(CultureInfo culture, string slug)
         {
-            var url = $"{_baseUrl}/stories/{slug}?token={_apiKey}";
-
-            // add the culture to the URL, as long as it's not the default culture
-            if (_cultures.Length > 1 && culture != null && _cultures.Skip(1).Any(x => x.ToString().Equals(culture.ToString(), StringComparison.InvariantCultureIgnoreCase)))
+            var language = _defaultCulture;
+            if (_cultureMappings.ContainsKey(culture))
             {
-                url = $"{_baseUrl}/stories/{culture.ToString().ToLower()}/{slug}?token={_apiKey}";
+                language = _cultureMappings[culture];
             }
 
+            var url = $"{_baseUrl}/stories/{slug}?token={_apiKey}";
+            if (!language.Equals(_defaultCulture))
+            {
+                url = $"{_baseUrl}/stories/{language.ToString().ToLower()}/{slug}?token={_apiKey}";
+            }
+            
             url += $"&cb={DateTime.UtcNow:yyyyMMddHHmmss}";
 
             if (_isInEditor)

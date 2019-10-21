@@ -1,13 +1,13 @@
-﻿@using Microsoft.AspNetCore.Routing
+﻿
 @using Saxx.Storyblok.Example.ViewModels.Shared
 @inject HeaderViewModel HeaderViewModel
-@inject LinkGenerator LinkGenerator 
 
 <header class="container">
     @foreach (var story in HeaderViewModel.StoriesForNavigation)
     {
-        <a href="@story.FullSlug">@story.Title</a>
+        <text>
+            <a href="@story.FullSlug">@story.Title</a> |
+        </text>
     }
-    
-    <a href="@LinkGenerator.GetPathByAction("Stories", "Home")">Overview of all stories</a>
+    <a asp-action="Stories" asp-controller="Home">Overview of all stories</a>
 </header>

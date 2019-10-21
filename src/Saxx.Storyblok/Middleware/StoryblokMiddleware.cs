@@ -1,15 +1,18 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Saxx.Storyblok.Extensions;
 using Saxx.Storyblok.Settings;
 
@@ -24,7 +27,7 @@ namespace Saxx.Storyblok.Middleware
             _next = next;
         }
 
-        public async Task Invoke(HttpContext context, StoryblokClient storyblokClient, StoryblokSettings settings)
+        public async Task Invoke(HttpContext context, StoryblokClient storyblokClient, StoryblokSettings settings, IUrlHelperFactory urlHelperFactory)
         {
             var slug = context.Request.Path.ToString();
             if (string.IsNullOrWhiteSpace(slug))
@@ -36,30 +39,33 @@ namespace Saxx.Storyblok.Middleware
             {
                 slug = settings.HandleRootWithSlug;
             }
+            else if (slug.Equals("/", StringComparison.InvariantCultureIgnoreCase))
+            {
+                // we are on the root path, and we shouldn't handle it - so we bail out
+                await _next.Invoke(context);
+                return;
+            }
 
             StoryblokStory story = null;
-            var cultures = settings.Cultures ?? new[] { CultureInfo.CurrentUICulture };
+            var cultureMappings = settings.CultureMappings ?? new Dictionary<CultureInfo, CultureInfo>();
 
             // special handling of Storyblok preview URLs that contain the language, like ~/de/home vs. ~/home
             // if we have such a URL, we also change the current culture accordingly
-            if (cultures.Length > 1)
+            foreach (var cultureMapping in cultureMappings)
             {
-                foreach (var culture in cultures.Skip(1))
+                if (slug.StartsWith($"/{cultureMapping.Value}/"))
                 {
-                    if (slug.StartsWith($"/{culture}/"))
-                    {
-                        CultureInfo.CurrentUICulture = CultureInfo.CurrentCulture = culture;
-                        story = await storyblokClient.LoadStory(culture, slug.Substring(culture.ToString().Length + 2));
-                        break;
-                    }
+                    CultureInfo.CurrentUICulture = CultureInfo.CurrentCulture = cultureMapping.Value;
+                    story = await storyblokClient.LoadStory(cultureMapping.Value, slug.Substring(cultureMapping.Value.ToString().Length + 2));
+                    break;
                 }
             }
 
             // we're in the editor, but we don't have the language in the URL
             // so we force the default language
-            if (story == null && cultures.Any() && context.Request.Query.IsInStoryblokEditor(settings))
+            if (story == null && context.Request.Query.IsInStoryblokEditor(settings))
             {
-                var defaultCulture = cultures[0];
+                var defaultCulture = settings.DefaultCulture ?? CultureInfo.CurrentUICulture;
                 CultureInfo.CurrentUICulture = CultureInfo.CurrentCulture = defaultCulture;
                 story = await storyblokClient.LoadStory(defaultCulture, slug);
             }
@@ -97,13 +103,13 @@ namespace Saxx.Storyblok.Middleware
             {
                 Model = story
             };
-            await WriteResultAsync(context, result);
+            await WriteResultAsync(context, result, urlHelperFactory);
         }
 
         private static readonly RouteData EmptyRouteData = new RouteData();
         private static readonly ActionDescriptor EmptyActionDescriptor = new ActionDescriptor();
 
-        public static Task WriteResultAsync<TResult>(HttpContext context, TResult result) where TResult : IActionResult
+        public static Task WriteResultAsync<TResult>(HttpContext context, TResult result, IUrlHelperFactory urlHelperFactory) where TResult : IActionResult
         {
             if (context == null)
             {
@@ -118,7 +124,13 @@ namespace Saxx.Storyblok.Middleware
 
             var routeData = context.GetRouteData() ?? EmptyRouteData;
             var actionContext = new ActionContext(context, routeData, EmptyActionDescriptor);
-           
+
+            if (!context.Items.TryGetValue(typeof(IUrlHelper), out _))
+            {
+                var linkGenerator = context.RequestServices.GetRequiredService<LinkGenerator>();
+                context.Items.Add(typeof(IUrlHelper), new UrlHelper(actionContext, linkGenerator));
+            }
+
             return executor.ExecuteAsync(actionContext, result);
         }
     }

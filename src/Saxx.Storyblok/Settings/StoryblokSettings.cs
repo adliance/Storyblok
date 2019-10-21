@@ -1,4 +1,6 @@
-﻿using System.Globalization;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Microsoft.Extensions.Configuration;
 
@@ -27,15 +29,6 @@ namespace Saxx.Storyblok.Settings
             if (!string.IsNullOrWhiteSpace(section["api_key_public"]))
             {
                 ApiKeyPublic = section["api_key_public"];
-            }
-
-            if (!string.IsNullOrWhiteSpace(section["cultures"]))
-            {
-                Cultures = section["cultures"]
-                    .Split(',')
-                    .Select(x => x.Trim())
-                    .Where(x => !string.IsNullOrWhiteSpace(x))
-                    .Select(x => new CultureInfo(x)).ToArray();
             }
 
             if (!string.IsNullOrWhiteSpace(section["cache_duration_seconds"]))
@@ -67,6 +60,7 @@ namespace Saxx.Storyblok.Settings
         /// The cultures (languages) supported by the Storyblok workspace, for example: "en,de"
         /// The first culture in the list is the default culture.
         /// </summary>
-        public CultureInfo[] Cultures { get; set; } = new CultureInfo[0];
+        public IDictionary<CultureInfo, CultureInfo> CultureMappings { get; set; } = new Dictionary<CultureInfo, CultureInfo>();
+        public CultureInfo DefaultCulture { get; set; }
     }
 }

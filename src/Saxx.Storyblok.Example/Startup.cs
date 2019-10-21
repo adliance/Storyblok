@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Globalization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Localization;
@@ -15,6 +14,12 @@ namespace Saxx.Storyblok.Example
             services.AddStoryblok(options =>
             {
                 options.HandleRootWithSlug = "home";
+                options.DefaultCulture = new CultureInfo("en");
+                options.CultureMappings[new CultureInfo("en-US")] = options.DefaultCulture;
+                options.CultureMappings[new CultureInfo("de-AT")] = new CultureInfo("de");
+                options.CultureMappings[new CultureInfo("de-DE")] = new CultureInfo("de");
+                options.CultureMappings[new CultureInfo("de-CH")] = new CultureInfo("en");
+                options.CultureMappings[new CultureInfo("de")] = new CultureInfo("de");
             });
             services.AddScoped<HeaderViewModel>();
             services.AddControllersWithViews();
@@ -22,8 +27,21 @@ namespace Saxx.Storyblok.Example
 
         public void Configure(IApplicationBuilder app)
         {
-            // on top, so that the error messages are localized, too
-            app.UseStoryblokRequestLocalization();
+            var supportedCultures = new[]
+            {
+                new CultureInfo("en"), 
+                new CultureInfo("en-US"), 
+                new CultureInfo("de-AT"), 
+                new CultureInfo("de-DE"),
+                new CultureInfo("de-CH"),
+                new CultureInfo("de"),
+            };
+            app.UseRequestLocalization(options =>
+            {
+                options.DefaultRequestCulture = new RequestCulture(supportedCultures[0].Name, supportedCultures[0].Name);
+                options.SupportedCultures = supportedCultures;
+                options.SupportedUICultures = supportedCultures;
+            });
 
             // these error pages are also stories on Storyblok
             app.UseExceptionHandler("/error/500");

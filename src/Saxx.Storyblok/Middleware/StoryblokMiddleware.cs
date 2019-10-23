@@ -36,13 +36,6 @@ namespace Saxx.Storyblok.Middleware
                 throw new Exception("No slug available.");
             }
 
-            if (settings.IgnoreSlugs != null && settings.IgnoreSlugs.Any(x => slug.Equals(x, StringComparison.InvariantCultureIgnoreCase))
-            {
-                // don't handle this slug in the middleware
-                await _next.Invoke(context);
-                return;
-            }
-
             if (!string.IsNullOrWhiteSpace(settings.HandleRootWithSlug) && slug.Equals("/", StringComparison.InvariantCultureIgnoreCase))
             {
                 slug = settings.HandleRootWithSlug;
@@ -50,6 +43,14 @@ namespace Saxx.Storyblok.Middleware
             else if (slug.Equals("/", StringComparison.InvariantCultureIgnoreCase))
             {
                 // we are on the root path, and we shouldn't handle it - so we bail out
+                await _next.Invoke(context);
+                return;
+            }
+
+            slug = slug.Trim('/');
+            if (settings.IgnoreSlugs != null && settings.IgnoreSlugs.Any(x => slug.Equals(x.Trim('/'), StringComparison.InvariantCultureIgnoreCase)))
+            {
+                // don't handle this slug in the middleware
                 await _next.Invoke(context);
                 return;
             }

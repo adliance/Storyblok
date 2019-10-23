@@ -55,6 +55,12 @@ namespace Saxx.Storyblok.Settings
         /// If this value is not empty, than a call to the root ~/ will be handled with the specified slug.
         /// </summary>
         public string HandleRootWithSlug { get; set; }
+
+        /// <summary>
+        /// All story slugs defined here will not be automatically mapped in the middleware.
+        /// Use this setting if you have a controller action with the same name as a story, but don't want to story rendered automatically but the controller action.
+        /// </summary>
+        public IList<string> IgnoreSlugs  { get; set; } = new List<string>();
         
         /// <summary>
         /// The cultures (languages) supported by the Storyblok workspace, for example: "en,de"

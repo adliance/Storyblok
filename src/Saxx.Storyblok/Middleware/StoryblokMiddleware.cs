@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
@@ -33,6 +34,13 @@ namespace Saxx.Storyblok.Middleware
             if (string.IsNullOrWhiteSpace(slug))
             {
                 throw new Exception("No slug available.");
+            }
+
+            if (settings.IgnoreSlugs != null && settings.IgnoreSlugs.Any(x => slug.Equals(x, StringComparison.InvariantCultureIgnoreCase))
+            {
+                // don't handle this slug in the middleware
+                await _next.Invoke(context);
+                return;
             }
 
             if (!string.IsNullOrWhiteSpace(settings.HandleRootWithSlug) && slug.Equals("/", StringComparison.InvariantCultureIgnoreCase))

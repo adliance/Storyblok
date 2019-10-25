@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Saxx.Storyblok.Extensions;
 using Saxx.Storyblok.Settings;
@@ -16,6 +17,7 @@ namespace Saxx.Storyblok
     public class StoryblokClient
     {
         private readonly IMemoryCache _memoryCache;
+        private readonly ILogger<StoryblokClient> _logger;
         private readonly HttpClient _client;
         private readonly bool _isInEditor;
         private readonly string _apiKey;
@@ -24,10 +26,11 @@ namespace Saxx.Storyblok
         private readonly IDictionary<CultureInfo, CultureInfo> _cultureMappings;
         private readonly CultureInfo _defaultCulture;
 
-        public StoryblokClient(StoryblokSettings settings, IHttpClientFactory clientFactory, IHttpContextAccessor httpContext, IMemoryCache memoryCache)
+        public StoryblokClient(StoryblokSettings settings, IHttpClientFactory clientFactory, IHttpContextAccessor httpContext, IMemoryCache memoryCache, ILogger<StoryblokClient> logger)
         {
             _client = clientFactory.CreateClient();
             _memoryCache = memoryCache;
+            _logger = logger;
             _isInEditor = httpContext?.HttpContext?.Request?.Query?.IsInStoryblokEditor(settings) ?? false;
 
             ValidateSettings(settings);
@@ -64,17 +67,20 @@ namespace Saxx.Storyblok
             var cacheKey = $"stories_{startsWith}_{excludingFields}";
             if (_memoryCache.TryGetValue(cacheKey, out IEnumerable<StoryblokStory> cachedStories))
             {
+                _logger.LogTrace($"Using cached stories for \"{startsWith}\".");
                 return cachedStories;
             }
 
             var url = $"{_baseUrl}/stories?token={_apiKey}&starts_with={startsWith}&excluding_fields={excludingFields}";
             url += $"&cb={DateTime.UtcNow:yyyyMMddHHmmss}";
 
+            _logger.LogTrace($"Trying to load stories for \"{startsWith}\".");
             var response = await _client.GetAsync(url);
             response.EnsureSuccessStatusCode();
             var responseString = await response.Content.ReadAsStringAsync();
             var stories = JsonConvert.DeserializeObject<StoryblokStoriesContainer>(responseString);
 
+            _logger.LogTrace($"Stories loaded for \"{startsWith}\".");
             foreach (var s in stories.Stories)
             {
                 s.LoadedAt = DateTime.UtcNow;
@@ -93,22 +99,27 @@ namespace Saxx.Storyblok
             var cacheKey = $"{culture}_{slug}";
             if (_memoryCache.TryGetValue(cacheKey, out StoryblokStory cachedStory))
             {
+                _logger.LogTrace($"Using cached story for slug \"{slug}\" (culture {culture}).");
                 return cachedStory;
             }
 
             var cacheKeyUnavailable = "404_" + cacheKey;
             if (_memoryCache.TryGetValue(cacheKeyUnavailable, out _))
             {
+                _logger.LogTrace($"Using cached 404 for slug \"{slug}\" (culture {culture}).");
                 return null;
             }
 
+            _logger.LogTrace($"Trying to load story for slug \"{slug}\" (culture {culture}).");
             var story = await LoadStoryFromStoryblok(culture, slug);
             if (story != null)
             {
+                _logger.LogTrace($"Story loaded for slug \"{slug}\" (culture {culture}).");
                 _memoryCache.Set(cacheKey, story, TimeSpan.FromSeconds(_cacheDuration));
                 return story;
             }
 
+            _logger.LogTrace($"Story not found for slug \"{slug}\" (culture {culture}).");
             _memoryCache.Set(cacheKeyUnavailable, true, TimeSpan.FromSeconds(_cacheDuration));
             return null;
         }

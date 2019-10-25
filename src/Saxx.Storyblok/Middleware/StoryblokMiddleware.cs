@@ -4,7 +4,6 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
@@ -28,31 +27,48 @@ namespace Saxx.Storyblok.Middleware
             _next = next;
         }
 
-        public async Task Invoke(HttpContext context, StoryblokClient storyblokClient, StoryblokSettings settings, IUrlHelperFactory urlHelperFactory)
+        public async Task Invoke(HttpContext context, StoryblokClient storyblokClient, StoryblokSettings settings, IUrlHelperFactory urlHelperFactory, ILogger<StoryblokMiddleware> logger)
         {
             var slug = context.Request.Path.ToString();
             if (string.IsNullOrWhiteSpace(slug))
             {
-                throw new Exception("No slug available.");
+                logger.LogTrace("Ignoring request, because no slug available.");
+                await _next.Invoke(context);
+                return;
             }
 
             if (!string.IsNullOrWhiteSpace(settings.HandleRootWithSlug) && slug.Equals("/", StringComparison.InvariantCultureIgnoreCase))
             {
+                logger.LogTrace($"Swapping slug from \"{slug}\" to \"{settings.HandleRootWithSlug}\", because it's the root URL.");
                 slug = settings.HandleRootWithSlug;
             }
             else if (slug.Equals("/", StringComparison.InvariantCultureIgnoreCase))
             {
                 // we are on the root path, and we shouldn't handle it - so we bail out
+                logger.LogTrace("Ignoring request, because it's the root URL which is configured to be ignored.");
                 await _next.Invoke(context);
                 return;
             }
 
             slug = slug.Trim('/');
-            if (settings.IgnoreSlugs != null && settings.IgnoreSlugs.Any(x => slug.Equals(x.Trim('/'), StringComparison.InvariantCultureIgnoreCase)))
+
+
+            if (settings.IgnoreSlugs != null)
             {
-                // don't handle this slug in the middleware
-                await _next.Invoke(context);
-                return;
+                if (settings.IgnoreSlugs.Any(x => slug.Equals(x.Trim('/'), StringComparison.InvariantCultureIgnoreCase)))
+                {
+                    // don't handle this slug in the middleware, because exact match of URL
+                    logger.LogTrace("Ignoring request, because it's configured to be ignored (exact match).");
+                    await _next.Invoke(context);
+                    return;
+                }
+                if (settings.IgnoreSlugs.Any(x => x.EndsWith("*", StringComparison.InvariantCultureIgnoreCase) && slug.StartsWith(x.Trim('/'), StringComparison.InvariantCultureIgnoreCase)))
+                {
+                    // don't handle this slug in the middleware, because the configuration ends with a *, which means we compare via StartsWith
+                    logger.LogTrace("Ignoring request, because it's configured to be ignored (partial match).");
+                    await _next.Invoke(context);
+                    return;
+                }
             }
 
             StoryblokStory story = null;
@@ -64,8 +80,10 @@ namespace Saxx.Storyblok.Middleware
             {
                 if (slug.StartsWith($"/{cultureMapping.Value}/"))
                 {
+                    var slugWithoutCulture = slug.Substring(cultureMapping.Value.ToString().Length + 2);
+                    logger.LogTrace($"Trying to load story for slug \"{slugWithoutCulture}\" for culture {cultureMapping.Value}.");
                     CultureInfo.CurrentUICulture = CultureInfo.CurrentCulture = cultureMapping.Value;
-                    story = await storyblokClient.LoadStory(cultureMapping.Value, slug.Substring(cultureMapping.Value.ToString().Length + 2));
+                    story = await storyblokClient.LoadStory(cultureMapping.Value, slugWithoutCulture);
                     break;
                 }
             }
@@ -75,6 +93,7 @@ namespace Saxx.Storyblok.Middleware
             if (story == null && context.Request.Query.IsInStoryblokEditor(settings))
             {
                 var defaultCulture = settings.DefaultCulture ?? CultureInfo.CurrentUICulture;
+                logger.LogTrace($"Trying to load story for slug \"{slug}\" for culture {defaultCulture}.");
                 CultureInfo.CurrentUICulture = CultureInfo.CurrentCulture = defaultCulture;
                 story = await storyblokClient.LoadStory(defaultCulture, slug);
             }
@@ -82,12 +101,14 @@ namespace Saxx.Storyblok.Middleware
             // load the story with the current culture (usually set by request localization
             if (story == null)
             {
+                logger.LogTrace($"Trying to load story for slug \"{slug}\" for culture {CultureInfo.CurrentUICulture}.");
                 story = await storyblokClient.LoadStory(CultureInfo.CurrentUICulture, slug);
             }
 
             // that's not a story, lets continue down the middleware chain
             if (story == null)
             {
+                logger.LogTrace("Ignoring request, because no matching story found.");
                 await _next.Invoke(context);
                 return;
             }
@@ -106,6 +127,7 @@ namespace Saxx.Storyblok.Middleware
             }
 
             // we have a story, yay! Lets render it and stop with the middleware chain
+            logger.LogTrace($"Rendering slug \"{slug}\" with view \"{componentMapping.View}\".");
             var result = new ViewResult { ViewName = componentMapping.View };
             var modelMetadata = new EmptyModelMetadataProvider();
             result.ViewData = new ViewDataDictionary(modelMetadata, new ModelStateDictionary())

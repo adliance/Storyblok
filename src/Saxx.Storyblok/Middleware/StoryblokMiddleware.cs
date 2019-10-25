@@ -58,14 +58,14 @@ namespace Saxx.Storyblok.Middleware
                 if (settings.IgnoreSlugs.Any(x => slug.Equals(x.Trim('/'), StringComparison.InvariantCultureIgnoreCase)))
                 {
                     // don't handle this slug in the middleware, because exact match of URL
-                    logger.LogTrace("Ignoring request, because it's configured to be ignored (exact match).");
+                    logger.LogTrace($"Ignoring request \"{slug}\", because it's configured to be ignored (exact match).");
                     await _next.Invoke(context);
                     return;
                 }
-                if (settings.IgnoreSlugs.Any(x => x.EndsWith("*", StringComparison.InvariantCultureIgnoreCase) && slug.StartsWith(x.Trim('/'), StringComparison.InvariantCultureIgnoreCase)))
+                if (settings.IgnoreSlugs.Any(x => x.EndsWith("*", StringComparison.InvariantCultureIgnoreCase) && slug.StartsWith(x.TrimEnd('*').Trim('/'), StringComparison.InvariantCultureIgnoreCase)))
                 {
                     // don't handle this slug in the middleware, because the configuration ends with a *, which means we compare via StartsWith
-                    logger.LogTrace("Ignoring request, because it's configured to be ignored (partial match).");
+                    logger.LogTrace($"Ignoring request \"{slug}\", because it's configured to be ignored (partial match).");
                     await _next.Invoke(context);
                     return;
                 }

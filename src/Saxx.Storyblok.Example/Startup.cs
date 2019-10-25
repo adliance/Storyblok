@@ -20,6 +20,7 @@ namespace Saxx.Storyblok.Example
                 options.CultureMappings[new CultureInfo("de-DE")] = new CultureInfo("de");
                 options.CultureMappings[new CultureInfo("de-CH")] = new CultureInfo("en");
                 options.CultureMappings[new CultureInfo("de")] = new CultureInfo("de");
+                options.IgnoreSlugs.Add("blog/*");
             });
             services.AddScoped<HeaderViewModel>();
             services.AddControllersWithViews();

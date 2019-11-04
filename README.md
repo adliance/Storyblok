@@ -1,19 +1,19 @@
 # Saxx.Storyblok
 
-`Saxx.Storyblok` is a client to the [Storyblok](https://www.Storyblok.com) API written in C# that enables easy and typed access to stories and components stored in the Storyblok headless CMS.
+`Saxx.Storyblok` is a client to the [Storyblok](https://www.Storyblok.com) API written in C# that enables easy and strongly typed access to stories and components stored in the Storyblok headless CMS.
 
 It also provides an ASP.NET Core middleware to directly render render stories into views based on their Storyblok slug.
 
 [![Build Status](https://dev.azure.com/hannessachsenhofer/Saxx.Storyblok/_apis/build/status/saxx.Saxx.Storyblok?branchName=master)](https://dev.azure.com/hannessachsenhofer/Saxx.Storyblok/_build/latest?definitionId=1&branchName=master)
 [![NuGet Badge](https://buildstats.info/nuget/Saxx.Storyblok)](https://www.nuget.org/packages/Saxx.Storyblok/)
 
-## Main features
+## Features
 - "Drop in" middleware to automatically render any story on Storyblok
 - Use strongly typed representations of your stories and components in your C# code
 - Automatic in-memory caching of fetched stories for faster response times
 - Full support for internationalization based on Storybloks support for multiple languages
 - Full support for the integrated preview in the Storyblok editor
-- A set of "common components" that can be used optionally by using the `Saxx.Storyblok.Components` NuGet package
+- A set of "common components" (eg. markdown text field) that can be used optionally by using the `Saxx.Storyblok.Components` NuGet package
 
 ## Getting started
 Add the Nuget package to your ASP.NET Core website:
@@ -69,18 +69,20 @@ public void Configure(IApplicationBuilder app)
 ```
 
 You can also set the configuration options using the `appsettings.json` file:
-```csharp
+```json
+{
   "Storyblok": {
     "api_key_public": "<a_storyblok_public_key>",
     "api_key_preview": "<a_storyblok_preview_key>"
   }
+}
 ```
-Now if you create a story `this-is/my-story` in Storyblok and call the path `~/this-is/my-story` on your website, the story will automatically be rendered and returned as a view.
+Now if you create a story `this-is/my-story` in Storyblok and call the path `~/this-is/my-story` on your website, the story will automatically be fetched, rendered and returned as a view.
 
 Please see the [example website](https://github.com/saxx/Saxx.Storyblok/tree/master/src/Saxx.Storyblok.Example) for a full live example of all features and configuration options.
 
-## Add your own components
-Each component in Storyblok can be represented by a C# class. Add the attribute `[StoryblokComponent]` to the class so that `Saxx.Storyblok` recognizes it.
+## Add your components
+Each component in Storyblok is represented by a C# class. Add the attribute `[StoryblokComponent]` to the class so that `Saxx.Storyblok` recognizes it.
 The JSON response from Storyblok will be deserialized into this class, so use `[JsonProperty]` to specify the proper attribute names, for example:
 ```csharp
 [StoryblokComponent("teaser")] // "teaser" is the name of the component in Storyblok
@@ -94,7 +96,7 @@ This makes sure that all your components are strongly typed in your C# code.
 Next, add a display template for your class to specify the HTML for your component.
 For our example above, create a file `/Views/Shared/DisplayTemplates/Teaser.cshtml` which could look like as simple as:
 ```razor
-@model Saxx.Storyblok.Example.Components.Teaser
+@model Teaser
 
 <h1>@Model.Headline</h1>
 ```
@@ -109,14 +111,19 @@ var myStory = await _storyblok.LoadStory(CultureInfo.CurrentUICulture, "/this-is
 ```
 Don't forget to create C# classes to represent your components and decorate them with `[StoryblokComponent]`, so that the C# API knows how to deserialize the response from Storyblok.
 
+For example, you could use the fetched Story as a ViewModel for your views and use `@Html.DisplayFor` to render it:
+```razor
+@Html.DisplayFor(x => Model.Content)
+```
+
 ## Enable support for preview in Storyblok editor
-Storyblok requires a little JavaScript to enable its integrated preview. Just add this to you `_Layout.cshtml` to automatically add the required JavaScript.
+Storyblok requires a little JavaScript to enable the integrated preview in its editor. Add this to you `_Layout.cshtml` to automatically add the required JavaScript to your website just before the closing `</body>` tag:
 ```razor
 @Html.StoryblokEditorScript()
 ```
 Please note that the the JavaScript will only be injected if you're actually in the Storyblok editor.
 
-
+## More
 Please see the [example website](https://github.com/saxx/Saxx.Storyblok/tree/master/src/Saxx.Storyblok.Example) for a full live example of all features and configuration options.
 You can also check out a [live (hosted) version](Please see the [example website](https://github.com/saxx/Saxx.Storyblok/tree/master/src/Saxx.Storyblok.Example) for a full live example of all features and configuration options.
 ) of the example website.

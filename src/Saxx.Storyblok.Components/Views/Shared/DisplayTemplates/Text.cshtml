@@ -1,4 +1,9 @@
 ﻿@using Markdig
 @model Saxx.Storyblok.Components.Text
 
-@Html.Raw(Markdown.ToHtml(Model.Content))
+@{
+    var pipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
+    var content = Markdown.ToHtml(Model.Content, pipeline);
+}
+
+@Html.Raw(content)

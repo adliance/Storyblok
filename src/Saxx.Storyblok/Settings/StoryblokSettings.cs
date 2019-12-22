@@ -30,7 +30,7 @@ namespace Saxx.Storyblok.Settings
             {
                 ApiKeyPublic = section["api_key_public"];
             }
-            
+
             if (!string.IsNullOrWhiteSpace(section["include_draft_stories"]) && bool.TryParse(section["include_draft_stories"], out var b))
             {
                 IncludeDraftStories = b;
@@ -45,6 +45,11 @@ namespace Saxx.Storyblok.Settings
             {
                 HandleRootWithSlug = section["handle_root_with_slug"];
             }
+            
+            if (!string.IsNullOrWhiteSpace(section["slug_for_healthcheck"]))
+            {
+                SlugForHealthCheck = section["slug_for_healthcheck"];
+            }
         }
 
         public string ApiKeyPreview { get; set; }
@@ -55,8 +60,8 @@ namespace Saxx.Storyblok.Settings
         /// <summary>
         /// The duration (in seconds) that all loaded stories will be cached locally.
         /// </summary>
-        public int CacheDurationSeconds { get; set; } = 60;
-        
+        public int CacheDurationSeconds { get; set; } = 60 * 5;
+
         /// <summary>
         /// If this value is not empty, than a call to the root ~/ will be handled with the specified slug.
         /// </summary>
@@ -66,13 +71,19 @@ namespace Saxx.Storyblok.Settings
         /// All story slugs defined here will not be automatically mapped in the middleware.
         /// Use this setting if you have a controller action with the same name as a story, but don't want to story rendered automatically but the controller action.
         /// </summary>
-        public IList<string> IgnoreSlugs  { get; set; } = new List<string>();
-        
+        public IList<string> IgnoreSlugs { get; set; } = new List<string>();
+
         /// <summary>
         /// The cultures (languages) supported by the Storyblok workspace, for example: "en,de"
         /// The first culture in the list is the default culture.
         /// </summary>
         public IDictionary<CultureInfo, CultureInfo> CultureMappings { get; set; } = new Dictionary<CultureInfo, CultureInfo>();
+
         public CultureInfo DefaultCulture { get; set; }
+
+        /// <summary>
+        /// This is the slug that will be loaded from Storyblok as part of the health check middleware.
+        /// </summary>
+        public string SlugForHealthCheck { get; set; } = "home";
     }
 }

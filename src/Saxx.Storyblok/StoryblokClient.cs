@@ -75,7 +75,7 @@ namespace Saxx.Storyblok
         {
             return new StoryblokStoriesQuery(this);
         }
-        
+
         public StoryblokStoryQuery Story()
         {
             return new StoryblokStoryQuery(this);
@@ -135,35 +135,40 @@ namespace Saxx.Storyblok
 
         internal async Task<StoryblokStory> LoadStory(CultureInfo culture, string slug)
         {
+            if (culture == null)
+            {
+                culture = _defaultCulture;
+            }
+            
             if (_isInEditor)
             {
                 return await LoadStoryFromStoryblok(culture, slug);
             }
-
+            
             var cacheKey = $"{culture}_{slug}";
             if (_memoryCache.TryGetValue(cacheKey, out StoryblokStory cachedStory))
             {
-                _logger.LogTrace($"Using cached story for slug \"{slug}\" (culture {culture}).");
+                _logger.LogTrace($"Using cached story for slug \"{slug}\" (culture \"{culture}\").");
                 return cachedStory;
             }
 
             var cacheKeyUnavailable = "404_" + cacheKey;
             if (_memoryCache.TryGetValue(cacheKeyUnavailable, out _))
             {
-                _logger.LogTrace($"Using cached 404 for slug \"{slug}\" (culture {culture}).");
+                _logger.LogTrace($"Using cached 404 for slug \"{slug}\" (culture \"{culture}\").");
                 return null;
             }
 
-            _logger.LogTrace($"Trying to load story for slug \"{slug}\" (culture {culture}).");
+            _logger.LogTrace($"Trying to load story for slug \"{slug}\" (culture \"{culture}\").");
             var story = await LoadStoryFromStoryblok(culture, slug);
             if (story != null)
             {
-                _logger.LogTrace($"Story loaded for slug \"{slug}\" (culture {culture}).");
+                _logger.LogTrace($"Story loaded for slug \"{slug}\" (culture \"{culture}\").");
                 _memoryCache.Set(cacheKey, story, TimeSpan.FromSeconds(_cacheDuration));
                 return story;
             }
 
-            _logger.LogTrace($"Story not found for slug \"{slug}\" (culture {culture}).");
+            _logger.LogTrace($"Story not found for slug \"{slug}\" (culture \"{culture}\").");
             _memoryCache.Set(cacheKeyUnavailable, true, TimeSpan.FromSeconds(_cacheDuration));
             return null;
         }
@@ -171,7 +176,8 @@ namespace Saxx.Storyblok
         private async Task<StoryblokStory> LoadStoryFromStoryblok(CultureInfo culture, string slug)
         {
             var language = _defaultCulture;
-            if (_cultureMappings.ContainsKey(culture))
+
+            if (culture != null && _cultureMappings.ContainsKey(culture))
             {
                 language = _cultureMappings[culture];
             }

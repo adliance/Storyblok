@@ -24,6 +24,7 @@ namespace Saxx.Storyblok.Example
             });
             services.AddScoped<HeaderViewModel>();
             services.AddControllersWithViews();
+            services.AddHealthChecks().AddStoryblok();
         }
 
         public void Configure(IApplicationBuilder app)
@@ -59,6 +60,7 @@ namespace Saxx.Storyblok.Example
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapDefaultControllerRoute();
+                endpoints.MapHealthChecks("health");
             });
         }
     }

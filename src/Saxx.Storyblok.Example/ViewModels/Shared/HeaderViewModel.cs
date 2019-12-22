@@ -13,7 +13,7 @@ namespace Saxx.Storyblok.Example.ViewModels.Shared
                 .StartingWith("")
                 .ExcludingFields("body", "title", "description", "keywords")
                 .Having("menu_title", FilterOperation.NotIn, "")
-                .Load<Page>().GetAwaiter().GetResult();
+                .Load<PageComponent>().GetAwaiter().GetResult();
 
             var storiesForNavigation = new List<NavigationItem>();
             foreach (var minimalStory in pages)
@@ -25,8 +25,8 @@ namespace Saxx.Storyblok.Example.ViewModels.Shared
                     storiesForNavigation.Add(new NavigationItem
                     {
                         FullSlug = story.FullSlug,
-                        Title = ((Page) story.Content).MenuTitle,
-                        Order = ((Page) story.Content).MenuOrder
+                        Title = ((PageComponent) story.Content).MenuTitle,
+                        Order = ((PageComponent) story.Content).MenuOrder
                     });
                 }
             }

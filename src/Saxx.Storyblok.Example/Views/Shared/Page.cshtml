@@ -1,12 +1,12 @@
-﻿@using Saxx.Storyblok.Components
+﻿@using Saxx.Storyblok.Example.Components
 @model Saxx.Storyblok.StoryblokStory
 
 @{
-    var page = (Page) Model.Content;
+    var page = (PageComponent) Model.Content;
 
     ViewData["Title"] = page.Title;
     ViewData["Description"] = page.Description;
     ViewData["Keywords"] = page.Keywords;
 }
 
-@Html.DisplayFor(x => page)
+@Html.DisplayFor(x => page.Body)

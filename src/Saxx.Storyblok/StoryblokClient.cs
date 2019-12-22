@@ -213,6 +213,7 @@ namespace Saxx.Storyblok
                 options.Converters.Add(new StoryblokNullableDateConverter());
                 options.Converters.Add(new StoryblokIntConverter());
                 options.Converters.Add(new StoryblokNullableIntConverter());
+                options.Converters.Add(new StoryblokMarkdownConverter());
                 return options;
             }
         }

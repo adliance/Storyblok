@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Saxx.Storyblok.Components\Saxx.Storyblok.Components.csproj" />
+    <ProjectReference Include="..\Saxx.Storyblok\Saxx.Storyblok.csproj" />
   </ItemGroup>
   
 </Project>

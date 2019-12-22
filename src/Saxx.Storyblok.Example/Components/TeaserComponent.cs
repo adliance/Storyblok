@@ -4,7 +4,7 @@ using Saxx.Storyblok.Attributes;
 namespace Saxx.Storyblok.Example.Components
 {
     [StoryblokComponent("teaser")]
-    public class Teaser : StoryblokComponent
+    public class TeaserComponent : StoryblokComponent
     {
         [JsonPropertyName("headline")] public string Headline { get; set; }
     }

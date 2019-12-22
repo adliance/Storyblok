@@ -48,14 +48,6 @@ steps:
     arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)'
     versioningScheme: byBuildNumber
 
-- task: DotNetCoreCLI@2
-  displayName: Pack Saxx.Storyblok.Components NuGet package
-  inputs:
-    command: pack
-    packagesToPack: 'src/Saxx.Storyblok.Components/*.csproj'
-    arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)'
-    versioningScheme: byBuildNumber
-
 - task: NuGetCommand@2
   displayName: Push to public NuGet
   inputs:

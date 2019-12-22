@@ -30,6 +30,11 @@ namespace Saxx.Storyblok.Settings
             {
                 ApiKeyPublic = section["api_key_public"];
             }
+            
+            if (!string.IsNullOrWhiteSpace(section["include_draft_stories"]) && bool.TryParse(section["include_draft_stories"], out var b))
+            {
+                IncludeDraftStories = b;
+            }
 
             if (!string.IsNullOrWhiteSpace(section["cache_duration_seconds"]))
             {
@@ -44,6 +49,7 @@ namespace Saxx.Storyblok.Settings
 
         public string ApiKeyPreview { get; set; }
         public string ApiKeyPublic { get; set; }
+        public bool IncludeDraftStories { get; set; }
         public string BaseUrl { get; set; } = "https://api.storyblok.com/v1/cdn";
 
         /// <summary>

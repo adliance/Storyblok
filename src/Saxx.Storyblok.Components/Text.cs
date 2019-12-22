@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 using Saxx.Storyblok.Attributes;
 
 namespace Saxx.Storyblok.Components
@@ -6,6 +6,6 @@ namespace Saxx.Storyblok.Components
     [StoryblokComponent("text")]
     public class Text : StoryblokComponent
     {
-        [JsonProperty("content")] public string Content { get; set; }
+        [JsonPropertyName("content")] public string Content { get; set; }
     }
 }

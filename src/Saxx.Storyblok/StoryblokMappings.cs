@@ -16,17 +16,26 @@ namespace Saxx.Storyblok
                 if (_mappingsCache == null)
                 {
                     var components = from a in AppDomain.CurrentDomain.GetAssemblies()
-                                     from t in a.GetTypes()
-                                     let attributes = t.GetCustomAttributes(typeof(StoryblokComponentAttribute), true)
-                                     where attributes != null && attributes.Length > 0
-                                     select new { Type = t, Attribute = attributes.Cast<StoryblokComponentAttribute>().First() };
+                        from t in a.GetTypes()
+                        let attributes = t.GetCustomAttributes(typeof(StoryblokComponentAttribute), true)
+                        where attributes != null && attributes.Length > 0
+                        select new {Type = t, Attribute = attributes.Cast<StoryblokComponentAttribute>().First()};
 
-                    _mappingsCache = components.ToDictionary(x => x.Attribute.Name, x => new Mapping
+                    _mappingsCache = new Dictionary<string, Mapping>();
+                    foreach (var c in components)
                     {
-                        Type = x.Type,
-                        ComponentName = x.Attribute.Name,
-                        View = x.Attribute.View
-                    });
+                        if (_mappingsCache.ContainsKey(c.Attribute.Name))
+                        {
+                            continue;
+                        }
+                        
+                        _mappingsCache[c.Attribute.Name] = new Mapping
+                        {
+                            Type = c.Type,
+                            ComponentName = c.Attribute.Name,
+                            View = c.Attribute.View
+                        };
+                    }
                 }
 
                 return _mappingsCache;
@@ -35,6 +44,7 @@ namespace Saxx.Storyblok
 
         public class Mapping
         {
+            // ReSharper disable once UnusedAutoPropertyAccessor.Global
             public string ComponentName { get; set; }
             public Type Type { get; set; }
             public string View { get; set; }

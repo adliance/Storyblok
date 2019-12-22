@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using Saxx.Storyblok.Components;
+using Saxx.Storyblok.Example.Components;
 
 namespace Saxx.Storyblok.Example.ViewModels.Shared
 {
@@ -9,24 +9,25 @@ namespace Saxx.Storyblok.Example.ViewModels.Shared
     {
         public HeaderViewModel(StoryblokClient storyblokClient)
         {
-            var minimalStories = storyblokClient.LoadStories("", "body,title,description,keywords").GetAwaiter().GetResult();
+            var pages = storyblokClient.Stories()
+                .StartingWith("")
+                .ExcludingFields("body", "title", "description", "keywords")
+                .Having("menu_title", FilterOperation.NotIn, "")
+                .Load<Page>().GetAwaiter().GetResult();
 
             var storiesForNavigation = new List<NavigationItem>();
-            foreach (var minimalStory in minimalStories)
+            foreach (var minimalStory in pages)
             {
-                if (minimalStory.Content is Page page)
+                if (!string.IsNullOrWhiteSpace(minimalStory.Content.MenuTitle))
                 {
-                    if (!string.IsNullOrWhiteSpace(page.MenuTitle))
+                    var story = storyblokClient.Story().WithCulture(CultureInfo.CurrentUICulture).WithSlug(minimalStory.FullSlug).Load().GetAwaiter().GetResult();
+
+                    storiesForNavigation.Add(new NavigationItem
                     {
-                        var story = storyblokClient.LoadStory(CultureInfo.CurrentUICulture, minimalStory.FullSlug).GetAwaiter().GetResult();
-                        
-                        storiesForNavigation.Add(new NavigationItem
-                        {
-                            FullSlug = story.FullSlug,
-                            Title = ((Page)story.Content).MenuTitle,
-                            Order = ((Page)story.Content).MenuOrder ?? 0
-                        });
-                    }
+                        FullSlug = story.FullSlug,
+                        Title = ((Page) story.Content).MenuTitle,
+                        Order = ((Page) story.Content).MenuOrder
+                    });
                 }
             }
 

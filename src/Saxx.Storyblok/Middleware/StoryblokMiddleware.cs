@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,6 +17,7 @@ using Saxx.Storyblok.Settings;
 
 namespace Saxx.Storyblok.Middleware
 {
+    // ReSharper disable once ClassNeverInstantiated.Global
     public class StoryblokMiddleware
     {
         private readonly RequestDelegate _next;
@@ -27,7 +27,7 @@ namespace Saxx.Storyblok.Middleware
             _next = next;
         }
 
-        public async Task Invoke(HttpContext context, StoryblokClient storyblokClient, StoryblokSettings settings, IUrlHelperFactory urlHelperFactory, ILogger<StoryblokMiddleware> logger)
+        public async Task Invoke(HttpContext context, StoryblokClient storyblokClient, StoryblokSettings settings, ILogger<StoryblokMiddleware> logger)
         {
             var slug = context.Request.Path.ToString();
             if (string.IsNullOrWhiteSpace(slug))
@@ -83,7 +83,7 @@ namespace Saxx.Storyblok.Middleware
                     var slugWithoutCulture = slug.Substring(cultureMapping.Value.ToString().Length + 2);
                     logger.LogTrace($"Trying to load story for slug \"{slugWithoutCulture}\" for culture {cultureMapping.Value}.");
                     CultureInfo.CurrentUICulture = CultureInfo.CurrentCulture = cultureMapping.Value;
-                    story = await storyblokClient.LoadStory(cultureMapping.Value, slugWithoutCulture);
+                    story = await storyblokClient.Story().WithCulture(cultureMapping.Value).WithSlug(slugWithoutCulture).Load();
                     break;
                 }
             }
@@ -93,16 +93,14 @@ namespace Saxx.Storyblok.Middleware
             if (story == null && context.Request.Query.IsInStoryblokEditor(settings))
             {
                 var defaultCulture = settings.DefaultCulture ?? CultureInfo.CurrentUICulture;
-                logger.LogTrace($"Trying to load story for slug \"{slug}\" for culture {defaultCulture}.");
                 CultureInfo.CurrentUICulture = CultureInfo.CurrentCulture = defaultCulture;
-                story = await storyblokClient.LoadStory(defaultCulture, slug);
+                story = await storyblokClient.Story().WithCulture(defaultCulture).WithSlug(slug).Load();
             }
 
             // load the story with the current culture (usually set by request localization
             if (story == null)
             {
-                logger.LogTrace($"Trying to load story for slug \"{slug}\" for culture {CultureInfo.CurrentUICulture}.");
-                story = await storyblokClient.LoadStory(CultureInfo.CurrentUICulture, slug);
+                story = await storyblokClient.Story().WithCulture(CultureInfo.CurrentUICulture).WithSlug(slug).Load();
             }
 
             // that's not a story, lets continue down the middleware chain
@@ -134,13 +132,13 @@ namespace Saxx.Storyblok.Middleware
             {
                 Model = story
             };
-            await WriteResultAsync(context, result, urlHelperFactory);
+            await WriteResultAsync(context, result);
         }
 
         private static readonly RouteData EmptyRouteData = new RouteData();
         private static readonly ActionDescriptor EmptyActionDescriptor = new ActionDescriptor();
 
-        public static Task WriteResultAsync<TResult>(HttpContext context, TResult result, IUrlHelperFactory urlHelperFactory) where TResult : IActionResult
+        private static Task WriteResultAsync<TResult>(HttpContext context, TResult result) where TResult : IActionResult
         {
             if (context == null)
             {

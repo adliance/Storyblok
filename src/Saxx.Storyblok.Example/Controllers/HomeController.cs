@@ -15,7 +15,7 @@ namespace Saxx.Storyblok.Example.Controllers
         [HttpGet("/stories")]
         public async Task<IActionResult> Stories()
         {
-            var stories = await _storyblokClient.LoadStories("");
+            var stories = await _storyblokClient.Stories().StartingWith("").Load();
             return View(stories);
         }
     }

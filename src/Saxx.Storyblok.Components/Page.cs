@@ -1,17 +1,14 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 using Saxx.Storyblok.Attributes;
 
 namespace Saxx.Storyblok.Components
 {
-    [StoryblokComponent("page", "Story")]
+    [StoryblokComponent("page", "Page")]
     public class Page : StoryblokComponent
     {
-        [JsonProperty("title")] public string Title { get; set; }
-        [JsonProperty("description")] public string Description { get; set; }
-        [JsonProperty("keywords")] public string Keywords { get; set; }
-        [JsonProperty("body")] public StoryblokComponent[] Body { get; set; }
-
-        [JsonProperty("menu_title")] public string MenuTitle { get; set; }
-        [JsonProperty("menu_order")] public int? MenuOrder { get; set; }
+        [JsonPropertyName("title")] public string Title { get; set; }
+        [JsonPropertyName("description")] public string Description { get; set; }
+        [JsonPropertyName("keywords")] public string Keywords { get; set; }
+        [JsonPropertyName("body")] public StoryblokComponent[] Body { get; set; }
     }
 }

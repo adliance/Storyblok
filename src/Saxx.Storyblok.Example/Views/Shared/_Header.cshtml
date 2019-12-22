@@ -6,7 +6,7 @@
     @foreach (var story in HeaderViewModel.StoriesForNavigation)
     {
         <text>
-            <a href="@story.FullSlug">@story.Title</a> |
+            <a href="/@story.FullSlug">@story.Title</a> |
         </text>
     }
     <a asp-action="Stories" asp-controller="Home">Overview of all stories</a>

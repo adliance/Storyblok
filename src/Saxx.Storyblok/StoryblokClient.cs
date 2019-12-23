@@ -139,12 +139,12 @@ namespace Saxx.Storyblok
             {
                 culture = _defaultCulture;
             }
-            
+
             if (_isInEditor)
             {
                 return await LoadStoryFromStoryblok(culture, slug);
             }
-            
+
             var cacheKey = $"{culture}_{slug}";
             if (_memoryCache.TryGetValue(cacheKey, out StoryblokStory cachedStory))
             {
@@ -171,6 +171,25 @@ namespace Saxx.Storyblok
             _logger.LogTrace($"Story not found for slug \"{slug}\" (culture \"{culture}\").");
             _memoryCache.Set(cacheKeyUnavailable, true, TimeSpan.FromSeconds(_cacheDuration));
             return null;
+        }
+
+        public void ClearCache()
+        {
+            try
+            {
+                // this is sloow, but I was not able to find any other way to clear the memory cache
+                var field = typeof(MemoryCache).GetProperty("EntriesCollection", BindingFlags.NonPublic | BindingFlags.Instance);
+                // ReSharper disable PossibleNullReferenceException
+                var entriesCollection = field.GetValue(_memoryCache);
+                var clearMethod = entriesCollection.GetType().GetMethod("Clear");
+                clearMethod.Invoke(entriesCollection, null);
+                // ReSharper restore PossibleNullReferenceException
+                _logger.LogTrace("Cache cleared.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unable to clear cache.");
+            }
         }
 
         private async Task<StoryblokStory> LoadStoryFromStoryblok(CultureInfo culture, string slug)

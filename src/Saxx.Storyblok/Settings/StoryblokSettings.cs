@@ -50,6 +50,11 @@ namespace Saxx.Storyblok.Settings
             {
                 SlugForHealthCheck = section["slug_for_healthcheck"];
             }
+            
+            if (!string.IsNullOrWhiteSpace(section["slug_for_clearing_cache"]))
+            {
+                SlugForClearingCache = section["slug_for_clearing_cache"];
+            }
         }
 
         public string ApiKeyPreview { get; set; }
@@ -60,7 +65,7 @@ namespace Saxx.Storyblok.Settings
         /// <summary>
         /// The duration (in seconds) that all loaded stories will be cached locally.
         /// </summary>
-        public int CacheDurationSeconds { get; set; } = 60 * 5;
+        public int CacheDurationSeconds { get; set; } = 60 * 15;
 
         /// <summary>
         /// If this value is not empty, than a call to the root ~/ will be handled with the specified slug.
@@ -85,5 +90,11 @@ namespace Saxx.Storyblok.Settings
         /// This is the slug that will be loaded from Storyblok as part of the health check middleware.
         /// </summary>
         public string SlugForHealthCheck { get; set; } = "home";
+        
+        /// <summary>
+        /// If set, the middleware will clear all caches when this slug is being called.
+        /// This is useful for using it as the Storyblok webhook callback on content changes.
+        /// </summary>
+        public string SlugForClearingCache { get; set; }
     }
 }

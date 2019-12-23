@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -34,6 +35,14 @@ namespace Saxx.Storyblok.Middleware
             {
                 logger.LogTrace("Ignoring request, because no slug available.");
                 await _next.Invoke(context);
+                return;
+            }
+
+            if (!string.IsNullOrWhiteSpace(settings.SlugForClearingCache) && settings.SlugForClearingCache.Equals(slug.Trim('/'), StringComparison.InvariantCultureIgnoreCase))
+            {
+                storyblokClient.ClearCache();
+                context.Response.StatusCode = (int)HttpStatusCode.OK;
+                await context.Response.WriteAsync("Cache cleared.");
                 return;
             }
 

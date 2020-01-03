@@ -8,6 +8,11 @@ namespace Saxx.Storyblok
     {
         public StoryblokStory(StoryblokStory story)
         {
+            if (story == null)
+            {
+                return;
+            }
+
             Name = story.Name;
             Slug = story.Slug;
             FullSlug = story.FullSlug;

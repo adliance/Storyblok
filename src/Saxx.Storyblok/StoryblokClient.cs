@@ -112,18 +112,46 @@ namespace Saxx.Storyblok
             url += $"&cb={DateTime.UtcNow:yyyyMMddHHmmss}";
 
             _logger.LogTrace($"Trying to load stories for \"{parameters}\".");
-            var response = await _client.GetAsync(url);
-            response.EnsureSuccessStatusCode();
-            var responseString = await response.Content.ReadAsStringAsync();
-            var stories = JsonSerializer.Deserialize<StoryblokStoriesContainer>(responseString, JsonOptions);
 
-            _logger.LogTrace($"Stories loaded for \"{parameters}\".");
-            foreach (var s in stories.Stories)
+            var page = 0;
+            var maxPage = 1;
+            var result = new List<StoryblokStory>();
+
+            while (++page <= maxPage)
             {
-                s.LoadedAt = DateTime.UtcNow;
+                var urlWithPage = url += $"&page={page}";
+
+                var response = await _client.GetAsync(urlWithPage);
+                response.EnsureSuccessStatusCode();
+
+                if (page == 1 && response.Headers.Contains("total"))
+                {
+                    try
+                    {
+                        var total = int.Parse(response.Headers.First(x => x.Key.Equals("total", StringComparison.OrdinalIgnoreCase)).Value.First());
+                        maxPage = (int) Math.Ceiling(total / (double) StoryblokStoriesQuery.PerPage);
+                    }
+                    catch
+                    {
+                        maxPage = 1;
+                    }
+                }
+
+                var responseString = await response.Content.ReadAsStringAsync();
+                var stories = JsonSerializer.Deserialize<StoryblokStoriesContainer>(responseString, JsonOptions);
+
+                var currentPageStories = stories.Stories.ToList();
+                currentPageStories.ForEach(x => x.LoadedAt = DateTime.UtcNow);
+                if (!currentPageStories.Any())
+                {
+                    // bail out if we didn't get any stories, maybe we did something wrong in page calculation
+                    break;
+                }
+
+                result.AddRange(currentPageStories);
             }
 
-            var result = stories.Stories.ToList();
+            _logger.LogTrace($"Stories loaded for \"{parameters}\".");
             _memoryCache.Set(cacheKey, result, TimeSpan.FromSeconds(_cacheDuration));
             return result;
         }

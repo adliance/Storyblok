@@ -11,6 +11,7 @@ namespace Saxx.Storyblok
         private readonly IList<string> _excludingFields = new List<string>();
         private readonly IList<Filter> _filters = new List<Filter>();
         private string _startsWith = "";
+        internal const int PerPage = 25;
 
         public StoryblokStoriesQuery(StoryblokClient client)
         {
@@ -59,7 +60,7 @@ namespace Saxx.Storyblok
         {
             return await _client.LoadStories<T>(GetParameters());
         }
-        
+
         // ReSharper disable once UnusedMember.Global
         public async Task<IList<StoryblokStory>> Load()
         {
@@ -68,7 +69,7 @@ namespace Saxx.Storyblok
 
         private string GetParameters()
         {
-            var result = $"&starts_with={_startsWith}";
+            var result = $"&per_page={PerPage}&starts_with={(_startsWith ?? "").TrimStart('/')}";
             result += $"&excluding_fields={string.Join(", ", _excludingFields)}";
 
             foreach (var f in _filters)

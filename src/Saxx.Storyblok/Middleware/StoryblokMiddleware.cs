@@ -28,6 +28,7 @@ namespace Saxx.Storyblok.Middleware
             _next = next;
         }
 
+        // ReSharper disable once UnusedMember.Global
         public async Task Invoke(HttpContext context, StoryblokClient storyblokClient, StoryblokSettings settings, ILogger<StoryblokMiddleware> logger)
         {
             var slug = context.Request.Path.ToString();
@@ -61,6 +62,12 @@ namespace Saxx.Storyblok.Middleware
 
             slug = slug.Trim('/');
 
+            var isInStoryblokEditor = context.Request.Query.IsInStoryblokEditor(settings);
+            if (isInStoryblokEditor)
+            {
+                // make sure we can display inside of the Storyblok iframe
+                context.Response.Headers.Add("Content-Security-Policy", "frame-ancestors 'self' app.storyblok.com");
+            }
 
             if (settings.IgnoreSlugs != null)
             {
@@ -99,7 +106,7 @@ namespace Saxx.Storyblok.Middleware
 
             // we're in the editor, but we don't have the language in the URL
             // so we force the default language
-            if (story == null && context.Request.Query.IsInStoryblokEditor(settings))
+            if (story == null && isInStoryblokEditor)
             {
                 var defaultCulture = settings.DefaultCulture ?? CultureInfo.CurrentUICulture;
                 CultureInfo.CurrentUICulture = CultureInfo.CurrentCulture = defaultCulture;

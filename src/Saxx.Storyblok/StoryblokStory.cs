@@ -1,6 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json.Serialization;
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+// ReSharper disable MemberCanBeProtected.Global
+// ReSharper disable ClassNeverInstantiated.Global
+// ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
 
 namespace Saxx.Storyblok
 {
@@ -8,11 +13,6 @@ namespace Saxx.Storyblok
     {
         public StoryblokStory(StoryblokStory story)
         {
-            if (story == null)
-            {
-                return;
-            }
-
             Name = story.Name;
             Slug = story.Slug;
             FullSlug = story.FullSlug;
@@ -23,17 +23,18 @@ namespace Saxx.Storyblok
             Uuid = story.Uuid;
 
             var castContent = story.Content as T;
-            Content = castContent ?? throw new Exception($"A component of type \"{story.Content.GetType()}\" cannot be cast to \"{typeof(T)}\"");
+            Content = castContent ?? throw new Exception($"A component of type \"{story.Content?.GetType()}\" cannot be cast to \"{typeof(T)}\"");
         }
 
-        [JsonPropertyName("content")] public new T Content { get; set; }
+        // ReSharper disable once MemberCanBePrivate.Global
+        [JsonPropertyName("content")] public new T? Content { get; set; }
     }
 
     public class StoryblokStory
     {
-        [JsonPropertyName("name")] public string Name { get; set; }
-        [JsonPropertyName("slug")] public string Slug { get; set; }
-        [JsonPropertyName("full_slug")] public string FullSlug { get; set; }
+        [JsonPropertyName("name")] public string? Name { get; set; }
+        [JsonPropertyName("slug")] public string? Slug { get; set; }
+        [JsonPropertyName("full_slug")] public string? FullSlug { get; set; }
         [JsonPropertyName("created_at")] public DateTime CreatedAt { get; set; }
         [JsonPropertyName("published_at")] public DateTime? PublishedAt { get; set; }
 
@@ -42,23 +43,23 @@ namespace Saxx.Storyblok
 
         [JsonPropertyName("id")] public int Id { get; set; }
         [JsonPropertyName("uuid")] public Guid Uuid { get; set; }
-        [JsonPropertyName("content")] public StoryblokComponent Content { get; set; }
+        [JsonPropertyName("content")] public StoryblokComponent Content { get; set; } = new StoryblokComponent();
 
         public DateTime LoadedAt { get; set; }
 
         public override string ToString()
         {
-            return FullSlug;
+            return FullSlug ?? "";
         }
     }
 
     public class StoryblokStoriesContainer
     {
-        [JsonPropertyName("stories")] public IEnumerable<StoryblokStory> Stories { get; set; }
+        [JsonPropertyName("stories")] public IEnumerable<StoryblokStory> Stories { get; set; } = Enumerable.Empty<StoryblokStory>();
     }
 
     public class StoryblokStoryContainer
     {
-        [JsonPropertyName("story")] public StoryblokStory Story { get; set; }
+        [JsonPropertyName("story")] public StoryblokStory Story { get; set; } = new StoryblokStory();
     }
 }

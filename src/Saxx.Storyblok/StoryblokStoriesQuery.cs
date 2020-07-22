@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using System.Threading.Tasks;
+
+// ReSharper disable UnusedMember.Global
 
 namespace Saxx.Storyblok
 {
@@ -11,7 +15,7 @@ namespace Saxx.Storyblok
         private readonly IList<string> _excludingFields = new List<string>();
         private readonly IList<Filter> _filters = new List<Filter>();
         private string _startsWith = "";
-        internal const int PerPage = 25;
+        internal const int PerPage = 50;
 
         public StoryblokStoriesQuery(StoryblokClient client)
         {
@@ -69,8 +73,17 @@ namespace Saxx.Storyblok
 
         private string GetParameters()
         {
-            var result = $"&per_page={PerPage}&starts_with={(_startsWith ?? "").TrimStart('/')}";
-            result += $"&excluding_fields={string.Join(", ", _excludingFields)}";
+            var result = $"&per_page={PerPage}";
+            
+            if (!string.IsNullOrWhiteSpace(_startsWith))
+            {
+                result += $"&starts_with={(_startsWith ?? "").TrimStart('/')}";
+            }
+
+            if (_excludingFields.Any())
+            {
+                result += $"&excluding_fields={string.Join(", ", _excludingFields)}";
+            }
 
             foreach (var f in _filters)
             {
@@ -82,9 +95,9 @@ namespace Saxx.Storyblok
 
         private class Filter
         {
-            public string Field { get; set; }
+            public string? Field { get; set; }
             public FilterOperation Operation { get; set; }
-            public string Value { get; set; }
+            public string? Value { get; set; }
 
             public override string ToString()
             {

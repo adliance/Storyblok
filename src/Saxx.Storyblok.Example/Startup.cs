@@ -1,6 +1,7 @@
 using System.Globalization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Saxx.Storyblok.Example.ViewModels.Shared;
 using Saxx.Storyblok.Extensions;
@@ -9,19 +10,22 @@ namespace Saxx.Storyblok.Example
 {
     public class Startup
     {
+        private readonly IConfiguration _configuration;
+
+        public Startup(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
+
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddStoryblok(options =>
+            services.AddStoryblok(_configuration.GetSection("Storyblok"), options =>
             {
                 options.HandleRootWithSlug = "home";
-                options.DefaultCulture = new CultureInfo("en");
-                options.CultureMappings[new CultureInfo("en-US")] = options.DefaultCulture;
-                options.CultureMappings[new CultureInfo("de-AT")] = new CultureInfo("de");
-                options.CultureMappings[new CultureInfo("de-DE")] = new CultureInfo("de");
-                options.CultureMappings[new CultureInfo("de-CH")] = new CultureInfo("en");
-                options.CultureMappings[new CultureInfo("de")] = new CultureInfo("de");
+                options.SupportedCultures = new[] {"en", "de"};
                 options.IgnoreSlugs.Add("blog/*");
             });
+
             services.AddScoped<HeaderViewModel>();
             services.AddControllersWithViews();
             services.AddHealthChecks().AddStoryblok();
@@ -31,9 +35,9 @@ namespace Saxx.Storyblok.Example
         {
             var supportedCultures = new[]
             {
-                new CultureInfo("en"), 
-                new CultureInfo("en-US"), 
-                new CultureInfo("de-AT"), 
+                new CultureInfo("en"),
+                new CultureInfo("en-US"),
+                new CultureInfo("de-AT"),
                 new CultureInfo("de-DE"),
                 new CultureInfo("de-CH"),
                 new CultureInfo("de"),

@@ -7,7 +7,7 @@ namespace Saxx.Storyblok
 {
     public static class StoryblokMappings
     {
-        private static IDictionary<string, Mapping> _mappingsCache; // make static, because it should be "valid" for as long as the app is running
+        private static IDictionary<string, Mapping>? _mappingsCache; // make static, because it should be "valid" for as long as the app is running
 
         public static IDictionary<string, Mapping> Mappings
         {
@@ -45,9 +45,9 @@ namespace Saxx.Storyblok
         public class Mapping
         {
             // ReSharper disable once UnusedAutoPropertyAccessor.Global
-            public string ComponentName { get; set; }
-            public Type Type { get; set; }
-            public string View { get; set; }
+            public string ComponentName { get; set; } = "";
+            public Type Type { get; set; } = typeof(object);
+            public string? View { get; set; }
         }
     }
 }

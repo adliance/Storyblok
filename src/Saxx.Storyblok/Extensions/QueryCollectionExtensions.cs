@@ -2,13 +2,12 @@
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Http;
-using Saxx.Storyblok.Settings;
 
 namespace Saxx.Storyblok.Extensions
 {
     public static class QueryCollectionExtensions
     {
-        public static bool IsInStoryblokEditor(this IQueryCollection query, StoryblokSettings settings)
+        public static bool IsInStoryblokEditor(this IQueryCollection query, StoryblokOptions settings)
         {
             if (string.IsNullOrWhiteSpace(query["_storyblok_tk[space_id]"])) // fast check to return false immediately without calculating any hashes
             {

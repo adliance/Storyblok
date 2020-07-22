@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Threading.Tasks;
 
 namespace Saxx.Storyblok
@@ -9,7 +7,7 @@ namespace Saxx.Storyblok
     {
         private readonly StoryblokClient _client;
 
-        private CultureInfo _culture;
+        private CultureInfo? _culture;
         private string _slug = "";
 
         public StoryblokStoryQuery(StoryblokClient client)
@@ -38,13 +36,13 @@ namespace Saxx.Storyblok
         }
 
 
-        public async Task<StoryblokStory<T>> Load<T>() where T : StoryblokComponent
+        public async Task<StoryblokStory<T>?> Load<T>() where T : StoryblokComponent
         {
             return await _client.LoadStory<T>(_culture, _slug);
         }
 
         // ReSharper disable once UnusedMember.Global
-        public async Task<StoryblokStory> Load()
+        public async Task<StoryblokStory?> Load()
         {
             return await _client.LoadStory(_culture, _slug);
         }

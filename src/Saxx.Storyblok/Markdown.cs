@@ -4,8 +4,9 @@ namespace Saxx.Storyblok
 {
     public class Markdown
     {
-        public string Value { get; set; }
+        public string? Value { get; set; }
         
+        // ReSharper disable once UnusedMember.Global
         public string Html {
             get
             {

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
@@ -13,8 +12,8 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Saxx.Storyblok.Extensions;
-using Saxx.Storyblok.Settings;
 
 namespace Saxx.Storyblok.Middleware
 {
@@ -29,8 +28,10 @@ namespace Saxx.Storyblok.Middleware
         }
 
         // ReSharper disable once UnusedMember.Global
-        public async Task Invoke(HttpContext context, StoryblokClient storyblokClient, StoryblokSettings settings, ILogger<StoryblokMiddleware> logger)
+        public async Task Invoke(HttpContext context, StoryblokClient storyblokClient, IOptions<StoryblokOptions> options, ILogger<StoryblokMiddleware> logger)
         {
+            var settings = options.Value;
+
             var slug = context.Request.Path.ToString();
             if (string.IsNullOrWhiteSpace(slug))
             {
@@ -42,7 +43,7 @@ namespace Saxx.Storyblok.Middleware
             if (!string.IsNullOrWhiteSpace(settings.SlugForClearingCache) && settings.SlugForClearingCache.Equals(slug.Trim('/'), StringComparison.InvariantCultureIgnoreCase))
             {
                 storyblokClient.ClearCache();
-                context.Response.StatusCode = (int)HttpStatusCode.OK;
+                context.Response.StatusCode = (int) HttpStatusCode.OK;
                 await context.Response.WriteAsync("Cache cleared.");
                 return;
             }
@@ -78,6 +79,7 @@ namespace Saxx.Storyblok.Middleware
                     await _next.Invoke(context);
                     return;
                 }
+
                 if (settings.IgnoreSlugs.Any(x => x.EndsWith("*", StringComparison.InvariantCultureIgnoreCase) && slug.StartsWith(x.TrimEnd('*').Trim('/'), StringComparison.InvariantCultureIgnoreCase)))
                 {
                     // don't handle this slug in the middleware, because the configuration ends with a *, which means we compare via StartsWith
@@ -87,37 +89,40 @@ namespace Saxx.Storyblok.Middleware
                 }
             }
 
-            StoryblokStory story = null;
-            var cultureMappings = settings.CultureMappings ?? new Dictionary<CultureInfo, CultureInfo>();
+            StoryblokStory? story = null;
 
             // special handling of Storyblok preview URLs that contain the language, like ~/de/home vs. ~/home
             // if we have such a URL, we also change the current culture accordingly
-            foreach (var cultureMapping in cultureMappings)
+            foreach (var supportedCulture in settings.SupportedCultures)
             {
-                if (slug.StartsWith($"/{cultureMapping.Value}/"))
+                if (slug.StartsWith($"{supportedCulture}/", StringComparison.OrdinalIgnoreCase) || slug.Equals(supportedCulture, StringComparison.OrdinalIgnoreCase))
                 {
-                    var slugWithoutCulture = slug.Substring(cultureMapping.Value.ToString().Length + 2);
-                    logger.LogTrace($"Trying to load story for slug \"{slugWithoutCulture}\" for culture {cultureMapping.Value}.");
-                    CultureInfo.CurrentUICulture = CultureInfo.CurrentCulture = cultureMapping.Value;
-                    story = await storyblokClient.Story().WithCulture(cultureMapping.Value).WithSlug(slugWithoutCulture).Load();
+                    var slugWithoutCulture = slug.Substring(supportedCulture.Length).Trim('/');
+
+                    if (slugWithoutCulture.Equals("") && !string.IsNullOrWhiteSpace(settings.HandleRootWithSlug))
+                    {
+                        logger.LogTrace($"Swapping slug from \"{slug}\" to \"{settings.HandleRootWithSlug}\", because it's the root URL.");
+                        slugWithoutCulture = settings.HandleRootWithSlug;
+                    }
+
+                    logger.LogTrace($"Trying to load story for slug \"{slugWithoutCulture}\" for culture {supportedCulture}.");
+                    var culture = new CultureInfo(supportedCulture);
+                    CultureInfo.CurrentUICulture = CultureInfo.CurrentCulture = culture;
+                    story = await storyblokClient.Story().WithCulture(culture).WithSlug(slugWithoutCulture).Load();
                     break;
                 }
             }
 
-            // we're in the editor, but we don't have the language in the URL
-            // so we force the default language
-            if (story == null && isInStoryblokEditor)
+            // we don't have the language in the URL, so we force the default language
+            if (story == null)
             {
-                var defaultCulture = settings.DefaultCulture ?? CultureInfo.CurrentUICulture;
+                var defaultCulture = new CultureInfo(settings.SupportedCultures.First());
                 CultureInfo.CurrentUICulture = CultureInfo.CurrentCulture = defaultCulture;
                 story = await storyblokClient.Story().WithCulture(defaultCulture).WithSlug(slug).Load();
             }
 
             // load the story with the current culture (usually set by request localization
-            if (story == null)
-            {
-                story = await storyblokClient.Story().WithCulture(CultureInfo.CurrentUICulture).WithSlug(slug).Load();
-            }
+            story ??= await storyblokClient.Story().WithCulture(CultureInfo.CurrentUICulture).WithSlug(slug).Load();
 
             // that's not a story, lets continue down the middleware chain
             if (story == null)
@@ -142,11 +147,15 @@ namespace Saxx.Storyblok.Middleware
 
             // we have a story, yay! Lets render it and stop with the middleware chain
             logger.LogTrace($"Rendering slug \"{slug}\" with view \"{componentMapping.View}\".");
-            var result = new ViewResult { ViewName = componentMapping.View };
+            var result = new ViewResult {ViewName = componentMapping.View};
             var modelMetadata = new EmptyModelMetadataProvider();
+
+            var modelDefinition = typeof(StoryblokStory<>).MakeGenericType(componentMapping.Type);
+            var model = Activator.CreateInstance(modelDefinition, story);
+
             result.ViewData = new ViewDataDictionary(modelMetadata, new ModelStateDictionary())
             {
-                Model = story
+                Model = model
             };
             await WriteResultAsync(context, result);
         }

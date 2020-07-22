@@ -1,31 +1,38 @@
 ﻿using System;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Saxx.Storyblok.Settings;
 
 namespace Saxx.Storyblok.Extensions
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddStoryblok(this IServiceCollection services, Action<StoryblokSettings> configureOptions)
+        public static IServiceCollection AddStoryblok(this IServiceCollection services)
         {
             services.AddHttpClient();
             services.AddHttpContextAccessor();
             services.AddScoped<StoryblokClient>();
-
-            services.AddSingleton(provider =>
-            {
-                var configuration = provider.GetRequiredService<IConfiguration>();
-                var settings = new StoryblokSettings(configuration);
-                configureOptions?.Invoke(settings);
-                return settings;
-            });
             return services;
         }
 
-        public static IServiceCollection AddStoryblok(this IServiceCollection services)
+        public static IServiceCollection AddStoryblok(this IServiceCollection services, IConfigurationSection configurationSection, Action<StoryblokOptions>? configure = null)
         {
-            return AddStoryblok(services, null);
+            var options = new StoryblokOptions();
+            configurationSection.Bind(options);
+
+            services.Configure<StoryblokOptions>(storyblokOptions =>
+            {
+                if (storyblokOptions != null)
+                {
+                    configurationSection.Bind(storyblokOptions);
+                }
+
+                if (configure != null && storyblokOptions != null)
+                {
+                    configure.Invoke(storyblokOptions);
+                }
+            });
+            
+            return AddStoryblok(services);
         }
     }
 }

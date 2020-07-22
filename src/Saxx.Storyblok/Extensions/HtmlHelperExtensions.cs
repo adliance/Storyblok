@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.DependencyInjection;
-using Saxx.Storyblok.Settings;
+using Microsoft.Extensions.Options;
 
 namespace Saxx.Storyblok.Extensions
 {
@@ -9,7 +9,7 @@ namespace Saxx.Storyblok.Extensions
     {
         public static HtmlString StoryblokEditorScript(this IHtmlHelper htmlHelper)
         {
-            var settings = htmlHelper.ViewContext.HttpContext.RequestServices.GetRequiredService<StoryblokSettings>();
+            var settings = htmlHelper.ViewContext.HttpContext.RequestServices.GetRequiredService<IOptions<StoryblokOptions>>().Value;
 
             if (htmlHelper.ViewContext.HttpContext.Request.Query.IsInStoryblokEditor(settings))
             {

@@ -3,19 +3,20 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
-using Saxx.Storyblok.Settings;
+using Microsoft.Extensions.Options;
 
 namespace Saxx.Storyblok
 {
+    // ReSharper disable once ClassNeverInstantiated.Global
     public class StoryblokHealthCheck : IHealthCheck
     {
-        private readonly StoryblokSettings _settings;
+        private readonly StoryblokOptions _settings;
         private readonly StoryblokClient _storyblok;
         private readonly ILogger<StoryblokHealthCheck> _logger;
 
-        public StoryblokHealthCheck(StoryblokSettings settings, StoryblokClient storyblok, ILogger<StoryblokHealthCheck> logger)
+        public StoryblokHealthCheck(IOptions<StoryblokOptions> settings, StoryblokClient storyblok, ILogger<StoryblokHealthCheck> logger)
         {
-            _settings = settings;
+            _settings = settings.Value;
             _storyblok = storyblok;
             _logger = logger;
         }
@@ -29,6 +30,7 @@ namespace Saxx.Storyblok
                 {
                     throw new Exception("Story of story content is null.");
                 }
+
                 return await Task.FromResult(HealthCheckResult.Healthy("Storyblok is healthy."));
             }
             catch (Exception ex)

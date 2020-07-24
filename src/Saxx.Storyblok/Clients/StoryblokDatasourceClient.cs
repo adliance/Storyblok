@@ -65,12 +65,12 @@ namespace Saxx.Storyblok.Clients
 
         private async Task<StoryblokDatasource?> LoadDatasourceFromStoryblok(string name, string? dimension)
         {
-            var url = $"{Settings.BaseUrl}/datasource_entries?datasource={name}&token={ApiKey}";
+            var url = $"{Settings.BaseUrl}/datasource_entries?datasource={name}";
             if (!string.IsNullOrWhiteSpace(dimension))
             {
-                url += $"dimension={dimension}";
+                url += $"&dimension={dimension}";
             }
-            url += $"&cb={DateTime.UtcNow:yyyyMMddHHmmss}";
+            url += $"&token={ApiKey}&cb={DateTime.UtcNow:yyyyMMddHHmmss}";
 
             var response = await Client.GetAsync(url);
             if (response.StatusCode == HttpStatusCode.NotFound)

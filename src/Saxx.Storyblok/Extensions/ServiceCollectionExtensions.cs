@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Saxx.Storyblok.Clients;
 
 namespace Saxx.Storyblok.Extensions
 {
@@ -10,7 +11,9 @@ namespace Saxx.Storyblok.Extensions
         {
             services.AddHttpClient();
             services.AddHttpContextAccessor();
-            services.AddScoped<StoryblokClient>();
+            services.AddScoped<StoryblokStoryClient>();
+            services.AddScoped<StoryblokStoriesClient>();
+            services.AddScoped<StoryblokDatasourceClient>();
             return services;
         }
 

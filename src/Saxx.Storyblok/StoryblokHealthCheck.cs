@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Saxx.Storyblok.Clients;
 
 namespace Saxx.Storyblok
 {
@@ -11,10 +12,10 @@ namespace Saxx.Storyblok
     public class StoryblokHealthCheck : IHealthCheck
     {
         private readonly StoryblokOptions _settings;
-        private readonly StoryblokClient _storyblok;
+        private readonly StoryblokStoryClient _storyblok;
         private readonly ILogger<StoryblokHealthCheck> _logger;
 
-        public StoryblokHealthCheck(IOptions<StoryblokOptions> settings, StoryblokClient storyblok, ILogger<StoryblokHealthCheck> logger)
+        public StoryblokHealthCheck(IOptions<StoryblokOptions> settings, StoryblokStoryClient storyblok, ILogger<StoryblokHealthCheck> logger)
         {
             _settings = settings.Value;
             _storyblok = storyblok;

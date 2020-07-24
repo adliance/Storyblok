@@ -1,13 +1,14 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Saxx.Storyblok.Clients;
 
 namespace Saxx.Storyblok.Example.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly StoryblokClient _storyblokClient;
+        private readonly StoryblokStoriesClient _storyblokClient;
 
-        public HomeController(StoryblokClient storyblokClient)
+        public HomeController(StoryblokStoriesClient storyblokClient)
         {
             _storyblokClient = storyblokClient;
         }

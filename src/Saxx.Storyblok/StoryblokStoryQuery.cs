@@ -1,16 +1,17 @@
 ﻿using System.Globalization;
 using System.Threading.Tasks;
+using Saxx.Storyblok.Clients;
 
 namespace Saxx.Storyblok
 {
     public class StoryblokStoryQuery
     {
-        private readonly StoryblokClient _client;
+        private readonly StoryblokStoryClient _client;
 
         private CultureInfo? _culture;
         private string _slug = "";
 
-        public StoryblokStoryQuery(StoryblokClient client)
+        public StoryblokStoryQuery(StoryblokStoryClient client)
         {
             _client = client;
         }

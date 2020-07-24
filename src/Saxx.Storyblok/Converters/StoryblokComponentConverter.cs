@@ -20,12 +20,20 @@ namespace Saxx.Storyblok.Converters
                     if (componentMappings.ContainsKey(componentName))
                     {
                         var mapping = componentMappings[componentName];
-                        
-                        return (StoryblokComponent) JsonSerializer.Deserialize(doc.RootElement.GetRawText(), mapping.Type, options);
+
+                        var rawText = doc.RootElement.GetRawText();
+                        try
+                        {
+                            return (StoryblokComponent) JsonSerializer.Deserialize(rawText, mapping.Type, options);
+                        }
+                        catch (JsonException ex)
+                        {
+                            throw new Exception($"Unable to deserialize ({ex.Message}): {rawText}", ex);
+                        }
                     }
                 }
             }
-            
+
             // don't call JsonSerializer.Deserizalize, because we'll get a stack overlow
             return new StoryblokComponent
             {

@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Saxx.Storyblok.Clients;
 using Saxx.Storyblok.Extensions;
 
 namespace Saxx.Storyblok.Middleware
@@ -28,7 +29,7 @@ namespace Saxx.Storyblok.Middleware
         }
 
         // ReSharper disable once UnusedMember.Global
-        public async Task Invoke(HttpContext context, StoryblokClient storyblokClient, IOptions<StoryblokOptions> options, ILogger<StoryblokMiddleware> logger)
+        public async Task Invoke(HttpContext context, StoryblokStoryClient storyblokClient, IOptions<StoryblokOptions> options, ILogger<StoryblokMiddleware> logger)
         {
             var settings = options.Value;
 

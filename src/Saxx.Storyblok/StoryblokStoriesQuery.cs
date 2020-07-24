@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using Saxx.Storyblok.Clients;
 
 // ReSharper disable UnusedMember.Global
 
@@ -10,7 +11,7 @@ namespace Saxx.Storyblok
 {
     public class StoryblokStoriesQuery
     {
-        private readonly StoryblokClient _client;
+        private readonly StoryblokStoriesClient _client;
         private readonly StoryblokOptions _options;
 
         private readonly IList<string> _excludingFields = new List<string>();
@@ -19,7 +20,7 @@ namespace Saxx.Storyblok
         private string _culture = "";
         internal const int PerPage = 50;
 
-        public StoryblokStoriesQuery(StoryblokClient client, StoryblokOptions options)
+        public StoryblokStoriesQuery(StoryblokStoriesClient client, StoryblokOptions options)
         {
             _client = client;
             _options = options;

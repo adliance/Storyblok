@@ -1,15 +1,16 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Saxx.Storyblok.Clients;
 using Saxx.Storyblok.Example.Components;
 
 namespace Saxx.Storyblok.Example.ViewModels.Shared
 {
     public class HeaderViewModel
     {
-        public HeaderViewModel(StoryblokClient storyblokClient)
+        public HeaderViewModel(StoryblokStoriesClient storiesClient, StoryblokStoryClient storyClient)
         {
-            var pages = storyblokClient.Stories()
+            var pages = storiesClient.Stories()
                 .StartingWith("")
                 .ExcludingFields("body", "title", "description", "keywords")
                 .Having("menu_title", FilterOperation.NotIn, "")
@@ -18,9 +19,9 @@ namespace Saxx.Storyblok.Example.ViewModels.Shared
             var storiesForNavigation = new List<NavigationItem>();
             foreach (var minimalStory in pages)
             {
-                if (!string.IsNullOrWhiteSpace(minimalStory.Content.MenuTitle))
+                if (!string.IsNullOrWhiteSpace(minimalStory.Content?.MenuTitle))
                 {
-                    var story = storyblokClient.Story().WithCulture(CultureInfo.CurrentUICulture).WithSlug(minimalStory.FullSlug).Load().GetAwaiter().GetResult();
+                    var story = storyClient.Story().WithCulture(CultureInfo.CurrentUICulture).WithSlug(minimalStory.FullSlug).Load().GetAwaiter().GetResult();
 
                     storiesForNavigation.Add(new NavigationItem
                     {

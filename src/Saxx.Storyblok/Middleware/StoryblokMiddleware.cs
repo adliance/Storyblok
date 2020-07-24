@@ -41,7 +41,7 @@ namespace Saxx.Storyblok.Middleware
                 return;
             }
 
-            if (!string.IsNullOrWhiteSpace(settings.SlugForClearingCache) && settings.SlugForClearingCache.Equals(slug.Trim('/'), StringComparison.InvariantCultureIgnoreCase))
+            if (!string.IsNullOrWhiteSpace(settings.SlugForClearingCache) && settings.SlugForClearingCache.Trim('/').Equals(slug.Trim('/'), StringComparison.InvariantCultureIgnoreCase))
             {
                 storyblokClient.ClearCache();
                 context.Response.StatusCode = (int) HttpStatusCode.OK;

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Globalization;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text.Json;
@@ -23,32 +22,19 @@ namespace Saxx.Storyblok.Clients
         {
         }
 
-
-        public async Task<StoryblokDatasource?> Datasource(string name, string? dimension)
-        {
-            var datasource = await Datasource(name);
-            if (datasource == null)
-            {
-                return null;
-            }
-
-            datasource.Entries = datasource.Entries.Where(x => (x.Dimension == null && dimension == null) || (dimension != null && dimension.Equals(x.Dimension, StringComparison.OrdinalIgnoreCase))).ToList();
-            return datasource;
-        }
-
         public async Task<StoryblokDatasource?> Datasource(string name, CultureInfo dimension)
         {
             return await Datasource(name, IsDefaultCulture(dimension) ? null : dimension.ToString());
         }
 
-        public async Task<StoryblokDatasource?> Datasource(string name)
+        public async Task<StoryblokDatasource?> Datasource(string name, string? dimension = null)
         {
             if (IsInEditor)
             {
-                return await LoadDatasourceFromStoryblok(name);
+                return await LoadDatasourceFromStoryblok(name, dimension);
             }
 
-            var cacheKey = $"datasource_{name}";
+            var cacheKey = $"datasource_{name}_{dimension}";
             if (MemoryCache.TryGetValue(cacheKey, out StoryblokDatasource cachedDatasource))
             {
                 Logger.LogTrace($"Using cached datasource \"{name}\".");
@@ -63,7 +49,7 @@ namespace Saxx.Storyblok.Clients
             }
 
             Logger.LogTrace($"Trying to load datasource \"{name}\".");
-            var datasource = await LoadDatasourceFromStoryblok(name);
+            var datasource = await LoadDatasourceFromStoryblok(name, dimension);
             if (datasource != null)
             {
                 Logger.LogTrace($"Datasource \"{name}\" loaded.");
@@ -77,9 +63,13 @@ namespace Saxx.Storyblok.Clients
         }
 
 
-        private async Task<StoryblokDatasource?> LoadDatasourceFromStoryblok(string name)
+        private async Task<StoryblokDatasource?> LoadDatasourceFromStoryblok(string name, string? dimension)
         {
             var url = $"{Settings.BaseUrl}/datasource_entries?datasource={name}&token={ApiKey}";
+            if (!string.IsNullOrWhiteSpace(dimension))
+            {
+                url += $"dimension={dimension}";
+            }
             url += $"&cb={DateTime.UtcNow:yyyyMMddHHmmss}";
 
             var response = await Client.GetAsync(url);

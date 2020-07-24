@@ -12,7 +12,8 @@ namespace Saxx.Storyblok
     public class StoryblokDatasourceEntry
     {
         [JsonPropertyName("name")] public string? Name { get; set; }
-        [JsonPropertyName("value")] public string? Value { get; set; }
-        [JsonPropertyName("dimension_value")] public string? Dimension { get; set; }
+        [JsonPropertyName("value")] public string? DefaultDimensionValue { get; set; }
+        [JsonPropertyName("dimension_value")] public string? DimensionValue { get; set; }
+        public string? Value => DimensionValue ?? DefaultDimensionValue;
     }
 }

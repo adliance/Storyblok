@@ -11,15 +11,18 @@ namespace Saxx.Storyblok
     public class StoryblokStoriesQuery
     {
         private readonly StoryblokClient _client;
+        private readonly StoryblokOptions _options;
 
         private readonly IList<string> _excludingFields = new List<string>();
         private readonly IList<Filter> _filters = new List<Filter>();
         private string _startsWith = "";
+        private string _culture = "";
         internal const int PerPage = 50;
 
-        public StoryblokStoriesQuery(StoryblokClient client)
+        public StoryblokStoriesQuery(StoryblokClient client, StoryblokOptions options)
         {
             _client = client;
+            _options = options;
         }
 
         public StoryblokStoriesQuery StartingWith(string startingWith)
@@ -27,6 +30,17 @@ namespace Saxx.Storyblok
             if (startingWith != null)
             {
                 _startsWith = startingWith;
+            }
+
+            return this;
+        }
+
+        public StoryblokStoriesQuery ForCurrentUiCulture()
+        {
+            _culture = CultureInfo.CurrentUICulture.ToString();
+            if (_options.SupportedCultures.First().Equals(_culture, StringComparison.OrdinalIgnoreCase))
+            {
+                _culture = "";
             }
 
             return this;
@@ -74,10 +88,18 @@ namespace Saxx.Storyblok
         private string GetParameters()
         {
             var result = $"&per_page={PerPage}";
-            
-            if (!string.IsNullOrWhiteSpace(_startsWith))
+
+            if (!string.IsNullOrWhiteSpace(_culture) && string.IsNullOrWhiteSpace(_startsWith))
             {
-                result += $"&starts_with={(_startsWith ?? "").TrimStart('/')}";
+                result += $"&starts_with={_culture}/*";
+            }
+            else if (!string.IsNullOrWhiteSpace(_culture) && !string.IsNullOrWhiteSpace(_startsWith))
+            {
+                result += $"&starts_with={_culture}/{_startsWith.TrimStart('/')}";
+            }
+            else if (!string.IsNullOrWhiteSpace(_startsWith))
+            {
+                result += $"&starts_with={_startsWith.TrimStart('/')}";
             }
 
             if (_excludingFields.Any())

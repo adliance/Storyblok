@@ -68,7 +68,7 @@ namespace Saxx.Storyblok
         // ReSharper disable once UnusedMember.Global
         public StoryblokStoriesQuery Stories()
         {
-            return new StoryblokStoriesQuery(this);
+            return new StoryblokStoriesQuery(this, _settings);
         }
 
         public StoryblokStoryQuery Story()

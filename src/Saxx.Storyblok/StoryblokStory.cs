@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
+
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable MemberCanBeProtected.Global
 // ReSharper disable ClassNeverInstantiated.Global
@@ -21,6 +22,9 @@ namespace Saxx.Storyblok
             FirstPublishedAt = story.FirstPublishedAt;
             Id = story.Id;
             Uuid = story.Uuid;
+            IsStartPage = story.IsStartPage;
+            Position = story.Position;
+            Language = story.Language;
 
             var castContent = story.Content as T;
             Content = castContent ?? throw new Exception($"A component of type \"{story.Content?.GetType()}\" cannot be cast to \"{typeof(T)}\"");
@@ -38,12 +42,16 @@ namespace Saxx.Storyblok
         [JsonPropertyName("created_at")] public DateTime CreatedAt { get; set; }
         [JsonPropertyName("published_at")] public DateTime? PublishedAt { get; set; }
 
-        [JsonPropertyName("first_published_at")]
-        public DateTime? FirstPublishedAt { get; set; }
+        [JsonPropertyName("first_published_at")] public DateTime? FirstPublishedAt { get; set; }
 
         [JsonPropertyName("id")] public int Id { get; set; }
         [JsonPropertyName("uuid")] public Guid Uuid { get; set; }
         [JsonPropertyName("content")] public StoryblokComponent Content { get; set; } = new StoryblokComponent();
+
+        [JsonPropertyName("position")] public int Position { get; set; }
+        [JsonPropertyName("is_startpage")] public bool IsStartPage { get; set; }
+
+        [JsonPropertyName("lang")] public string Language { get; set; } = "";
 
         public DateTime LoadedAt { get; set; }
 

@@ -37,27 +37,27 @@ namespace Saxx.Storyblok.Clients
             var cacheKey = $"datasource_{name}_{dimension}";
             if (MemoryCache.TryGetValue(cacheKey, out StoryblokDatasource cachedDatasource))
             {
-                Logger.LogTrace($"Using cached datasource \"{name}\".");
+                Logger.LogTrace($"Using cached datasource \"{name}\"{(string.IsNullOrWhiteSpace(dimension) ? "" : $" (dimension \"{dimension}\")")}.");
                 return cachedDatasource;
             }
 
             var cacheKeyUnavailable = "404_" + cacheKey;
             if (MemoryCache.TryGetValue(cacheKeyUnavailable, out _))
             {
-                Logger.LogTrace($"Using cached 404 for datasource \"{name}\".");
+                Logger.LogTrace($"Using cached 404 for datasource \"{name}\"{(string.IsNullOrWhiteSpace(dimension) ? "" : $" (dimension \"{dimension}\")")}.");
                 return null;
             }
 
-            Logger.LogTrace($"Trying to load datasource \"{name}\".");
+            Logger.LogTrace($"Trying to load datasource \"{name}\"{(string.IsNullOrWhiteSpace(dimension) ? "" : $" (dimension \"{dimension}\")")}.");
             var datasource = await LoadDatasourceFromStoryblok(name, dimension);
             if (datasource != null)
             {
-                Logger.LogTrace($"Datasource \"{name}\" loaded.");
+                Logger.LogTrace($"Datasource \"{name}\"{(string.IsNullOrWhiteSpace(dimension) ? "" : $" (dimension \"{dimension}\")")} loaded.");
                 MemoryCache.Set(cacheKey, datasource, TimeSpan.FromSeconds(Settings.CacheDurationSeconds));
                 return datasource;
             }
 
-            Logger.LogTrace($"Datasource \"{name}\" not found.");
+            Logger.LogTrace($"Datasource \"{name}\"{(string.IsNullOrWhiteSpace(dimension) ? "" : $" (dimension \"{dimension}\")")} not found.");
             MemoryCache.Set(cacheKeyUnavailable, true, TimeSpan.FromSeconds(Settings.CacheDurationSeconds));
             return null;
         }

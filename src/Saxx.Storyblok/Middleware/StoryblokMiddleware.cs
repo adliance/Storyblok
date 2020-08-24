@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
@@ -147,6 +148,20 @@ namespace Saxx.Storyblok.Middleware
             // we have a story, yay! Lets render it and stop with the middleware chain
             logger.LogTrace($"Rendering slug \"{slug}\" with view \"{componentMapping.View}\".");
             CultureInfo.CurrentUICulture = CultureInfo.CurrentCulture = currentCulture; // set the thread culture to match the story
+            if (options.Value.ConfigureRequestLocalization && !string.IsNullOrWhiteSpace(options.Value.CultureCookieName))
+            {
+                context.Response.Cookies.Append(
+                    options.Value.CultureCookieName,
+                    CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(currentCulture)),
+                    new CookieOptions
+                    {
+                        MaxAge = TimeSpan.FromDays(365),
+                        IsEssential = true,
+                        Secure = false,
+                        HttpOnly = true
+                    });
+            }
+
             var result = new ViewResult {ViewName = componentMapping.View};
             var modelMetadata = new EmptyModelMetadataProvider();
             var modelDefinition = typeof(StoryblokStory<>).MakeGenericType(componentMapping.Type);

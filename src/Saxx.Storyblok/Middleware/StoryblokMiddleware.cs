@@ -143,7 +143,9 @@ namespace Saxx.Storyblok.Middleware
             var componentMapping = componentMappings[componentName];
             if (string.IsNullOrWhiteSpace(componentMapping.View))
             {
-                throw new Exception($"No view specified on component of type '{componentMapping.Type.FullName}'.");
+                logger.LogTrace($"Ignoring request, because no view specified on component of type \"{componentMapping.Type.FullName}\".");
+                await _next.Invoke(context);
+                return;
             }
 
             // we have a story, yay! Lets render it and stop with the middleware chain

@@ -44,5 +44,8 @@ namespace Saxx.Storyblok
         /// This is useful for using it as the Storyblok webhook callback on content changes.
         /// </summary>
         public string SlugForClearingCache { get; set; } = "/clear-storyblok-cache";
+
+        public string CultureCookieName { get; set; } = "culture";
+        public bool ConfigureRequestLocalization { get; set; } = true;
     }
 }

@@ -71,29 +71,27 @@ namespace Saxx.Storyblok.Middleware
                 context.Response.Headers.Add("Content-Security-Policy", "frame-ancestors 'self' app.storyblok.com");
             }
 
-            if (settings.IgnoreSlugs != null)
+            if (settings.IgnoreSlugs.Any(x => slug.Equals(x.Trim('/'), StringComparison.InvariantCultureIgnoreCase)))
             {
-                if (settings.IgnoreSlugs.Any(x => slug.Equals(x.Trim('/'), StringComparison.InvariantCultureIgnoreCase)))
-                {
-                    // don't handle this slug in the middleware, because exact match of URL
-                    logger.LogTrace($"Ignoring request \"{slug}\", because it's configured to be ignored (exact match).");
-                    await _next.Invoke(context);
-                    return;
-                }
+                // don't handle this slug in the middleware, because exact match of URL
+                logger.LogTrace($"Ignoring request \"{slug}\", because it's configured to be ignored (exact match).");
+                await _next.Invoke(context);
+                return;
+            }
 
-                if (settings.IgnoreSlugs.Any(x => x.EndsWith("*", StringComparison.InvariantCultureIgnoreCase) && slug.StartsWith(x.TrimEnd('*').Trim('/'), StringComparison.InvariantCultureIgnoreCase)))
-                {
-                    // don't handle this slug in the middleware, because the configuration ends with a *, which means we compare via StartsWith
-                    logger.LogTrace($"Ignoring request \"{slug}\", because it's configured to be ignored (partial match).");
-                    await _next.Invoke(context);
-                    return;
-                }
+            if (settings.IgnoreSlugs.Any(x => x.EndsWith("*", StringComparison.InvariantCultureIgnoreCase) && slug.StartsWith(x.TrimEnd('*').Trim('/'), StringComparison.InvariantCultureIgnoreCase)))
+            {
+                // don't handle this slug in the middleware, because the configuration ends with a *, which means we compare via StartsWith
+                logger.LogTrace($"Ignoring request \"{slug}\", because it's configured to be ignored (partial match).");
+                await _next.Invoke(context);
+                return;
             }
 
             StoryblokStory? story = null;
 
             // special handling of Storyblok preview URLs that contain the language, like ~/de/home vs. ~/home
             // if we have such a URL, we also change the current culture accordingly
+            CultureInfo currentCulture = CultureInfo.CurrentUICulture;
             foreach (var supportedCulture in settings.SupportedCultures)
             {
                 if (slug.StartsWith($"{supportedCulture}/", StringComparison.OrdinalIgnoreCase) || slug.Equals(supportedCulture, StringComparison.OrdinalIgnoreCase))
@@ -107,9 +105,8 @@ namespace Saxx.Storyblok.Middleware
                     }
 
                     logger.LogTrace($"Trying to load story for slug \"{slugWithoutCulture}\" for culture {supportedCulture}.");
-                    var culture = new CultureInfo(supportedCulture);
-                    CultureInfo.CurrentUICulture = CultureInfo.CurrentCulture = culture;
-                    story = await storyblokClient.Story().WithCulture(culture).WithSlug(slugWithoutCulture).Load();
+                    currentCulture = new CultureInfo(supportedCulture);
+                    story = await storyblokClient.Story().WithCulture(currentCulture).WithSlug(slugWithoutCulture).Load();
                     break;
                 }
             }
@@ -117,9 +114,8 @@ namespace Saxx.Storyblok.Middleware
             // we don't have the language in the URL, so we force the default language
             if (story == null)
             {
-                var defaultCulture = new CultureInfo(settings.SupportedCultures.First());
-                CultureInfo.CurrentUICulture = CultureInfo.CurrentCulture = defaultCulture;
-                story = await storyblokClient.Story().WithCulture(defaultCulture).WithSlug(slug).Load();
+                currentCulture = new CultureInfo(settings.SupportedCultures.First());
+                story = await storyblokClient.Story().WithCulture(currentCulture).WithSlug(slug).Load();
             }
 
             // load the story with the current culture (usually set by request localization
@@ -150,9 +146,9 @@ namespace Saxx.Storyblok.Middleware
 
             // we have a story, yay! Lets render it and stop with the middleware chain
             logger.LogTrace($"Rendering slug \"{slug}\" with view \"{componentMapping.View}\".");
+            CultureInfo.CurrentUICulture = CultureInfo.CurrentCulture = currentCulture; // set the thread culture to match the story
             var result = new ViewResult {ViewName = componentMapping.View};
             var modelMetadata = new EmptyModelMetadataProvider();
-
             var modelDefinition = typeof(StoryblokStory<>).MakeGenericType(componentMapping.Type);
             var model = Activator.CreateInstance(modelDefinition, story);
 

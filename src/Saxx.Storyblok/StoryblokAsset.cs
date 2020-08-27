@@ -4,7 +4,6 @@ namespace Saxx.Storyblok
 {
     public class StoryblokAsset
     {
-        [JsonPropertyName("id")] public string? Id { get; set; }
         [JsonPropertyName("filename")] public string? Url { get; set; }
         [JsonPropertyName("fieldtype")] public string? FieldType { get; set; }
         [JsonPropertyName("alt")] public string? Alt { get; set; }

@@ -34,6 +34,13 @@ namespace Saxx.Storyblok.Middleware
         {
             var settings = options.Value;
 
+            if (context.Request.Method != HttpMethods.Get)
+            {
+                logger.LogTrace("Ignoring request, because it's not GET.");
+                await _next.Invoke(context);
+                return;
+            }
+
             var slug = context.Request.Path.ToString();
             if (string.IsNullOrWhiteSpace(slug))
             {

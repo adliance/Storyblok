@@ -13,13 +13,7 @@ namespace Saxx.Storyblok.Extensions
 
             if (htmlHelper.ViewContext.HttpContext.Request.Query.IsInStoryblokEditor(settings))
             {
-                var html =
-                    "<script src=\"//app.storyblok.com/f/storyblok-latest.js\" type=\"text/javascript\"></script>" +
-                    "<script>" +
-                    $"storyblok.init({{ accessToken: '{settings.ApiKeyPreview}' }});" +
-                    "storyblok.on(['published', 'change'], function() { location.reload(true); });" +
-                    "storyblok.pingEditor(function() { if (storyblok.inEditor) { storyblok.enterEditmode(); }});" +
-                    "</script>";
+                var html = $"<script src=\"//app.storyblok.com/f/storyblok-latest.js?t={settings.ApiKeyPreview}\" type=\"text/javascript\"></script>";
                 return new HtmlString(html);
             }
             return new HtmlString("");

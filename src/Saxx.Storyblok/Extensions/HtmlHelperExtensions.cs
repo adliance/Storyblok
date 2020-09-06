@@ -13,9 +13,11 @@ namespace Saxx.Storyblok.Extensions
 
             if (htmlHelper.ViewContext.HttpContext.Request.Query.IsInStoryblokEditor(settings))
             {
-                var html = $"<script src=\"//app.storyblok.com/f/storyblok-latest.js?t={settings.ApiKeyPreview}\" type=\"text/javascript\"></script>";
+                var html = $"<script src=\"//app.storyblok.com/f/storyblok-latest.js?t={settings.ApiKeyPreview}\" type=\"text/javascript\"></script>"
+                           + "<script>window.storyblok.on(['change', 'published'], () => { window.location.reload(true); })";
                 return new HtmlString(html);
             }
+
             return new HtmlString("");
         }
     }

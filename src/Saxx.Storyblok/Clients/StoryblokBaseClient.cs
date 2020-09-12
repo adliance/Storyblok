@@ -18,7 +18,7 @@ namespace Saxx.Storyblok.Clients
         protected readonly IMemoryCache MemoryCache;
         protected readonly ILogger<StoryblokBaseClient> Logger;
         protected readonly HttpClient Client;
-        protected readonly bool IsInEditor;
+        internal static bool IsInEditor;
         protected readonly StoryblokOptions Settings;
 
         protected StoryblokBaseClient(IOptions<StoryblokOptions> settings, IHttpClientFactory clientFactory, IHttpContextAccessor httpContext, IMemoryCache memoryCache, ILogger<StoryblokBaseClient> logger)
@@ -27,7 +27,7 @@ namespace Saxx.Storyblok.Clients
             MemoryCache = memoryCache;
             Logger = logger;
             Settings = settings.Value;
-            IsInEditor = httpContext?.HttpContext?.Request?.Query?.IsInStoryblokEditor(Settings) ?? false;
+            IsInEditor = httpContext.HttpContext?.Request?.Query?.IsInStoryblokEditor(Settings) ?? false;
 
             ValidateSettings();
         }
@@ -61,8 +61,6 @@ namespace Saxx.Storyblok.Clients
             }
         }
 
-
-
         protected string ApiKey => Settings.IncludeDraftStories || IsInEditor ? (Settings.ApiKeyPreview ?? "") : (Settings.ApiKeyPublic ?? "");
         
         public void ClearCache()
@@ -84,12 +82,12 @@ namespace Saxx.Storyblok.Clients
             }
         }
 
-        public bool IsDefaultCulture(CultureInfo culture)
+        protected bool IsDefaultCulture(CultureInfo culture)
         {
             return IsDefaultCulture(culture.ToString());
         }
 
-        public bool IsDefaultCulture(string culture)
+        private bool IsDefaultCulture(string culture)
         {
             return Settings.SupportedCultures[0].Equals(culture, StringComparison.OrdinalIgnoreCase);
         }

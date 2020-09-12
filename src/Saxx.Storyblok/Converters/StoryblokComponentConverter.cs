@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text.Json;
+using Saxx.Storyblok.Clients;
 
 namespace Saxx.Storyblok.Converters
 {
@@ -24,7 +25,16 @@ namespace Saxx.Storyblok.Converters
                         var rawText = doc.RootElement.GetRawText();
                         try
                         {
-                            return (StoryblokComponent) JsonSerializer.Deserialize(rawText, mapping.Type, options);
+                            var component = (StoryblokComponent) JsonSerializer.Deserialize(rawText, mapping.Type, options);
+
+                            // we don't want the "editable" property set at all, when we're not in editor
+                            // this makes it easier for the client, so he does not have to check if in the editor on each component, he just has to render the "editable" stuff into it
+                            if (!StoryblokBaseClient.IsInEditor)
+                            {
+                                component.Editable = null;
+                            }
+                            
+                            return component;
                         }
                         catch (JsonException ex)
                         {

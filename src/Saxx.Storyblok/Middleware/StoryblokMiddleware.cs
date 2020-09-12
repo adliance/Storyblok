@@ -155,7 +155,11 @@ namespace Saxx.Storyblok.Middleware
             // we have a story, yay! Lets render it and stop with the middleware chain
             logger.LogTrace($"Rendering slug \"{slug}\" with view \"{componentMapping.View}\".");
             CultureInfo.CurrentUICulture = CultureInfo.CurrentCulture = currentCulture; // set the thread culture to match the story
-            if (options.Value.ConfigureRequestLocalization && !string.IsNullOrWhiteSpace(options.Value.CultureCookieName))
+
+            // store the culture in the cookie, but only if there's not a cookie yet
+            if (options.Value.ConfigureRequestLocalization 
+                && !string.IsNullOrWhiteSpace(options.Value.CultureCookieName) 
+                && !context.Request.Cookies.ContainsKey(options.Value.CultureCookieName))
             {
                 context.Response.Cookies.Append(
                     options.Value.CultureCookieName,

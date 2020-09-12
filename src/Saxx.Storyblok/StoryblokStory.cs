@@ -39,6 +39,7 @@ namespace Saxx.Storyblok
         [JsonPropertyName("name")] public string? Name { get; set; }
         [JsonPropertyName("slug")] public string? Slug { get; set; }
         [JsonPropertyName("full_slug")] public string? FullSlug { get; set; }
+        [JsonPropertyName("default_full_slug")] public string? DefaultFullSlug { get; set; }
         [JsonPropertyName("created_at")] public DateTime CreatedAt { get; set; }
         [JsonPropertyName("published_at")] public DateTime? PublishedAt { get; set; }
 
@@ -52,6 +53,7 @@ namespace Saxx.Storyblok
         [JsonPropertyName("is_startpage")] public bool IsStartPage { get; set; }
 
         [JsonPropertyName("lang")] public string Language { get; set; } = "";
+        [JsonPropertyName("translated_slugs")] public IList<StoryblokTranslatedSlug> TranslatedSlugs { get; set; } = new List<StoryblokTranslatedSlug>();
 
         public DateTime LoadedAt { get; set; }
 
@@ -59,6 +61,13 @@ namespace Saxx.Storyblok
         {
             return FullSlug ?? "";
         }
+    }
+
+    public class StoryblokTranslatedSlug
+    {
+        [JsonPropertyName("path")] public string? Path { get; set; }
+        [JsonPropertyName("name")] public string? Name { get; set; }
+        [JsonPropertyName("lang")] public string? Language { get; set; }
     }
 
     public class StoryblokStoriesContainer

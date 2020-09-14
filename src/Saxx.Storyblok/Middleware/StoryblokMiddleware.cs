@@ -34,13 +34,6 @@ namespace Saxx.Storyblok.Middleware
         {
             var settings = options.Value;
 
-            if (context.Request.Method != HttpMethods.Get)
-            {
-                logger.LogTrace("Ignoring request, because it's not GET.");
-                await _next.Invoke(context);
-                return;
-            }
-
             var slug = context.Request.Path.ToString();
             if (string.IsNullOrWhiteSpace(slug))
             {
@@ -54,6 +47,15 @@ namespace Saxx.Storyblok.Middleware
                 storyblokClient.ClearCache();
                 context.Response.StatusCode = (int) HttpStatusCode.OK;
                 await context.Response.WriteAsync("Cache cleared.");
+                return;
+            }
+
+            // only accept GET requests
+            // please note that we check for the cache clearing slug above, because that's a POST
+            if (context.Request.Method != HttpMethods.Get)
+            {
+                logger.LogTrace("Ignoring request, because it's not GET.");
+                await _next.Invoke(context);
                 return;
             }
 

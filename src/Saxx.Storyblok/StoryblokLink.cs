@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System;
+using System.Text.Json.Serialization;
 
 namespace Saxx.Storyblok
 {
@@ -14,10 +15,11 @@ namespace Saxx.Storyblok
         {
             get
             {
-                var url = string.IsNullOrWhiteSpace(CachedValue) ? Value : "/" + CachedValue;
-                if (url != null && url.StartsWith("//"))
+                var url = string.IsNullOrWhiteSpace(CachedValue) ? Value : CachedValue;
+                if (url != null && !url.StartsWith("http", StringComparison.OrdinalIgnoreCase))
                 {
-                    url = url.Substring(1);
+                    url = url.TrimStart('/');
+                    url = "/" + url;
                 }
 
                 return url;

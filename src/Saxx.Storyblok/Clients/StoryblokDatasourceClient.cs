@@ -65,7 +65,7 @@ namespace Saxx.Storyblok.Clients
 
         private async Task<StoryblokDatasource?> LoadDatasourceFromStoryblok(string name, string? dimension)
         {
-            var url = $"{Settings.BaseUrl}/datasource_entries?datasource={name}";
+            var url = $"{Settings.BaseUrl}/datasource_entries?datasource={name}&page=1&per_page=1000";
             if (!string.IsNullOrWhiteSpace(dimension))
             {
                 url += $"&dimension={dimension}";

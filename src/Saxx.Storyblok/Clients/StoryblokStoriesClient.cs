@@ -54,7 +54,7 @@ namespace Saxx.Storyblok.Clients
             }
 
             var url = $"{Settings.BaseUrl}/stories";
-            url += $"?token={ApiKey}&{parameters.Trim('&')}";
+            url += $"?token={ApiKey}&{parameters.Trim('&')}&page=1&per_page=100";
             if (Settings.IncludeDraftStories || IsInEditor)
             {
                 url += "&version=draft";

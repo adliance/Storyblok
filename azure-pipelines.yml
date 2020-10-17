@@ -1,10 +1,10 @@
-name: 2.0.$(rev:r)
+name: 2.1.$(rev:r)
 
 trigger:
 - master
 
 pool:
-  vmImage: 'windows-latest'
+  vmImage: 'ubuntu-latest'
 
 variables:
   buildConfiguration: 'Release'
@@ -12,19 +12,12 @@ variables:
 
 steps:
 - checkout: self
-  clean: true
 
 - task: DotNetCoreCLI@2
   displayName: Restore
   inputs:
     command: restore
     projects: '**/*.csproj'
-
-- script: |
-   dotnet tool install -g dotnet-setversion
-   cd $(Build.SourcesDirectory)/src/Saxx.Storyblok.Example
-   setversion $(Build.BuildNumber)
-  displayName: Set Version
 
 - task: DotNetCoreCLI@2
   displayName: Build
@@ -33,12 +26,11 @@ steps:
     arguments: '--configuration $(buildConfiguration)'
 
 - task: DotNetCoreCLI@2
-  displayName: Publish Example Website
+  displayName: Test
   inputs:
-    command: publish
-    publishWebProjects: True
-    arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)'
-    zipAfterPublish: True
+    command: test
+    projects: 'test/**/*.csproj'
+    arguments: '--configuration $(buildConfiguration)'
 
 - task: DotNetCoreCLI@2
   displayName: Pack Saxx.Storyblok NuGet package
@@ -54,8 +46,3 @@ steps:
     command: push
     nuGetFeedType: external
     publishFeedCredentials: 'Public NuGet'
-
-- task: PublishBuildArtifacts@1
-  displayName: Publish build artifacts
-  inputs:
-    PathtoPublish: '$(build.artifactstagingdirectory)'

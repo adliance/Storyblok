@@ -116,7 +116,7 @@ namespace Saxx.Storyblok.Clients
             response.EnsureSuccessStatusCode();
             var responseString = await response.Content.ReadAsStringAsync();
 
-            var story = JsonSerializer.Deserialize<StoryblokStoryContainer>(responseString,  JsonOptions).Story;
+            var story = JsonSerializer.Deserialize<StoryblokStoryContainer>(responseString, JsonOptions).Story;
             story.LoadedAt = DateTime.UtcNow;
             return story;
         }

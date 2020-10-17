@@ -21,13 +21,13 @@ namespace Saxx.Storyblok.Clients
         internal static bool IsInEditor;
         protected readonly StoryblokOptions Settings;
 
-        protected StoryblokBaseClient(IOptions<StoryblokOptions> settings, IHttpClientFactory clientFactory, IHttpContextAccessor httpContext, IMemoryCache memoryCache, ILogger<StoryblokBaseClient> logger)
+        protected StoryblokBaseClient(IOptions<StoryblokOptions> settings, IHttpClientFactory clientFactory, IHttpContextAccessor? httpContext, IMemoryCache memoryCache, ILogger<StoryblokBaseClient> logger)
         {
             Client = clientFactory.CreateClient();
             MemoryCache = memoryCache;
             Logger = logger;
             Settings = settings.Value;
-            IsInEditor = httpContext.HttpContext?.Request?.Query?.IsInStoryblokEditor(Settings) ?? false;
+            IsInEditor = httpContext?.HttpContext?.Request?.Query?.IsInStoryblokEditor(Settings) ?? false;
 
             ValidateSettings();
         }

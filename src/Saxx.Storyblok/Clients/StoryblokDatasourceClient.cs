@@ -16,7 +16,7 @@ namespace Saxx.Storyblok.Clients
         public StoryblokDatasourceClient(
             IOptions<StoryblokOptions> settings,
             IHttpClientFactory clientFactory,
-            IHttpContextAccessor httpContext,
+            IHttpContextAccessor? httpContext,
             IMemoryCache memoryCache,
             ILogger<StoryblokBaseClient> logger) : base(settings, clientFactory, httpContext, memoryCache, logger)
         {
@@ -70,6 +70,7 @@ namespace Saxx.Storyblok.Clients
             {
                 url += $"&dimension={dimension}";
             }
+
             url += $"&token={ApiKey}&cb={DateTime.UtcNow:yyyyMMddHHmmss}";
 
             var response = await Client.GetAsync(url);

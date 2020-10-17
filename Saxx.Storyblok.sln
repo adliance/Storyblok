@@ -5,13 +5,13 @@ VisualStudioVersion = 16.0.29324.140
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Saxx.Storyblok", "src\Saxx.Storyblok\Saxx.Storyblok.csproj", "{D31EF708-E688-4ADD-BB3B-CABE548F843A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Saxx.Storyblok.Example", "src\Saxx.Storyblok.Example\Saxx.Storyblok.Example.csproj", "{EC8F6ECF-9950-48A6-B5DD-B40C23E4151B}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8BDE9E1A-472F-40BA-A351-CB879CE2FDE6}"
 	ProjectSection(SolutionItems) = preProject
 		azure-pipelines.yml = azure-pipelines.yml
 		README.md = README.md
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Saxx.Storyblok.Tests", "test\Saxx.Storyblok.Tests\Saxx.Storyblok.Tests.csproj", "{4328AFE3-96BF-4C95-A2AC-A9A539068224}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +23,10 @@ Global
 		{D31EF708-E688-4ADD-BB3B-CABE548F843A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D31EF708-E688-4ADD-BB3B-CABE548F843A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D31EF708-E688-4ADD-BB3B-CABE548F843A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EC8F6ECF-9950-48A6-B5DD-B40C23E4151B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EC8F6ECF-9950-48A6-B5DD-B40C23E4151B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EC8F6ECF-9950-48A6-B5DD-B40C23E4151B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EC8F6ECF-9950-48A6-B5DD-B40C23E4151B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4328AFE3-96BF-4C95-A2AC-A9A539068224}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4328AFE3-96BF-4C95-A2AC-A9A539068224}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4328AFE3-96BF-4C95-A2AC-A9A539068224}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4328AFE3-96BF-4C95-A2AC-A9A539068224}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

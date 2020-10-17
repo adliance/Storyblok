@@ -18,11 +18,16 @@ namespace Adliance.Storyblok.Clients
         public StoryblokStoriesClient(
             IOptions<StoryblokOptions> settings,
             IHttpClientFactory clientFactory,
-            IHttpContextAccessor httpContext,
+            IHttpContextAccessor? httpContext,
             IMemoryCache memoryCache,
             ILogger<StoryblokBaseClient> logger) : base(settings, clientFactory, httpContext, memoryCache, logger)
         {
         }
+
+        /// <summary>
+        /// Gets or sets the number of items requested for each page when loading the stories.
+        /// </summary>
+        public int PerPage { get; set; } = 100;
 
         // ReSharper disable once UnusedMember.Global
         public StoryblokStoriesQuery Stories()
@@ -54,7 +59,7 @@ namespace Adliance.Storyblok.Clients
             }
 
             var url = $"{Settings.BaseUrl}/stories";
-            url += $"?token={ApiKey}&{parameters.Trim('&')}&page=1&per_page=100";
+            url += $"?token={ApiKey}&{parameters.Trim('&')}&page=1&per_page={PerPage}";
             if (Settings.IncludeDraftStories || IsInEditor)
             {
                 url += "&version=draft";
@@ -68,25 +73,12 @@ namespace Adliance.Storyblok.Clients
             var maxPage = 1;
             var result = new List<StoryblokStory>();
 
-            while (++page <= maxPage)
+            while (page <= maxPage)
             {
-                var urlWithPage = url += $"&page={page}";
+                var urlWithPage = url + $"&page={page}";
 
                 var response = await Client.GetAsync(urlWithPage);
                 response.EnsureSuccessStatusCode();
-
-                if (page == 1 && response.Headers.Contains("total"))
-                {
-                    try
-                    {
-                        var total = int.Parse(response.Headers.First(x => x.Key.Equals("total", StringComparison.OrdinalIgnoreCase)).Value.First());
-                        maxPage = (int) Math.Ceiling(total / (double) StoryblokStoriesQuery.PerPage);
-                    }
-                    catch
-                    {
-                        maxPage = 1;
-                    }
-                }
 
                 var responseString = await response.Content.ReadAsStringAsync();
                 var stories = JsonSerializer.Deserialize<StoryblokStoriesContainer>(responseString, JsonOptions);
@@ -100,6 +92,10 @@ namespace Adliance.Storyblok.Clients
                 }
 
                 result.AddRange(currentPageStories);
+
+                var total = int.Parse(response.Headers.GetValues("Total").First());
+                maxPage = (int) Math.Ceiling(total / (double) PerPage);
+                page++;
             }
 
             Logger.LogTrace($"Stories loaded for \"{parameters}\".");

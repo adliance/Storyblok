@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text.Json;
@@ -21,6 +23,11 @@ namespace Adliance.Storyblok.Clients
             ILogger<StoryblokBaseClient> logger) : base(settings, clientFactory, httpContext, memoryCache, logger)
         {
         }
+
+        /// <summary>
+        /// Gets or sets the number of items requested for each page when loading the datasource.
+        /// </summary>
+        public int PerPage { get; set; } = 1000;
 
         public async Task<StoryblokDatasource?> Datasource(string name, CultureInfo dimension)
         {
@@ -65,25 +72,40 @@ namespace Adliance.Storyblok.Clients
 
         private async Task<StoryblokDatasource?> LoadDatasourceFromStoryblok(string name, string? dimension)
         {
-            var url = $"{Settings.BaseUrl}/datasource_entries?datasource={name}&page=1&per_page=1000";
-            if (!string.IsNullOrWhiteSpace(dimension))
+            var items = new List<StoryblokDatasourceEntry>();
+            var page = 1;
+            var maxPage = 1;
+
+            while (page <= maxPage)
             {
-                url += $"&dimension={dimension}";
+                var url = $"{Settings.BaseUrl}/datasource_entries?datasource={name}&page=1&per_page={PerPage}&page={page}";
+                if (!string.IsNullOrWhiteSpace(dimension))
+                {
+                    url += $"&dimension={dimension}";
+                }
+
+                url += $"&token={ApiKey}&cb={DateTime.UtcNow:yyyyMMddHHmmss}";
+
+                var response = await Client.GetAsync(url);
+                if (response.StatusCode == HttpStatusCode.NotFound)
+                {
+                    return null;
+                }
+
+                response.EnsureSuccessStatusCode();
+                var responseString = await response.Content.ReadAsStringAsync();
+                var pageResults = JsonSerializer.Deserialize<StoryblokDatasource>(responseString, JsonOptions);
+                items.AddRange(pageResults.Entries);
+
+                var total = int.Parse(response.Headers.GetValues("Total").First());
+                maxPage = (int) Math.Ceiling(total / (double) PerPage);
+                page++;
             }
 
-            url += $"&token={ApiKey}&cb={DateTime.UtcNow:yyyyMMddHHmmss}";
-
-            var response = await Client.GetAsync(url);
-            if (response.StatusCode == HttpStatusCode.NotFound)
+            return new StoryblokDatasource
             {
-                return null;
-            }
-
-            response.EnsureSuccessStatusCode();
-            var responseString = await response.Content.ReadAsStringAsync();
-
-            var result = JsonSerializer.Deserialize<StoryblokDatasource>(responseString, JsonOptions);
-            return result;
+                Entries = items
+            };
         }
     }
 }

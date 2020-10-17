@@ -18,7 +18,6 @@ namespace Adliance.Storyblok
         private readonly IList<Filter> _filters = new List<Filter>();
         private string _startsWith = "";
         private string _culture = "";
-        internal const int PerPage = 50;
 
         public StoryblokStoriesQuery(StoryblokStoriesClient client, StoryblokOptions options)
         {
@@ -28,11 +27,7 @@ namespace Adliance.Storyblok
 
         public StoryblokStoriesQuery StartingWith(string startingWith)
         {
-            if (startingWith != null)
-            {
-                _startsWith = startingWith;
-            }
-
+            _startsWith = startingWith;
             return this;
         }
 
@@ -49,14 +44,10 @@ namespace Adliance.Storyblok
 
         public StoryblokStoriesQuery ExcludingFields(params string[] fields)
         {
-            if (fields != null)
+            foreach (var s in fields)
             {
-                foreach (var s in fields)
-                {
-                    _excludingFields.Add(s);
-                }
+                _excludingFields.Add(s);
             }
-
             return this;
         }
 
@@ -88,7 +79,7 @@ namespace Adliance.Storyblok
 
         private string GetParameters()
         {
-            var result = $"&per_page={PerPage}";
+            var result = "";
 
             if (!string.IsNullOrWhiteSpace(_culture) && string.IsNullOrWhiteSpace(_startsWith))
             {

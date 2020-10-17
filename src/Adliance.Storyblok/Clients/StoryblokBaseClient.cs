@@ -63,25 +63,6 @@ namespace Adliance.Storyblok.Clients
 
         protected string ApiKey => Settings.IncludeDraftStories || IsInEditor ? (Settings.ApiKeyPreview ?? "") : (Settings.ApiKeyPublic ?? "");
         
-        public void ClearCache()
-        {
-            try
-            {
-                // this is sloow, but I was not able to find any other way to clear the memory cache
-                var field = typeof(MemoryCache).GetProperty("EntriesCollection", BindingFlags.NonPublic | BindingFlags.Instance);
-                // ReSharper disable PossibleNullReferenceException
-                var entriesCollection = field.GetValue(MemoryCache);
-                var clearMethod = entriesCollection.GetType().GetMethod("Clear");
-                clearMethod.Invoke(entriesCollection, null);
-                // ReSharper restore PossibleNullReferenceException
-                Logger.LogTrace("Cache cleared.");
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, "Unable to clear cache.");
-            }
-        }
-
         protected bool IsDefaultCulture(CultureInfo culture)
         {
             return IsDefaultCulture(culture.ToString());

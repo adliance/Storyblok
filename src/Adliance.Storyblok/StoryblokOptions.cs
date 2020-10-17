@@ -47,5 +47,6 @@ namespace Adliance.Storyblok
 
         public string CultureCookieName { get; set; } = "culture";
         public bool ConfigureRequestLocalization { get; set; } = true;
+        public bool EnableSitemap { get; set; } = true;
     }
 }

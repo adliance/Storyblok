@@ -37,6 +37,10 @@ namespace Adliance.Storyblok.Extensions
                 }
             }
 
+            app.MapWhen(context => options?.Value.EnableSitemap == true && context.Request.Path.StartsWithSegments("/sitemap.xml"), appBuilder => { appBuilder.UseMiddleware<StoryblokSitemapMiddleware>(); });
+
+            app.MapWhen(context => !string.IsNullOrWhiteSpace(options?.Value?.SlugForClearingCache) && context.Request.Path.StartsWithSegments("/" + options.Value?.SlugForClearingCache.Trim('/')), appBuilder => { appBuilder.UseMiddleware<StoryblokClearCacheMiddleware>(); });
+
             app.UseMiddleware<StoryblokMiddleware>();
             return app;
         }

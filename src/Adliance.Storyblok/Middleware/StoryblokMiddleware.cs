@@ -41,15 +41,7 @@ namespace Adliance.Storyblok.Middleware
                 await _next.Invoke(context);
                 return;
             }
-
-            if (!string.IsNullOrWhiteSpace(settings.SlugForClearingCache) && settings.SlugForClearingCache.Trim('/').Equals(slug.Trim('/'), StringComparison.InvariantCultureIgnoreCase))
-            {
-                storyblokClient.ClearCache();
-                context.Response.StatusCode = (int) HttpStatusCode.OK;
-                await context.Response.WriteAsync("Cache cleared.");
-                return;
-            }
-
+            
             // only accept GET requests
             // please note that we check for the cache clearing slug above, because that's a POST
             if (context.Request.Method != HttpMethods.Get)
@@ -159,8 +151,8 @@ namespace Adliance.Storyblok.Middleware
             CultureInfo.CurrentUICulture = CultureInfo.CurrentCulture = currentCulture; // set the thread culture to match the story
 
             // store the culture in the cookie, but only if there's not a cookie yet
-            if (options.Value.ConfigureRequestLocalization 
-                && !string.IsNullOrWhiteSpace(options.Value.CultureCookieName) 
+            if (options.Value.ConfigureRequestLocalization
+                && !string.IsNullOrWhiteSpace(options.Value.CultureCookieName)
                 && !context.Request.Cookies.ContainsKey(options.Value.CultureCookieName))
             {
                 context.Response.Cookies.Append(

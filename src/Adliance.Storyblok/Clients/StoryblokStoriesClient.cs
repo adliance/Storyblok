@@ -69,7 +69,7 @@ namespace Adliance.Storyblok.Clients
 
             Logger.LogTrace($"Trying to load stories for \"{parameters}\".");
 
-            var page = 0;
+            var page = 1;
             var maxPage = 1;
             var result = new List<StoryblokStory>();
 

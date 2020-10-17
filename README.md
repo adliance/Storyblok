@@ -4,5 +4,5 @@
 
 It also provides an ASP.NET Core middleware to directly render render stories into views based on their Storyblok slug.
 
-[[![Build Status](https://dev.azure.com/adliance/Open%20Source%20Projects/_apis/build/status/Storyblok?branchName=master)](https://dev.azure.com/adliance/Open%20Source%20Projects/_build/latest?definitionId=97&branchName=master)
+[![Build Status](https://dev.azure.com/adliance/Open%20Source%20Projects/_apis/build/status/Storyblok?branchName=master)](https://dev.azure.com/adliance/Open%20Source%20Projects/_build/latest?definitionId=97&branchName=master)
 [![NuGet Badge](https://buildstats.info/nuget/Adliance.Storyblok)](https://www.nuget.org/packages/Saxx.Storyblok/)

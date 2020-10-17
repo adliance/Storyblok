@@ -33,8 +33,17 @@ namespace Adliance.Storyblok
 
         public StoryblokStoriesQuery ForCurrentUiCulture()
         {
-            _culture = CultureInfo.CurrentUICulture.ToString();
+            return ForCulture(CultureInfo.CurrentUICulture);
+        }
+        
+        public StoryblokStoriesQuery ForCulture(CultureInfo culture)
+        {
+            _culture = culture.ToString();
             if (_options.SupportedCultures.First().Equals(_culture, StringComparison.OrdinalIgnoreCase))
+            {
+                _culture = "";
+            }
+            else if (!_options.SupportedCultures.Any(x => x.Equals(_culture, StringComparison.OrdinalIgnoreCase)))
             {
                 _culture = "";
             }

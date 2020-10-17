@@ -33,10 +33,10 @@ steps:
     arguments: '--configuration $(buildConfiguration)'
 
 - task: DotNetCoreCLI@2
-  displayName: Pack Saxx.Storyblok NuGet package
+  displayName: Pack NuGet package
   inputs:
     command: pack
-    packagesToPack: 'src/Saxx.Storyblok/*.csproj'
+    packagesToPack: 'src/Adliance.Storyblok/*.csproj'
     arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)'
     versioningScheme: byBuildNumber
 

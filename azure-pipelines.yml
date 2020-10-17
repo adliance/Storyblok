@@ -9,7 +9,6 @@ pool:
 variables:
   buildConfiguration: 'Release'
 
-
 steps:
 - checkout: self
 
@@ -35,7 +34,7 @@ steps:
     Adliance_Storyblok_Tests__ApiKeyPublic: $(ApiKeyPublic)
 
 - task: DotNetCoreCLI@2
-  displayName: Pack NuGet package
+  displayName: Pack
   inputs:
     command: pack
     packagesToPack: 'src/Adliance.Storyblok/*.csproj'
@@ -43,7 +42,7 @@ steps:
     versioningScheme: byBuildNumber
 
 - task: NuGetCommand@2
-  displayName: Push to public NuGet
+  displayName: Push
   inputs:
     command: push
     nuGetFeedType: external

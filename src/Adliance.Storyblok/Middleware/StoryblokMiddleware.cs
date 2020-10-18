@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Globalization;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using Adliance.Storyblok.Clients;
 using Adliance.Storyblok.Extensions;
@@ -151,7 +150,7 @@ namespace Adliance.Storyblok.Middleware
             CultureInfo.CurrentUICulture = CultureInfo.CurrentCulture = currentCulture; // set the thread culture to match the story
 
             // store the culture in the cookie, but only if there's not a cookie yet
-            if (options.Value.ConfigureRequestLocalization
+            if (options.Value.SupportedCultures.Length > 1
                 && !string.IsNullOrWhiteSpace(options.Value.CultureCookieName)
                 && !context.Request.Cookies.ContainsKey(options.Value.CultureCookieName))
             {

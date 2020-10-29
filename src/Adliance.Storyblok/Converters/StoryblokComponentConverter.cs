@@ -33,7 +33,8 @@ namespace Adliance.Storyblok.Converters
                             {
                                 component.Editable = null;
                             }
-                            
+
+                            component.IsInEditor = StoryblokBaseClient.IsInEditor;
                             return component;
                         }
                         catch (JsonException ex)
@@ -48,7 +49,8 @@ namespace Adliance.Storyblok.Converters
             return new StoryblokComponent
             {
                 Uuid = doc.RootElement.GetProperty("_uid").GetGuid(),
-                Component = doc.RootElement.GetProperty("component").GetString()
+                Component = doc.RootElement.GetProperty("component").GetString(),
+                IsInEditor = StoryblokBaseClient.IsInEditor
             };
         }
 

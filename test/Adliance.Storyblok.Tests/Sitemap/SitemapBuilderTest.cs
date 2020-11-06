@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Adliance.Storyblok.Sitemap;
+using Adliance.Storyblok.Tests.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -11,6 +12,7 @@ namespace Adliance.Storyblok.Tests.Sitemap
 
         public SitemapBuilderTest()
         {
+            Thread.DontBombardStoryblokApi();
             _factory = new MockedWebApplicationFactory<MockedStartup>();
         }
 

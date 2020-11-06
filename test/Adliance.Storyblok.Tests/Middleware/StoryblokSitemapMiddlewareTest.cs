@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Adliance.Storyblok.Tests.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Xunit;
@@ -14,6 +15,7 @@ namespace Adliance.Storyblok.Tests.Middleware
 
         public StoryblokSitemapMiddlewareTest()
         {
+            Thread.DontBombardStoryblokApi();
             _factory = new MockedWebApplicationFactory<MockedStartup>();
         }
 

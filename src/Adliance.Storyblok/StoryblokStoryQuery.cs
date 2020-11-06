@@ -10,6 +10,7 @@ namespace Adliance.Storyblok
 
         private CultureInfo? _culture;
         private string _slug = "";
+        private ResolveLinksType _resolveLinks = ResolveLinksType.Url;
 
         public StoryblokStoryQuery(StoryblokStoryClient client)
         {
@@ -18,34 +19,38 @@ namespace Adliance.Storyblok
 
         public StoryblokStoryQuery WithSlug(string slug)
         {
-            if (slug != null)
-            {
-                _slug = slug;
-            }
-
+            _slug = slug;
             return this;
         }
 
         public StoryblokStoryQuery WithCulture(CultureInfo culture)
         {
-            if (culture != null)
-            {
-                _culture = culture;
-            }
-
+            _culture = culture;
             return this;
         }
 
-
+        public StoryblokStoryQuery ResolveLinks(ResolveLinksType type)
+        {
+            _resolveLinks = type;
+            return this;
+        }
+        
         public async Task<StoryblokStory<T>?> Load<T>() where T : StoryblokComponent
         {
-            return await _client.LoadStory<T>(_culture, _slug);
+            return await _client.LoadStory<T>(_culture, _slug, _resolveLinks);
         }
 
         // ReSharper disable once UnusedMember.Global
         public async Task<StoryblokStory?> Load()
         {
-            return await _client.LoadStory(_culture, _slug);
+            return await _client.LoadStory(_culture, _slug, _resolveLinks);
         }
+    }
+    
+    public enum ResolveLinksType
+    {
+        Url,
+        Story,
+        None
     }
 }

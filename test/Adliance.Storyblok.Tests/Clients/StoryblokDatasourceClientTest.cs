@@ -23,7 +23,7 @@ namespace Adliance.Storyblok.Tests.Clients
             
             var datasource = await client.Datasource("redirects");
             Assert.NotNull(datasource);
-            Assert.True(datasource.Entries.Count() > 150);
+            Assert.True(datasource?.Entries.Count() > 150);
         }
 
         [Fact]
@@ -35,7 +35,7 @@ namespace Adliance.Storyblok.Tests.Clients
 
             var datasource = await client.Datasource("redirects");
             Assert.NotNull(datasource);
-            Assert.True(datasource.Entries.Count() > 150);
+            Assert.True(datasource?.Entries.Count() > 150);
         }
     }
 }

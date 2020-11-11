@@ -9,14 +9,13 @@ namespace Adliance.Storyblok.Tests.Clients
 {
     public class StoryblokStoryClientTest
     {
-        private readonly MockedWebApplicationFactory<MockedStartup> _factory;
         private readonly StoryblokStoryClient _client;
 
         public StoryblokStoryClientTest()
         {
-            _factory = new MockedWebApplicationFactory<MockedStartup>();
-            _factory.CreateClient();
-            _client = _factory.Services.GetRequiredService<StoryblokStoryClient>();
+            MockedWebApplicationFactory<MockedStartup> factory = new MockedWebApplicationFactory<MockedStartup>();
+            factory.CreateClient();
+            _client = factory.Services.GetRequiredService<StoryblokStoryClient>();
         }
 
         [Fact]
@@ -49,6 +48,22 @@ namespace Adliance.Storyblok.Tests.Clients
 
             Assert.NotEmpty(buttons);
             Assert.All(buttons, x => Assert.Null(x.Link?.Story));
+        }
+        
+        [Fact]
+        public async Task Story_Contains_Translated_Slug()
+        {
+            var story = await _client.Story().WithSlug("/team").Load<PageComponent>();
+            Assert.NotNull(story);
+            Assert.NotEmpty(story!.TranslatedSlugs);
+        }
+        
+        [Fact]
+        public async Task Story_Contains_Default_Full_Slug()
+        {
+            var story = await _client.Story().WithSlug("/en/team").Load<PageComponent>();
+            Assert.NotNull(story);
+            Assert.Equal("team", story!.DefaultFullSlug);
         }
 
         private IList<T> Find<T>(StoryblokStory<PageComponent>? story)

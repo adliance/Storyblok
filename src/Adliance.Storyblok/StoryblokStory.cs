@@ -25,6 +25,8 @@ namespace Adliance.Storyblok
             IsStartPage = story.IsStartPage;
             Position = story.Position;
             Language = story.Language;
+            TranslatedSlugs = story.TranslatedSlugs;
+            DefaultFullSlug = story.DefaultFullSlug;
 
             var castContent = story.Content as T;
             Content = castContent ?? throw new Exception($"A component of type \"{story.Content?.GetType()}\" cannot be cast to \"{typeof(T)}\"");

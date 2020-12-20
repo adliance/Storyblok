@@ -10,6 +10,7 @@ namespace Adliance.Storyblok
         [JsonPropertyName("linktype")] public string? LinkType { get; set; }
         [JsonPropertyName("fieldtype")] public string? FieldType { get; set; }
         [JsonPropertyName("cached_url")] public string? CachedValue { get; set; }
+        [JsonPropertyName("anchor")] public string? Anchor { get; set; }
         
         /// <summary>
         /// This property is available when the story has been requested via resolve_links parameters set.
@@ -41,6 +42,11 @@ namespace Adliance.Storyblok
                 {
                     url = url.TrimStart('/');
                     url = "/" + url;
+                }
+
+                if (!string.IsNullOrWhiteSpace(Anchor))
+                {
+                    url += $"#{Anchor}";
                 }
 
                 return url;

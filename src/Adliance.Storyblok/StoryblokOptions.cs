@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
@@ -47,5 +48,7 @@ namespace Adliance.Storyblok
 
         public string CultureCookieName { get; set; } = "culture";
         public bool EnableSitemap { get; set; } = true;
+
+        public Func<StoryblokStory, bool> SitemapFilter { get; set; } = _ => true;
     }
 }

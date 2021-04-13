@@ -4,16 +4,19 @@ using System.Text;
 using System.Threading.Tasks;
 using Adliance.Storyblok.Clients;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 
 namespace Adliance.Storyblok.Sitemap
 {
     public class SitemapBuilder
     {
+        private readonly IOptions<StoryblokOptions> _options;
         private readonly StoryblokStoriesClient _client;
         private readonly IHttpContextAccessor? _httpContext;
 
-        public SitemapBuilder(StoryblokStoriesClient client, IHttpContextAccessor? httpContext)
+        public SitemapBuilder(IOptions<StoryblokOptions> options, StoryblokStoriesClient client, IHttpContextAccessor? httpContext)
         {
+            _options = options;
             _client = client;
             _httpContext = httpContext;
         }
@@ -27,10 +30,13 @@ namespace Adliance.Storyblok.Sitemap
                 .ForCurrentUiCulture()
                 .ExcludingFields("content")
                 .Load<StoryblokComponent>()).ToList();
-
+            
             foreach (var s in stories)
             {
-                result.Locations.Add(new SitemapResult.SitemapLocation(GetFullUrl(s.FullSlug), s.PublishedAt ?? s.CreatedAt));
+                if (_options.Value.SitemapFilter.Invoke(s))
+                {
+                    result.Locations.Add(new SitemapResult.SitemapLocation(GetFullUrl(s.FullSlug), s.PublishedAt ?? s.CreatedAt));
+                }
             }
 
             return result;

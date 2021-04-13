@@ -8,7 +8,7 @@ namespace Adliance.Storyblok.Converters
     public class StoryblokEnumConverter<T> : JsonConverter<T>
     {
         private readonly JsonConverter<T>? _converter;
-        private Type? _underlyingType;
+        private Type? _underlyingTypeCache;
 
         public StoryblokEnumConverter() : this(null)
         {
@@ -23,7 +23,7 @@ namespace Adliance.Storyblok.Converters
             }
         }
 
-        private Type UnderlyingType => _underlyingType ??= Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
+        private Type UnderlyingType => _underlyingTypeCache ??= Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
 
         public override bool CanConvert(Type typeToConvert)
         {
@@ -40,12 +40,12 @@ namespace Adliance.Storyblok.Converters
             var value = reader.GetString();
 
             if (string.IsNullOrEmpty(value)) return default!;
-            if (_underlyingType == null) throw new Exception("No underlying type.");
+            if (UnderlyingType == null) throw new Exception("No underlying type.");
 
             // for performance, parse with ignoreCase:false first.
-            if (!Enum.TryParse(_underlyingType, value, ignoreCase: false, out object? result) && !Enum.TryParse(_underlyingType, value, ignoreCase: true, out result))
+            if (!Enum.TryParse(UnderlyingType, value, ignoreCase: false, out object? result) && !Enum.TryParse(UnderlyingType, value, ignoreCase: true, out result))
             {
-                throw new JsonException($"Unable to convert \"{value}\" to enum \"{_underlyingType}\".");
+                throw new JsonException($"Unable to convert \"{value}\" to enum \"{UnderlyingType}\".");
             }
 
             return (T) result!;

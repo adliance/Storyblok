@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using System.Linq;
 using Adliance.Storyblok.Middleware;
 using Microsoft.AspNetCore.Builder;
@@ -37,9 +38,10 @@ namespace Adliance.Storyblok.Extensions
                 }
             }
 
-            app.MapWhen(context => options?.Value.EnableSitemap == true && context.Request.Path.StartsWithSegments("/sitemap.xml"), appBuilder => { appBuilder.UseMiddleware<StoryblokSitemapMiddleware>(); });
+            app.MapWhen(context => options?.Value.EnableSitemap == true && context.Request.Path.StartsWithSegments("/sitemap.xml", StringComparison.OrdinalIgnoreCase), appBuilder => { appBuilder.UseMiddleware<StoryblokSitemapMiddleware>(); });
 
-            app.MapWhen(context => !string.IsNullOrWhiteSpace(options?.Value?.SlugForClearingCache) && context.Request.Path.StartsWithSegments("/" + options.Value?.SlugForClearingCache.Trim('/')), appBuilder => { appBuilder.UseMiddleware<StoryblokClearCacheMiddleware>(); });
+            app.MapWhen(context => !string.IsNullOrWhiteSpace(options?.Value?.SlugForClearingCache) && context.Request.Path.StartsWithSegments("/" + options.Value?.SlugForClearingCache.Trim('/'), StringComparison.OrdinalIgnoreCase),
+                appBuilder => { appBuilder.UseMiddleware<StoryblokClearCacheMiddleware>(); });
 
             app.UseMiddleware<StoryblokMiddleware>();
             return app;

@@ -95,6 +95,12 @@ namespace Adliance.Storyblok.Clients
                 response.EnsureSuccessStatusCode();
                 var responseString = await response.Content.ReadAsStringAsync();
                 var pageResults = JsonSerializer.Deserialize<StoryblokDatasource>(responseString, JsonOptions);
+
+                if (pageResults == null)
+                {
+                    throw new Exception($"Unable to deserialize {responseString}.");
+                }
+                
                 items.AddRange(pageResults.Entries);
 
                 var total = int.Parse(response.Headers.GetValues("Total").First());

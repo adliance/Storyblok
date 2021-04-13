@@ -30,7 +30,7 @@ namespace Adliance.Storyblok.Tests.Middleware
             var responseString = await response.Content.ReadAsStringAsync();
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             Assert.Contains("<?xml", responseString);
-            Assert.Equal("application/xml", response.Content.Headers.ContentType.MediaType);
+            Assert.Equal("application/xml", response.Content.Headers.ContentType?.MediaType);
             Assert.Contains("public", response.Headers.GetValues("cache-control").First());
         }
 

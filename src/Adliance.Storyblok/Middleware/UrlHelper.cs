@@ -59,7 +59,7 @@ namespace Adliance.Storyblok.Middleware
                 ActionContext.HttpContext,
                 routeName: null,
                 values,
-                fragment: new FragmentString(urlActionContext.Fragment == null ? null : "#" + urlActionContext.Fragment));
+                fragment: new FragmentString(urlActionContext.Fragment == null ? "" : "#" + urlActionContext.Fragment));
             return GenerateUrl(urlActionContext.Protocol, urlActionContext.Host, path);
         }
 
@@ -75,7 +75,7 @@ namespace Adliance.Storyblok.Middleware
                 ActionContext.HttpContext,
                 routeContext.RouteName,
                 routeContext.Values,
-                fragment: new FragmentString(routeContext.Fragment == null ? null : "#" + routeContext.Fragment));
+                fragment: new FragmentString(routeContext.Fragment == null ? "" : "#" + routeContext.Fragment));
             return GenerateUrl(routeContext.Protocol, routeContext.Host, path);
         }
     }

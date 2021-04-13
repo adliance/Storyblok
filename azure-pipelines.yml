@@ -1,4 +1,4 @@
-name: 2.4.$(rev:r)
+name: 3.0.$(rev:r)
 
 trigger:
 - master
@@ -11,6 +11,12 @@ variables:
 
 steps:
 - checkout: self
+
+- task: UseDotNet@2
+  displayName: "Install .NET 5.0.x"
+  inputs:
+    version: '5.0.x'
+    packageType: sdk
 
 - task: DotNetCoreCLI@2
   displayName: Restore

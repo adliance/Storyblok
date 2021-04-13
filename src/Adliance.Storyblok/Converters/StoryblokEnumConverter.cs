@@ -8,7 +8,7 @@ namespace Adliance.Storyblok.Converters
     public class StoryblokEnumConverter<T> : JsonConverter<T>
     {
         private readonly JsonConverter<T>? _converter;
-        private readonly Type? _underlyingType;
+        private Type? _underlyingType;
 
         public StoryblokEnumConverter() : this(null)
         {
@@ -21,29 +21,23 @@ namespace Adliance.Storyblok.Converters
             {
                 _converter = (JsonConverter<T>) options.GetConverter(typeof(T));
             }
-
-            // cache the underlying type
-            _underlyingType = Nullable.GetUnderlyingType(typeof(T));
-            if (_underlyingType == null)
-            {
-                _underlyingType = typeof(T);
-            }
         }
+
+        private Type UnderlyingType => _underlyingType ??= Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
 
         public override bool CanConvert(Type typeToConvert)
         {
             return typeof(T).IsAssignableFrom(typeToConvert);
         }
 
-        public override T Read(ref Utf8JsonReader reader,
-            Type typeToConvert, JsonSerializerOptions options)
+        public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             if (_converter != null)
             {
-                return _converter.Read(ref reader, _underlyingType, options);
+                return _converter.Read(ref reader, UnderlyingType, options) ?? throw new Exception("Unable to read from JSON.");
             }
 
-            string value = reader.GetString();
+            var value = reader.GetString();
 
             if (string.IsNullOrEmpty(value)) return default!;
             if (_underlyingType == null) throw new Exception("No underlying type.");

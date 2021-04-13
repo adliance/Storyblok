@@ -25,7 +25,10 @@ namespace Adliance.Storyblok.Converters
                         var rawText = doc.RootElement.GetRawText();
                         try
                         {
-                            var component = (StoryblokComponent) JsonSerializer.Deserialize(rawText, mapping.Type, options);
+                            if (!(JsonSerializer.Deserialize(rawText, mapping.Type, options) is StoryblokComponent component))
+                            {
+                                throw new Exception($"Unable to serialize {rawText}");
+                            }
 
                             // we don't want the "editable" property set at all, when we're not in editor
                             // this makes it easier for the client, so he does not have to check if in the editor on each component, he just has to render the "editable" stuff into it
@@ -35,6 +38,7 @@ namespace Adliance.Storyblok.Converters
                             }
 
                             component.IsInEditor = StoryblokBaseClient.IsInEditor;
+
                             return component;
                         }
                         catch (JsonException ex)
@@ -49,7 +53,7 @@ namespace Adliance.Storyblok.Converters
             return new StoryblokComponent
             {
                 Uuid = doc.RootElement.GetProperty("_uid").GetGuid(),
-                Component = doc.RootElement.GetProperty("component").GetString(),
+                Component = doc.RootElement.GetProperty("component").GetString() ?? "",
                 IsInEditor = StoryblokBaseClient.IsInEditor
             };
         }

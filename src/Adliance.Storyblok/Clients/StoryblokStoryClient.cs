@@ -121,7 +121,12 @@ namespace Adliance.Storyblok.Clients
             response.EnsureSuccessStatusCode();
             var responseString = await response.Content.ReadAsStringAsync();
 
-            var story = JsonSerializer.Deserialize<StoryblokStoryContainer>(responseString, JsonOptions).Story;
+            var story = JsonSerializer.Deserialize<StoryblokStoryContainer>(responseString, JsonOptions)?.Story;
+            if (story == null)
+            {
+                throw new Exception($"Unable to deserialize {responseString}.");
+            }
+            
             story.LoadedAt = DateTime.UtcNow;
             return story;
         }

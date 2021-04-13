@@ -83,6 +83,11 @@ namespace Adliance.Storyblok.Clients
                 var responseString = await response.Content.ReadAsStringAsync();
                 var stories = JsonSerializer.Deserialize<StoryblokStoriesContainer>(responseString, JsonOptions);
 
+                if (stories == null)
+                {
+                    throw new Exception($"Unable to deserialize {responseString}.");
+                }
+                
                 var currentPageStories = stories.Stories.ToList();
                 currentPageStories.ForEach(x => x.LoadedAt = DateTime.UtcNow);
                 if (!currentPageStories.Any())

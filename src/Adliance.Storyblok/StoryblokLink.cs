@@ -11,6 +11,7 @@ namespace Adliance.Storyblok
         [JsonPropertyName("fieldtype")] public string? FieldType { get; set; }
         [JsonPropertyName("cached_url")] public string? CachedValue { get; set; }
         [JsonPropertyName("anchor")] public string? Anchor { get; set; }
+        [JsonPropertyName("email")] public string? Email { get; set; }
         
         /// <summary>
         /// This property is available when the story has been requested via resolve_links parameters set.
@@ -23,22 +24,16 @@ namespace Adliance.Storyblok
             get
             {
                 string? url = null;
-                if (Story != null)
-                {
-                    url = Story.FullSlug;
-                }
 
-                if (string.IsNullOrWhiteSpace(url))
+                url = LinkType switch
                 {
-                    url = CachedValue;
-                }
+                    "story" => Story?.FullSlug,
+                    "url" => CachedValue ?? Value,
+                    "email" => "mailto:" + Email,
+                    _ => "/"
+                };
 
-                if (string.IsNullOrWhiteSpace(url))
-                {
-                    url = Value;
-                }
-
-                if (url != null && !url.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+                if (url != null && !url.StartsWith("http", StringComparison.OrdinalIgnoreCase) && !url.StartsWith("mailto:", StringComparison.OrdinalIgnoreCase))
                 {
                     url = url.TrimStart('/');
                     url = "/" + url;

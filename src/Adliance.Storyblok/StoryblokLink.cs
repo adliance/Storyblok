@@ -30,7 +30,8 @@ namespace Adliance.Storyblok
                     "story" => Story?.FullSlug,
                     "url" => CachedValue ?? Value,
                     "email" => "mailto:" + Email,
-                    _ => "/"
+                    "asset" => CachedValue ?? Value,
+                    _ => CachedValue ?? Value
                 };
 
                 if (url != null && !url.StartsWith("http", StringComparison.OrdinalIgnoreCase) && !url.StartsWith("mailto:", StringComparison.OrdinalIgnoreCase))

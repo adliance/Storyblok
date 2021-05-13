@@ -36,8 +36,6 @@ steps:
     command: test
     projects: 'test/**/*.csproj'
     arguments: '--configuration $(buildConfiguration)'
-  env:
-    Adliance_Storyblok_Tests__ApiKeyPublic: $(ApiKeyPublic)
 
 - task: DotNetCoreCLI@2
   displayName: Pack

@@ -1,5 +1,8 @@
 ﻿using System.Text.Json.Serialization;
 using Adliance.Storyblok.Attributes;
+// ReSharper disable ClassNeverInstantiated.Global
+// ReSharper disable InconsistentNaming
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 
 namespace Adliance.Storyblok.Tests
 {
@@ -21,6 +24,12 @@ namespace Adliance.Storyblok.Tests
     public class ButtonComponent : StoryblokComponent
     {
         [JsonPropertyName("link")] public StoryblokLink? Link { get; set; }
+    }
+    
+    [StoryblokComponent("table")]
+    public class TableComponent : StoryblokComponent
+    {
+        [JsonPropertyName("table")] public StoryblokTable? Table { get; set; }
     }
     
     [StoryblokComponent("grid_1x1")]

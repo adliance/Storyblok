@@ -5,31 +5,19 @@ namespace Adliance.Storyblok
 {
     public class StoryblokTable
     {
-        [JsonPropertyName("_uid")] public Guid Uuid { get; set; }
-        [JsonPropertyName("fieldtype")] public string? FieldType { get; set; }
-        [JsonPropertyName("thead")] public TableHead[]? TableHeaderColumns { get; set; }
-        [JsonPropertyName("tbody")] public TableRow[]? TableBody { get; set; }
-        [JsonPropertyName("_editable")] public string? Editable { get; set; }
+        [JsonPropertyName("thead")] public StoryblokTableCell[] Header { get; set; } = Array.Empty<StoryblokTableCell>();
+        [JsonPropertyName("tbody")] public StoryblokTableRow[] Body { get; set; } = Array.Empty<StoryblokTableRow>();
     }
 
-    public class TableHead
+    public class StoryblokTableRow
     {
-        [JsonPropertyName("_uid")] public Guid Uuid { get; set; }
-        [JsonPropertyName("value")] public Markdown? Value { get; set; }
-        [JsonPropertyName("_editable")] public string? Editable { get; set; }
+        [JsonPropertyName("body")] public StoryblokTableCell[] Columns { get; set; } = Array.Empty<StoryblokTableCell>();
     }
 
-    public class TableRow
+    public class StoryblokTableCell
     {
-        [JsonPropertyName("_uid")] public Guid Uuid { get; set; }
-        [JsonPropertyName("body")] public TableCol[]? TableColumns { get; set; }
-        [JsonPropertyName("_editable")] public string? Editable { get; set; }
-    }
-    
-    public class TableCol
-    {
-        [JsonPropertyName("_uid")] public Guid Uuid { get; set; }
-        [JsonPropertyName("value")] public Markdown? Value { get; set; }
-        [JsonPropertyName("_editable")] public string? Editable { get; set; }
+        [JsonPropertyName("value")] public string? Value { get; set; }
+
+        [JsonIgnore] public Markdown ValueAsMarkdown => new Markdown(Value);
     }
 }

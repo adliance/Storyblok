@@ -22,7 +22,7 @@ namespace Adliance.Storyblok.Tests.Clients
             
             var stories = await client.Stories().Load<StoryblokComponent>();
             Assert.NotNull(stories);
-            Assert.True(stories.Count > 130);
+            Assert.InRange(stories.Count,1,10);
         }
 
         [Fact]
@@ -30,11 +30,11 @@ namespace Adliance.Storyblok.Tests.Clients
         {
             _factory.CreateClient();
             var client = _factory.Services.GetRequiredService<StoryblokStoriesClient>();
-            client.PerPage = 10;
+            client.PerPage = 1;
             
             var stories = await client.Stories().Load<StoryblokComponent>();
             Assert.NotNull(stories);
-            Assert.True(stories.Count > 130);
+            Assert.InRange(stories.Count,1,10);
         }
     }
 }

@@ -46,6 +46,7 @@ steps:
     versioningScheme: byBuildNumber
 
 - task: NuGetCommand@2
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
   displayName: Push
   inputs:
     command: push

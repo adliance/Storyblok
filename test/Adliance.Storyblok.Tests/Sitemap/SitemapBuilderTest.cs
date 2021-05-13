@@ -24,7 +24,7 @@ namespace Adliance.Storyblok.Tests.Sitemap
 
             var sitemap = await builder.Build();
             Assert.NotNull(sitemap);
-            Assert.True(sitemap.Locations.Count > 125);
+            Assert.InRange(sitemap.Locations.Count, 1, 10);
         }
 
         [Fact]
@@ -35,7 +35,7 @@ namespace Adliance.Storyblok.Tests.Sitemap
 
             var sitemapXml = await builder.BuildXml();
             Assert.NotNull(sitemapXml);
-            Assert.True(sitemapXml.Length > 125 * 150);
+            Assert.InRange(sitemapXml.Length, 150, 1500);
         }
     }
 }

@@ -13,7 +13,7 @@ namespace Adliance.Storyblok.Tests.Clients
 
         public StoryblokStoryClientTest()
         {
-            MockedWebApplicationFactory<MockedStartup> factory = new MockedWebApplicationFactory<MockedStartup>();
+            MockedWebApplicationFactory<MockedStartup> factory = new();
             factory.CreateClient();
             _client = factory.Services.GetRequiredService<StoryblokStoryClient>();
         }
@@ -21,88 +21,67 @@ namespace Adliance.Storyblok.Tests.Clients
         [Fact]
         public async Task Can_Load_Story_With_Resolved_Links()
         {
-            var story = await _client.Story().WithSlug("/en/metabolism").ResolveLinks(ResolveLinksType.Url).Load<PageComponent>();
-            var buttons = Find<ButtonComponent>(story);
-
-            Assert.NotEmpty(buttons);
-            Assert.All(buttons, x => Assert.NotNull(x.Link?.Story));
-            Assert.All(buttons, x => Assert.NotEqual(x.Link?.CachedValue, x.Link?.Story?.FullSlug));
-            Assert.All(buttons, x => Assert.Equal(x.Link?.Url, "/" + x.Link?.Story?.FullSlug));
+            var story = await _client.Story().WithSlug("/en/page-sections-buttons").ResolveLinks(ResolveLinksType.Url).Load<PageComponent>();
+            var section = story!.Content!.Content!.First() as SectionComponent;
+            var grid = section!.Content!.First() as Grid1x1Component;
+            var button = grid!.Right!.First() as ButtonComponent;
+            Assert.NotNull(button);
+            Assert.NotNull(button?.Link?.Story);
+            Assert.NotEqual(button?.Link?.CachedValue, button?.Link?.Story?.FullSlug);
+            Assert.Equal(button?.Link?.Url, "/" + button?.Link?.Story?.FullSlug);
         }
-        
+
         [Fact]
         public async Task Can_Load_Story_With_Resolved_Stories()
         {
-            var story = await _client.Story().WithSlug("/en/metabolism").ResolveLinks(ResolveLinksType.Story).Load<PageComponent>();
-            var buttons = Find<ButtonComponent>(story);
-
-            Assert.NotEmpty(buttons);
-            Assert.All(buttons, x => Assert.NotNull(x.Link?.Story));
+            var story = await _client.Story().WithSlug("/en/page-sections-buttons").ResolveLinks(ResolveLinksType.Story).Load<PageComponent>();
+            var section = story!.Content!.Content!.First() as SectionComponent;
+            var grid = section!.Content!.First() as Grid1x1Component;
+            var button = grid!.Right!.First() as ButtonComponent;
+            Assert.NotNull(button);
+            Assert.NotNull(button!.Link!.Story);
         }
-        
+
         [Fact]
         public async Task Can_Load_Story_Without_Resolved_Links()
         {
-            var story = await _client.Story().WithSlug("/en/metabolism").ResolveLinks(ResolveLinksType.None).Load<PageComponent>();
-            var buttons = Find<ButtonComponent>(story);
-
-            Assert.NotEmpty(buttons);
-            Assert.All(buttons, x => Assert.Null(x.Link?.Story));
+            var story = await _client.Story().WithSlug("/en/page-sections-buttons").ResolveLinks(ResolveLinksType.None).Load<PageComponent>();
+            var section = story!.Content!.Content!.First() as SectionComponent;
+            var grid = section!.Content!.First() as Grid1x1Component;
+            var button = grid!.Right!.First() as ButtonComponent;
+            Assert.NotNull(button);
+            Assert.Null(button!.Link!.Story);
         }
-        
+
+        [Fact]
+        public async Task Can_Load_Table()
+        {
+            var story = await _client.Story().WithSlug("/page-table").ResolveLinks(ResolveLinksType.None).Load<PageComponent>();
+            var table = story!.Content!.Content!.First() as TableComponent;
+            Assert.NotNull(table);
+            Assert.Equal(3, table!.Table?.Header.Length);
+            Assert.Equal("Header 2", table!.Table?.Header[1].Value);
+            Assert.Equal(2, table!.Table?.Body.Length);
+            Assert.Equal(3, table!.Table?.Body[0].Columns.Length);
+            Assert.Equal(3, table!.Table?.Body[0].Columns.Length);
+            Assert.Equal("", table!.Table?.Body[0].Columns[1].Value);
+            Assert.Equal("Content D", table!.Table?.Body[1].Columns[1].Value);
+        }
+
         [Fact]
         public async Task Story_Contains_Translated_Slug()
         {
-            var story = await _client.Story().WithSlug("/team").Load<PageComponent>();
+            var story = await _client.Story().WithSlug("/page-translated-slug").Load<PageComponent>();
             Assert.NotNull(story);
             Assert.NotEmpty(story!.TranslatedSlugs);
         }
-        
+
         [Fact]
         public async Task Story_Contains_Default_Full_Slug()
         {
-            var story = await _client.Story().WithSlug("/en/team").Load<PageComponent>();
+            var story = await _client.Story().WithSlug("/en/page-translated-english-slug").Load<PageComponent>();
             Assert.NotNull(story);
-            Assert.Equal("team", story!.DefaultFullSlug);
-        }
-
-        private IList<T> Find<T>(StoryblokStory<PageComponent>? story)
-        {
-            var result = new List<T>();
-
-            foreach (var c1 in story?.Content?.Content ?? Enumerable.Empty<StoryblokComponent>())
-            {
-                if (c1 is SectionComponent s)
-                {
-                    foreach (var c2 in s.Content ?? Enumerable.Empty<StoryblokComponent>())
-                    {
-                        if (c2 is T b1)
-                        {
-                            result.Add(b1);
-                        }
-                        
-                        if (c2 is Grid1x1Component g)
-                        {
-                            foreach (var c3 in g.Left ?? Enumerable.Empty<StoryblokComponent>())
-                            {
-                                if (c3 is T b2)
-                                {
-                                    result.Add(b2);
-                                }
-                            }
-                            foreach (var c3 in g.Right ?? Enumerable.Empty<StoryblokComponent>())
-                            {
-                                if (c3 is T b2)
-                                {
-                                    result.Add(b2);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            return result;
+            Assert.Equal("page-translated-slug", story!.DefaultFullSlug);
         }
     }
 }

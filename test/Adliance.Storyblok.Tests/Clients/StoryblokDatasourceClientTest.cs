@@ -21,9 +21,9 @@ namespace Adliance.Storyblok.Tests.Clients
             _factory.CreateClient();
             var client = _factory.Services.GetRequiredService<StoryblokDatasourceClient>();
             
-            var datasource = await client.Datasource("redirects");
+            var datasource = await client.Datasource("datasource-many-entries");
             Assert.NotNull(datasource);
-            Assert.True(datasource?.Entries.Count() > 150);
+            Assert.Equal(350, datasource?.Entries.Count());
         }
 
         [Fact]
@@ -33,9 +33,9 @@ namespace Adliance.Storyblok.Tests.Clients
             var client = _factory.Services.GetRequiredService<StoryblokDatasourceClient>();
             client.PerPage = 10;
 
-            var datasource = await client.Datasource("redirects");
+            var datasource = await client.Datasource("datasource-many-entries");
             Assert.NotNull(datasource);
-            Assert.True(datasource?.Entries.Count() > 150);
+            Assert.Equal(350, datasource?.Entries.Count());
         }
     }
 }

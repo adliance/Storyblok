@@ -32,6 +32,12 @@ namespace Adliance.Storyblok.Tests
         [JsonPropertyName("table")] public StoryblokTable? Table { get; set; }
     }
     
+    [StoryblokComponent("image")]
+    public class ImageComponent : StoryblokComponent
+    {
+        [JsonPropertyName("asset")] public StoryblokAsset? Asset { get; set; }
+    }
+    
     [StoryblokComponent("grid_1x1")]
     public class Grid1x1Component : StoryblokComponent
     {

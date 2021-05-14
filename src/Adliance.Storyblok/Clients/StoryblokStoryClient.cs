@@ -28,9 +28,9 @@ namespace Adliance.Storyblok.Clients
             return new StoryblokStoryQuery(this);
         }
 
-        internal async Task<StoryblokStory<T>?> LoadStory<T>(CultureInfo? culture, string slug, ResolveLinksType resolveLinks) where T : StoryblokComponent
+        internal async Task<StoryblokStory<T>?> LoadStory<T>(CultureInfo? culture, string slug, ResolveLinksType resolveLinks, bool resolveAssets) where T : StoryblokComponent
         {
-            var story = await LoadStory(culture, slug, resolveLinks);
+            var story = await LoadStory(culture, slug, resolveLinks, resolveAssets);
             if (story == null)
             {
                 return null;
@@ -39,11 +39,11 @@ namespace Adliance.Storyblok.Clients
             return new StoryblokStory<T>(story);
         }
 
-        internal async Task<StoryblokStory?> LoadStory(CultureInfo? culture, string slug, ResolveLinksType resolveLinks)
+        internal async Task<StoryblokStory?> LoadStory(CultureInfo? culture, string slug, ResolveLinksType resolveLinks, bool resolveAssets)
         {
             if (IsInEditor)
             {
-                return await LoadStoryFromStoryblok(culture, slug, resolveLinks);
+                return await LoadStoryFromStoryblok(culture, slug, resolveLinks, resolveAssets);
             }
 
             var cacheKey = $"{culture}_{slug}_{resolveLinks}";
@@ -61,7 +61,7 @@ namespace Adliance.Storyblok.Clients
             }
 
             Logger.LogTrace($"Trying to load story for slug \"{slug}\" (culture \"{culture}\").");
-            var story = await LoadStoryFromStoryblok(culture, slug, resolveLinks);
+            var story = await LoadStoryFromStoryblok(culture, slug, resolveLinks, resolveAssets);
             if (story != null)
             {
                 Logger.LogTrace($"Story loaded for slug \"{slug}\" (culture \"{culture}\").");
@@ -74,7 +74,7 @@ namespace Adliance.Storyblok.Clients
             return null;
         }
 
-        private async Task<StoryblokStory?> LoadStoryFromStoryblok(CultureInfo? culture, string slug, ResolveLinksType resolveLinks)
+        private async Task<StoryblokStory?> LoadStoryFromStoryblok(CultureInfo? culture, string slug, ResolveLinksType resolveLinks, bool resolveAssets)
         {
             var defaultCulture = new CultureInfo(Settings.SupportedCultures.First());
             var currentCulture = defaultCulture;
@@ -105,6 +105,12 @@ namespace Adliance.Storyblok.Clients
             if (resolveLinks != ResolveLinksType.None)
             {
                 url += $"&resolve_links={resolveLinks.ToString().ToLower()}";
+            }
+            
+            // should only work in Premium Plans, (as per https://www.storyblok.com/docs/api/content-delivery/v2)
+            if (resolveAssets)
+            {
+                url += "&resolve_assets=1";
             }
 
             if (Settings.IncludeDraftStories || IsInEditor)

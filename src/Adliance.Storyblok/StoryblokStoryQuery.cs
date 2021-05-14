@@ -11,6 +11,7 @@ namespace Adliance.Storyblok
         private CultureInfo? _culture;
         private string _slug = "";
         private ResolveLinksType _resolveLinks = ResolveLinksType.Url;
+        private bool _resolveAssets;
 
         public StoryblokStoryQuery(StoryblokStoryClient client)
         {
@@ -34,23 +35,35 @@ namespace Adliance.Storyblok
             _resolveLinks = type;
             return this;
         }
-        
+
+        public StoryblokStoryQuery ResolveAssets(bool resolveAssets = true)
+        {
+            _resolveAssets = resolveAssets;
+            return this;
+        }
+
         public async Task<StoryblokStory<T>?> Load<T>() where T : StoryblokComponent
         {
-            return await _client.LoadStory<T>(_culture, _slug, _resolveLinks);
+            return await _client.LoadStory<T>(_culture, _slug, _resolveLinks, _resolveAssets);
         }
 
         // ReSharper disable once UnusedMember.Global
         public async Task<StoryblokStory?> Load()
         {
-            return await _client.LoadStory(_culture, _slug, _resolveLinks);
+            return await _client.LoadStory(_culture, _slug, _resolveLinks, _resolveAssets);
         }
     }
-    
+
     public enum ResolveLinksType
     {
         Url,
         Story,
         None
+    }
+
+    public enum ResolveAssetsType
+    {
+        DontResolve,
+        Resolve
     }
 }

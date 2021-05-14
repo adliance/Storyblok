@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Adliance.Storyblok.Clients;
 using Microsoft.Extensions.DependencyInjection;
@@ -51,6 +50,24 @@ namespace Adliance.Storyblok.Tests.Clients
             var button = grid!.Right!.First() as ButtonComponent;
             Assert.NotNull(button);
             Assert.Null(button!.Link!.Story);
+        }
+
+        [Fact]
+        public async Task Can_Load_Story_Without_Resolved_Assets()
+        {
+            var story = await _client.Story().WithSlug("/page-asset").Load<PageComponent>();
+            var image = story?.Content?.Content?.First() as ImageComponent;
+            Assert.NotNull(image);
+            Assert.Equal("Original ALT Text", image!.Asset?.Alt);
+        }
+
+        [Fact(Skip = "Only works in Premium Plans :(")]
+        public async Task Can_Load_Story_With_Resolved_Assets()
+        {
+            var story = await _client.Story().WithSlug("/page-asset").ResolveAssets().Load<PageComponent>();
+            var image = story?.Content?.Content?.First() as ImageComponent;
+            Assert.NotNull(image);
+            Assert.Equal("Updated ALT Text", image!.Asset?.Alt);
         }
 
         [Fact]

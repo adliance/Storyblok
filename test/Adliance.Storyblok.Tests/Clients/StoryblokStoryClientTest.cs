@@ -58,6 +58,8 @@ namespace Adliance.Storyblok.Tests.Clients
             var story = await _client.Story().WithSlug("/page-asset").Load<PageComponent>();
             var image = story?.Content?.Content?.First() as ImageComponent;
             Assert.NotNull(image);
+            Assert.NotNull(image?.Asset);
+            Assert.Null(image?.Asset?.Original);
             Assert.Equal("Original ALT Text", image!.Asset?.Alt);
         }
 
@@ -67,7 +69,10 @@ namespace Adliance.Storyblok.Tests.Clients
             var story = await _client.Story().WithSlug("/page-asset").ResolveAssets().Load<PageComponent>();
             var image = story?.Content?.Content?.First() as ImageComponent;
             Assert.NotNull(image);
-            Assert.Equal("Updated ALT Text", image!.Asset?.Alt);
+            Assert.NotNull(image?.Asset);
+            Assert.NotNull(image?.Asset?.Original);
+            Assert.Equal("Original ALT Text", image!.Asset?.Alt);
+            Assert.Equal("Updated ALT Text", image!.Asset?.Original?.Alt);
         }
 
         [Fact]

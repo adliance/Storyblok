@@ -118,6 +118,8 @@ namespace Adliance.Storyblok.Clients
                 url += "&version=draft";
             }
 
+            Logger.LogTrace($"Loading {url} ...");
+            
             var response = await Client.GetAsync(url);
             if (response.StatusCode == HttpStatusCode.NotFound)
             {

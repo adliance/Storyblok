@@ -49,6 +49,9 @@ namespace Adliance.Storyblok
         public string CultureCookieName { get; set; } = "culture";
         public bool EnableSitemap { get; set; } = true;
 
+        public bool ResolveAssets { get; set; } = false;
+        public ResolveLinksType ResolveLinks { get; set; } = ResolveLinksType.Url;
+        
         public Func<StoryblokStory, bool> SitemapFilter { get; set; } = _ => true;
     }
 }

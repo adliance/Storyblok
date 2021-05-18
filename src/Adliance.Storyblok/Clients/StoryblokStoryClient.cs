@@ -25,7 +25,7 @@ namespace Adliance.Storyblok.Clients
 
         public StoryblokStoryQuery Story()
         {
-            return new StoryblokStoryQuery(this);
+            return new(this);
         }
 
         internal async Task<StoryblokStory<T>?> LoadStory<T>(CultureInfo? culture, string slug, ResolveLinksType resolveLinks, bool resolveAssets) where T : StoryblokComponent
@@ -46,7 +46,7 @@ namespace Adliance.Storyblok.Clients
                 return await LoadStoryFromStoryblok(culture, slug, resolveLinks, resolveAssets);
             }
 
-            var cacheKey = $"{culture}_{slug}_{resolveLinks}";
+            var cacheKey = $"{culture}_{slug}_{resolveLinks}_{resolveAssets}";
             if (MemoryCache.TryGetValue(cacheKey, out StoryblokStory cachedStory))
             {
                 Logger.LogTrace($"Using cached story for slug \"{slug}\" (culture \"{culture}\").");

@@ -28,9 +28,9 @@ namespace Adliance.Storyblok.Clients
             return new(this);
         }
 
-        internal async Task<StoryblokStory<T>?> LoadStory<T>(CultureInfo? culture, string slug, ResolveLinksType resolveLinks, bool resolveAssets) where T : StoryblokComponent
+        internal async Task<StoryblokStory<T>?> LoadStory<T>(CultureInfo? culture, string slug, ResolveLinksType resolveLinks, bool resolveAssets, string resolveRelations) where T : StoryblokComponent
         {
-            var story = await LoadStory(culture, slug, resolveLinks, resolveAssets);
+            var story = await LoadStory(culture, slug, resolveLinks, resolveAssets, resolveRelations);
             if (story == null)
             {
                 return null;
@@ -39,14 +39,14 @@ namespace Adliance.Storyblok.Clients
             return new StoryblokStory<T>(story);
         }
 
-        internal async Task<StoryblokStory?> LoadStory(CultureInfo? culture, string slug, ResolveLinksType resolveLinks, bool resolveAssets)
+        internal async Task<StoryblokStory?> LoadStory(CultureInfo? culture, string slug, ResolveLinksType resolveLinks, bool resolveAssets, string resolveRelations)
         {
             if (IsInEditor)
             {
-                return await LoadStoryFromStoryblok(culture, slug, resolveLinks, resolveAssets);
+                return await LoadStoryFromStoryblok(culture, slug, resolveLinks, resolveAssets, resolveRelations);
             }
 
-            var cacheKey = $"{culture}_{slug}_{resolveLinks}_{resolveAssets}";
+            var cacheKey = $"{culture}_{slug}_{resolveLinks}_{resolveAssets}_{resolveRelations}";
             if (MemoryCache.TryGetValue(cacheKey, out StoryblokStory cachedStory))
             {
                 Logger.LogTrace($"Using cached story for slug \"{slug}\" (culture \"{culture}\").");
@@ -61,7 +61,7 @@ namespace Adliance.Storyblok.Clients
             }
 
             Logger.LogTrace($"Trying to load story for slug \"{slug}\" (culture \"{culture}\").");
-            var story = await LoadStoryFromStoryblok(culture, slug, resolveLinks, resolveAssets);
+            var story = await LoadStoryFromStoryblok(culture, slug, resolveLinks, resolveAssets, resolveRelations);
             if (story != null)
             {
                 Logger.LogTrace($"Story loaded for slug \"{slug}\" (culture \"{culture}\").");
@@ -74,7 +74,7 @@ namespace Adliance.Storyblok.Clients
             return null;
         }
 
-        private async Task<StoryblokStory?> LoadStoryFromStoryblok(CultureInfo? culture, string slug, ResolveLinksType resolveLinks, bool resolveAssets)
+        private async Task<StoryblokStory?> LoadStoryFromStoryblok(CultureInfo? culture, string slug, ResolveLinksType resolveLinks, bool resolveAssets, string resolveRelations)
         {
             var defaultCulture = new CultureInfo(Settings.SupportedCultures.First());
             var currentCulture = defaultCulture;
@@ -106,11 +106,16 @@ namespace Adliance.Storyblok.Clients
             {
                 url += $"&resolve_links={resolveLinks.ToString().ToLower()}";
             }
-            
+
             // should only work in Premium Plans, (as per https://www.storyblok.com/docs/api/content-delivery/v2)
             if (resolveAssets)
             {
                 url += "&resolve_assets=1";
+            }
+
+            if (!string.IsNullOrWhiteSpace(resolveRelations))
+            {
+                url += $"&resolve_relations={resolveRelations}";
             }
 
             if (Settings.IncludeDraftStories || IsInEditor)
@@ -119,7 +124,7 @@ namespace Adliance.Storyblok.Clients
             }
 
             Logger.LogTrace($"Loading {url} ...");
-            
+
             var response = await Client.GetAsync(url);
             if (response.StatusCode == HttpStatusCode.NotFound)
             {
@@ -134,7 +139,7 @@ namespace Adliance.Storyblok.Clients
             {
                 throw new Exception($"Unable to deserialize {responseString}.");
             }
-            
+
             story.LoadedAt = DateTime.UtcNow;
             return story;
         }

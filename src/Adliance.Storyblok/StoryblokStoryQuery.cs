@@ -12,6 +12,7 @@ namespace Adliance.Storyblok
         private string _slug = "";
         private ResolveLinksType _resolveLinks = ResolveLinksType.Url;
         private bool _resolveAssets;
+        private string _resolveRelations = "";
 
         public StoryblokStoryQuery(StoryblokStoryClient client)
         {
@@ -41,16 +42,22 @@ namespace Adliance.Storyblok
             _resolveAssets = resolveAssets;
             return this;
         }
+        
+        public StoryblokStoryQuery ResolveRelations(string relations)
+        {
+            _resolveRelations = relations;
+            return this;
+        }
 
         public async Task<StoryblokStory<T>?> Load<T>() where T : StoryblokComponent
         {
-            return await _client.LoadStory<T>(_culture, _slug, _resolveLinks, _resolveAssets);
+            return await _client.LoadStory<T>(_culture, _slug, _resolveLinks, _resolveAssets, _resolveRelations);
         }
 
         // ReSharper disable once UnusedMember.Global
         public async Task<StoryblokStory?> Load()
         {
-            return await _client.LoadStory(_culture, _slug, _resolveLinks, _resolveAssets);
+            return await _client.LoadStory(_culture, _slug, _resolveLinks, _resolveAssets, _resolveRelations);
         }
     }
 

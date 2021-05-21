@@ -112,6 +112,7 @@ namespace Adliance.Storyblok.Middleware
                         .WithSlug(slugWithoutCulture)
                         .ResolveAssets(options.Value.ResolveAssets)
                         .ResolveLinks(options.Value.ResolveLinks)
+                        .ResolveRelations(options.Value.ResolveRelations)
                         .Load();
                     break;
                 }
@@ -126,6 +127,7 @@ namespace Adliance.Storyblok.Middleware
                     .WithSlug(slug)
                     .ResolveAssets(options.Value.ResolveAssets)
                     .ResolveLinks(options.Value.ResolveLinks)
+                    .ResolveRelations(options.Value.ResolveRelations)
                     .Load();
             }
 
@@ -135,6 +137,7 @@ namespace Adliance.Storyblok.Middleware
                 .WithSlug(slug)
                 .ResolveAssets(options.Value.ResolveAssets)
                 .ResolveLinks(options.Value.ResolveLinks)
+                .ResolveRelations(options.Value.ResolveRelations)
                 .Load();
 
             // that's not a story, lets continue down the middleware chain

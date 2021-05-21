@@ -51,6 +51,7 @@ namespace Adliance.Storyblok
 
         public bool ResolveAssets { get; set; } = false;
         public ResolveLinksType ResolveLinks { get; set; } = ResolveLinksType.Url;
+        public string ResolveRelations { get; set; } = "";
         
         public Func<StoryblokStory, bool> SitemapFilter { get; set; } = _ => true;
     }

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Adliance.Storyblok.Clients;
 using Microsoft.Extensions.DependencyInjection;
@@ -50,6 +51,25 @@ namespace Adliance.Storyblok.Tests.Clients
             var button = grid!.Right!.First() as ButtonComponent;
             Assert.NotNull(button);
             Assert.Null(button!.Link!.Story);
+        }
+
+        [Fact]
+        public async Task Can_Load_Story_Without_Resolved_Relations()
+        {
+            var story = await _client.Story().WithSlug("/page-relation").Load<PageComponent>();
+            var reference = story?.Content?.Content?.FirstOrDefault() as ComponentReference;
+            Assert.NotNull(reference);
+            Assert.NotEqual(Guid.Empty, reference!.ReferencedComponent!.Uuid);
+            Assert.Empty(reference!.ReferencedComponent!.Component);
+        }
+        
+        [Fact]
+        public async Task Can_Load_Story_With_Resolved_Relations()
+        {
+            var story = await _client.Story().WithSlug("/page-relation").ResolveRelations("component_reference.referenced_component").Load<PageComponent>();
+            var reference = story?.Content?.Content?.FirstOrDefault() as ComponentReference;
+            Assert.NotEqual(Guid.Empty, reference!.ReferencedComponent!.Uuid);
+            Assert.NotEmpty(reference!.ReferencedComponent!.Component);
         }
 
         [Fact]

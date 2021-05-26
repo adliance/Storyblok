@@ -6,16 +6,19 @@ using System.Text.Json.Serialization;
 
 namespace Adliance.Storyblok.Converters
 {
-    public class StoryblokReferencedComponentConverter<T> : JsonConverter<StoryblokComponent?> where T : StoryblokReferencedComponentContainer
+    public class StoryblokReferencedComponentConverter<T> : JsonConverter<StoryblokComponent[]?> where T : StoryblokReferencedComponentContainer
     {
-        public override StoryblokComponent? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override StoryblokComponent[]? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             if (reader.TokenType == JsonTokenType.String)
             {
                 var componentUid = reader.GetGuid();
-                return new StoryblokComponent
+                return new[]
                 {
-                    Uuid = componentUid
+                    new StoryblokComponent
+                    {
+                        Uuid = componentUid
+                    }
                 };
             }
 
@@ -25,13 +28,13 @@ namespace Adliance.Storyblok.Converters
                 var story = converter.Read(ref reader, typeof(StoryblokStory), options);
                 if (story == null) return null;
                 var typedStory = new StoryblokStory<T>(story);
-                return typedStory.Content?.ContainedComponents?.First();
+                return typedStory.Content?.ContainedComponents;
             }
 
             return null;
         }
 
-        public override void Write(Utf8JsonWriter writer, StoryblokComponent? value, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, StoryblokComponent[]? value, JsonSerializerOptions options)
         {
             throw new NotImplementedException();
         }

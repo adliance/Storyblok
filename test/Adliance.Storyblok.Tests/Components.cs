@@ -43,7 +43,7 @@ namespace Adliance.Storyblok.Tests
     [StoryblokComponent("component_reference")]
     public class ComponentReference : StoryblokComponent
     {
-        [JsonPropertyName("referenced_component"), JsonConverter(typeof(StoryblokReferencedComponentConverter<ReferencedComponentContainer>))] public StoryblokComponent? ReferencedComponent { get; set; }
+        [JsonPropertyName("referenced_component"), JsonConverter(typeof(StoryblokReferencedComponentConverter<ReferencedComponentContainer>))] public StoryblokComponent[]? ReferencedComponent { get; set; }
     }
     
     [StoryblokComponent("global_component")]

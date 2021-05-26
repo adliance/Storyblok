@@ -59,8 +59,8 @@ namespace Adliance.Storyblok.Tests.Clients
             var story = await _client.Story().WithSlug("/page-relation").Load<PageComponent>();
             var reference = story?.Content?.Content?.FirstOrDefault() as ComponentReference;
             Assert.NotNull(reference);
-            Assert.NotEqual(Guid.Empty, reference!.ReferencedComponent!.Uuid);
-            Assert.Empty(reference!.ReferencedComponent!.Component);
+            Assert.NotEqual(Guid.Empty, reference!.ReferencedComponent!.First().Uuid);
+            Assert.Empty(reference!.ReferencedComponent!.First().Component);
         }
         
         [Fact]
@@ -68,8 +68,8 @@ namespace Adliance.Storyblok.Tests.Clients
         {
             var story = await _client.Story().WithSlug("/page-relation").ResolveRelations("component_reference.referenced_component").Load<PageComponent>();
             var reference = story?.Content?.Content?.FirstOrDefault() as ComponentReference;
-            Assert.NotEqual(Guid.Empty, reference!.ReferencedComponent!.Uuid);
-            Assert.NotEmpty(reference!.ReferencedComponent!.Component);
+            Assert.NotEqual(Guid.Empty, reference!.ReferencedComponent!.First().Uuid);
+            Assert.NotEmpty(reference!.ReferencedComponent!.First().Component);
         }
 
         [Fact]

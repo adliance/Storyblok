@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -33,6 +34,21 @@ namespace Adliance.Storyblok.Sitemap
             
             foreach (var s in stories)
             {
+                var slug = s.FullSlug ?? "";
+
+                if (!string.IsNullOrWhiteSpace(slug))
+                {
+                    if (_options.Value.IgnoreSlugs.Any(x => slug.Equals(x.Trim('/'), StringComparison.InvariantCultureIgnoreCase)))
+                    {
+                        continue;
+                    }
+
+                    if (_options.Value.IgnoreSlugs.Any(x => x.EndsWith("*", StringComparison.InvariantCultureIgnoreCase) && slug.StartsWith(x.TrimEnd('*').Trim('/'), StringComparison.InvariantCultureIgnoreCase)))
+                    {
+                        continue;
+                    }
+                }
+
                 if (_options.Value.SitemapFilter.Invoke(s))
                 {
                     result.Locations.Add(new SitemapResult.SitemapLocation(GetFullUrl(s.FullSlug), s.PublishedAt ?? s.CreatedAt));

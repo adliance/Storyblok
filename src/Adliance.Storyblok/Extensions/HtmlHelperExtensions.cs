@@ -13,8 +13,8 @@ namespace Adliance.Storyblok.Extensions
 
             if (htmlHelper.ViewContext.HttpContext.Request.Query.IsInStoryblokEditor(settings))
             {
-                var html = $"<script src=\"//app.storyblok.com/f/storyblok-latest.js?t={settings.ApiKeyPreview}\" type=\"text/javascript\"></script>"
-                           + "<script>window.storyblok.on(['change', 'published'], () => { window.location.reload(true); });</script>";
+                var html = $"<script src=\"//app.storyblok.com/f/storyblok-v2-latest.js\"></script>"
+                           + "<script>const storyblokInstance = new StoryblokBridge(); storyblokInstance.on([\"change\", \"published\"], () => { window.location.reload(); });</script>";
                 return new HtmlString(html);
             }
 

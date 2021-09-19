@@ -21,21 +21,24 @@ namespace Adliance.Storyblok
                         where attributes != null && attributes.Length > 0
                         select new {Type = t, Attribute = attributes.Cast<StoryblokComponentAttribute>().First()};
 
-                    _mappingsCache = new Dictionary<string, Mapping>();
+                    var mappingsCache = new Dictionary<string, Mapping>();
                     foreach (var c in components)
                     {
-                        if (_mappingsCache.ContainsKey(c.Attribute.Name))
+                        if (mappingsCache.ContainsKey(c.Attribute.Name))
                         {
                             continue;
                         }
                         
-                        _mappingsCache[c.Attribute.Name] = new Mapping
+                        mappingsCache[c.Attribute.Name] = new Mapping
                         {
                             Type = c.Type,
                             ComponentName = c.Attribute.Name,
                             View = c.Attribute.View
                         };
                     }
+
+                    _mappingsCache = mappingsCache; // this makes sure we don't have concurrent operations on the dictionary while it's filling
+                    return mappingsCache;
                 }
 
                 return _mappingsCache;

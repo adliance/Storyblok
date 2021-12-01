@@ -84,6 +84,7 @@ namespace Adliance.Storyblok.Clients
                 options.Converters.Add(new StoryblokIntConverter());
                 options.Converters.Add(new StoryblokNullableIntConverter());
                 options.Converters.Add(new StoryblokMarkdownConverter());
+                options.Converters.Add(new StoryblokNullableConverter<StoryblokTable>());
                 return options;
             }
         }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
+using Adliance.Storyblok.Converters;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable MemberCanBeProtected.Global
@@ -49,7 +50,7 @@ namespace Adliance.Storyblok
 
         [JsonPropertyName("id")] public int Id { get; set; }
         [JsonPropertyName("uuid")] public Guid Uuid { get; set; }
-        [JsonPropertyName("content")] public StoryblokComponent Content { get; set; } = new StoryblokComponent();
+        [JsonPropertyName("content")] public StoryblokComponent? Content { get; set; }
 
         [JsonPropertyName("position")] public int Position { get; set; }
         [JsonPropertyName("is_startpage")] public bool IsStartPage { get; set; }

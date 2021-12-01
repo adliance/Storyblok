@@ -101,13 +101,13 @@ namespace Adliance.Storyblok.Tests.Clients
             var story = await _client.Story().WithSlug("/page-table").ResolveLinks(ResolveLinksType.None).Load<PageComponent>();
             var table = story!.Content!.Content!.First() as TableComponent;
             Assert.NotNull(table);
-            Assert.Equal(3, table!.Table?.Header.Length);
-            Assert.Equal("Header 2", table!.Table?.Header[1].Value);
-            Assert.Equal(2, table!.Table?.Body.Length);
-            Assert.Equal(3, table!.Table?.Body[0].Columns.Length);
-            Assert.Equal(3, table!.Table?.Body[0].Columns.Length);
-            Assert.Equal("", table!.Table?.Body[0].Columns[1].Value);
-            Assert.Equal("Content D", table!.Table?.Body[1].Columns[1].Value);
+            Assert.Equal(3, table!.Table?.Header?.Length);
+            Assert.Equal("Header 2", table!.Table?.Header?[1].Value);
+            Assert.Equal(2, table!.Table?.Body?.Length);
+            Assert.Equal(3, table!.Table?.Body?[0].Columns.Length);
+            Assert.Equal(3, table!.Table?.Body?[0].Columns.Length);
+            Assert.Equal("", table!.Table?.Body?[0].Columns[1].Value);
+            Assert.Equal("Content D", table!.Table?.Body?[1].Columns[1].Value);
         }
 
         [Fact]

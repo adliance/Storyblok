@@ -148,9 +148,9 @@ namespace Adliance.Storyblok.Middleware
                 return;
             }
 
-            var componentName = story.Content.Component;
+            var componentName = story.Content?.Component;
             var componentMappings = StoryblokMappings.Mappings;
-            if (!componentMappings.ContainsKey(componentName))
+            if (componentName == null || !componentMappings.ContainsKey(componentName))
             {
                 throw new Exception($"No component mapping found for a component '{componentName}'.");
             }

@@ -5,8 +5,8 @@ namespace Adliance.Storyblok
 {
     public class StoryblokTable
     {
-        [JsonPropertyName("thead")] public StoryblokTableCell[] Header { get; set; } = Array.Empty<StoryblokTableCell>();
-        [JsonPropertyName("tbody")] public StoryblokTableRow[] Body { get; set; } = Array.Empty<StoryblokTableRow>();
+        [JsonPropertyName("thead")] public StoryblokTableCell[]? Header { get; set; } = Array.Empty<StoryblokTableCell>();
+        [JsonPropertyName("tbody")] public StoryblokTableRow[]? Body { get; set; } = Array.Empty<StoryblokTableRow>();
     }
 
     public class StoryblokTableRow

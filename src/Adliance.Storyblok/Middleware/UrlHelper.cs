@@ -60,7 +60,7 @@ namespace Adliance.Storyblok.Middleware
                 routeName: null,
                 values,
                 fragment: new FragmentString(urlActionContext.Fragment == null ? "" : "#" + urlActionContext.Fragment));
-            return GenerateUrl(urlActionContext.Protocol, urlActionContext.Host, path);
+            return GenerateUrl(urlActionContext.Protocol, urlActionContext.Host, path) ?? "";
         }
 
         /// <inheritdoc />
@@ -76,7 +76,7 @@ namespace Adliance.Storyblok.Middleware
                 routeContext.RouteName,
                 routeContext.Values,
                 fragment: new FragmentString(routeContext.Fragment == null ? "" : "#" + routeContext.Fragment));
-            return GenerateUrl(routeContext.Protocol, routeContext.Host, path);
+            return GenerateUrl(routeContext.Protocol, routeContext.Host, path) ?? "";
         }
     }
 }

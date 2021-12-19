@@ -18,24 +18,22 @@ namespace Adliance.Storyblok.Extensions
             {
                 var optionsValue = options.Value;
 
-                if (optionsValue.SupportedCultures.Length > 1)
+                var supportedCultures = optionsValue.SupportedCultures.Select(x => new CultureInfo(x)).ToArray();
+                if (!supportedCultures.Any()) supportedCultures = new[] { CultureInfo.CurrentUICulture };
+                app.UseRequestLocalization(o =>
                 {
-                    var supportedCultures = optionsValue.SupportedCultures.Select(x => new CultureInfo(x)).ToArray();
-                    app.UseRequestLocalization(o =>
-                    {
-                        o.DefaultRequestCulture = new RequestCulture(supportedCultures[0].Name, supportedCultures[0].Name);
-                        o.SupportedCultures = supportedCultures;
-                        o.SupportedUICultures = supportedCultures;
+                    o.DefaultRequestCulture = new RequestCulture(supportedCultures[0].Name, supportedCultures[0].Name);
+                    o.SupportedCultures = supportedCultures;
+                    o.SupportedUICultures = supportedCultures;
 
-                        if (!string.IsNullOrWhiteSpace(optionsValue.CultureCookieName))
+                    if (!string.IsNullOrWhiteSpace(optionsValue.CultureCookieName))
+                    {
+                        if (o.RequestCultureProviders.FirstOrDefault(x => x.GetType() == typeof(CookieRequestCultureProvider)) is CookieRequestCultureProvider cookieProvider)
                         {
-                            if (o.RequestCultureProviders.FirstOrDefault(x => x.GetType() == typeof(CookieRequestCultureProvider)) is CookieRequestCultureProvider cookieProvider)
-                            {
-                                cookieProvider.CookieName = optionsValue.CultureCookieName;
-                            }
+                            cookieProvider.CookieName = optionsValue.CultureCookieName;
                         }
-                    });
-                }
+                    }
+                });
             }
 
             app.MapWhen(context => options?.Value.EnableSitemap == true && context.Request.Path.StartsWithSegments("/sitemap.xml", StringComparison.OrdinalIgnoreCase), appBuilder => { appBuilder.UseMiddleware<StoryblokSitemapMiddleware>(); });

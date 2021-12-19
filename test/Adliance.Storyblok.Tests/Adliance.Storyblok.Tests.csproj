@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFramework>net5.0</TargetFramework>
+        <TargetFramework>net6.0</TargetFramework>
         <IsPackable>false</IsPackable>
         <Nullable>enable</Nullable>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -9,10 +9,10 @@
     <ItemGroup>
         <ProjectReference Include="..\..\src\Adliance.Storyblok\Adliance.Storyblok.csproj" />
 
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
         <PackageReference Include="xunit" Version="2.4.1" />
         <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3" />
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="5.0.10" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="6.0.1" />
         
         <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.1" />
     </ItemGroup>

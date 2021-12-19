@@ -50,12 +50,12 @@ namespace Adliance.Storyblok.Middleware
                 return;
             }
 
-            if (!string.IsNullOrWhiteSpace(settings.HandleRootWithSlug) && slug.Equals("/", StringComparison.InvariantCultureIgnoreCase))
+            if (!string.IsNullOrWhiteSpace(settings.HandleRootWithSlug) && slug.Equals("/", StringComparison.OrdinalIgnoreCase))
             {
                 logger.LogTrace($"Swapping slug from \"{slug}\" to \"{settings.HandleRootWithSlug}\", because it's the root URL.");
                 slug = settings.HandleRootWithSlug;
             }
-            else if (slug.Equals("/", StringComparison.InvariantCultureIgnoreCase))
+            else if (slug.Equals("/", StringComparison.OrdinalIgnoreCase))
             {
                 // we are on the root path, and we shouldn't handle it - so we bail out
                 logger.LogTrace("Ignoring request, because it's the root URL which is configured to be ignored.");
@@ -72,7 +72,7 @@ namespace Adliance.Storyblok.Middleware
                 context.Response.Headers.Add("Content-Security-Policy", "frame-ancestors 'self' app.storyblok.com");
             }
 
-            if (settings.IgnoreSlugs.Any(x => slug.Equals(x.Trim('/'), StringComparison.InvariantCultureIgnoreCase)))
+            if (settings.IgnoreSlugs.Any(x => slug.Equals(x.Trim('/'), StringComparison.OrdinalIgnoreCase)))
             {
                 // don't handle this slug in the middleware, because exact match of URL
                 logger.LogTrace($"Ignoring request \"{slug}\", because it's configured to be ignored (exact match).");
@@ -80,7 +80,7 @@ namespace Adliance.Storyblok.Middleware
                 return;
             }
 
-            if (settings.IgnoreSlugs.Any(x => x.EndsWith("*", StringComparison.InvariantCultureIgnoreCase) && slug.StartsWith(x.TrimEnd('*').Trim('/'), StringComparison.InvariantCultureIgnoreCase)))
+            if (settings.IgnoreSlugs.Any(x => x.EndsWith("*", StringComparison.OrdinalIgnoreCase) && slug.StartsWith(x.TrimEnd('*').Trim('/'), StringComparison.OrdinalIgnoreCase)))
             {
                 // don't handle this slug in the middleware, because the configuration ends with a *, which means we compare via StartsWith
                 logger.LogTrace($"Ignoring request \"{slug}\", because it's configured to be ignored (partial match).");
@@ -92,13 +92,12 @@ namespace Adliance.Storyblok.Middleware
 
             // special handling of Storyblok preview URLs that contain the language, like ~/de/home vs. ~/home
             // if we have such a URL, we also change the current culture accordingly
-            CultureInfo currentCulture = CultureInfo.CurrentUICulture;
+            var currentCulture = CultureInfo.CurrentUICulture;
             foreach (var supportedCulture in settings.SupportedCultures)
             {
                 if (slug.StartsWith($"{supportedCulture}/", StringComparison.OrdinalIgnoreCase) || slug.Equals(supportedCulture, StringComparison.OrdinalIgnoreCase))
                 {
                     var slugWithoutCulture = slug.Substring(supportedCulture.Length).Trim('/');
-
                     if (slugWithoutCulture.Equals("") && !string.IsNullOrWhiteSpace(settings.HandleRootWithSlug))
                     {
                         logger.LogTrace($"Swapping slug from \"{slug}\" to \"{settings.HandleRootWithSlug}\", because it's the root URL.");
@@ -116,19 +115,6 @@ namespace Adliance.Storyblok.Middleware
                         .Load();
                     break;
                 }
-            }
-
-            // we don't have the language in the URL, so we force the default language
-            if (story == null)
-            {
-                currentCulture = new CultureInfo(settings.SupportedCultures.First());
-                story = await storyblokClient.Story()
-                    .WithCulture(currentCulture)
-                    .WithSlug(slug)
-                    .ResolveAssets(options.Value.ResolveAssets)
-                    .ResolveLinks(options.Value.ResolveLinks)
-                    .ResolveRelations(options.Value.ResolveRelations)
-                    .Load();
             }
 
             // load the story with the current culture (usually set by request localization

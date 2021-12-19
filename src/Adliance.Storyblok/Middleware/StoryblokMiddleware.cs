@@ -153,10 +153,8 @@ namespace Adliance.Storyblok.Middleware
             logger.LogTrace($"Rendering slug \"{slug}\" with view \"{componentMapping.View}\".");
             CultureInfo.CurrentUICulture = CultureInfo.CurrentCulture = currentCulture; // set the thread culture to match the story
 
-            // store the culture in the cookie, but only if there's not a cookie yet
-            if (options.Value.SupportedCultures.Length > 1
-                && !string.IsNullOrWhiteSpace(options.Value.CultureCookieName)
-                && !context.Request.Cookies.ContainsKey(options.Value.CultureCookieName))
+            // store the culture in the cookie (if support more than 1 culture)
+            if (options.Value.SupportedCultures.Length > 1)
             {
                 context.Response.Cookies.Append(
                     options.Value.CultureCookieName,

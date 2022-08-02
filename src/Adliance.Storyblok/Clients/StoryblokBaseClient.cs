@@ -62,7 +62,7 @@ namespace Adliance.Storyblok.Clients
         }
 
         protected string ApiKey => Settings.IncludeDraftStories || IsInEditor ? (Settings.ApiKeyPreview ?? "") : (Settings.ApiKeyPublic ?? "");
-        
+
         protected bool IsDefaultCulture(CultureInfo culture)
         {
             return IsDefaultCulture(culture.ToString());
@@ -84,6 +84,7 @@ namespace Adliance.Storyblok.Clients
                 options.Converters.Add(new StoryblokIntConverter());
                 options.Converters.Add(new StoryblokNullableIntConverter());
                 options.Converters.Add(new StoryblokMarkdownConverter());
+                options.Converters.Add(new StoryblokAssetConverter());
                 return options;
             }
         }

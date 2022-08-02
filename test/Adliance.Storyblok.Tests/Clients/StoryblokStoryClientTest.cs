@@ -26,9 +26,9 @@ namespace Adliance.Storyblok.Tests.Clients
             var grid = section!.Content!.First() as Grid1x1Component;
             var button = grid!.Right!.First() as ButtonComponent;
             Assert.NotNull(button);
-            Assert.NotNull(button?.Link?.Story);
-            Assert.NotEqual(button?.Link?.CachedValue, button?.Link?.Story?.FullSlug);
-            Assert.Equal(button?.Link?.Url, "/" + button?.Link?.Story?.FullSlug);
+            Assert.NotNull(button.Link?.Story);
+            Assert.NotEqual(button.Link?.CachedValue, button.Link?.Story?.FullSlug);
+            Assert.Equal(button.Link?.Url, "/" + button.Link?.Story?.FullSlug);
         }
 
         [Fact]
@@ -39,7 +39,7 @@ namespace Adliance.Storyblok.Tests.Clients
             var grid = section!.Content!.First() as Grid1x1Component;
             var button = grid!.Right!.First() as ButtonComponent;
             Assert.NotNull(button);
-            Assert.NotNull(button!.Link!.Story);
+            Assert.NotNull(button.Link!.Story);
         }
 
         [Fact]
@@ -50,7 +50,7 @@ namespace Adliance.Storyblok.Tests.Clients
             var grid = section!.Content!.First() as Grid1x1Component;
             var button = grid!.Right!.First() as ButtonComponent;
             Assert.NotNull(button);
-            Assert.Null(button!.Link!.Story);
+            Assert.Null(button.Link!.Story);
         }
 
         [Fact]
@@ -59,17 +59,17 @@ namespace Adliance.Storyblok.Tests.Clients
             var story = await _client.Story().WithSlug("/page-relation").Load<PageComponent>();
             var reference = story?.Content?.Content?.FirstOrDefault() as ComponentReference;
             Assert.NotNull(reference);
-            Assert.NotEqual(Guid.Empty, reference!.ReferencedComponent!.First().Uuid);
-            Assert.Empty(reference!.ReferencedComponent!.First().Component);
+            Assert.NotEqual(Guid.Empty, reference.ReferencedComponent!.First().Uuid);
+            Assert.Empty(reference.ReferencedComponent!.First().Component);
         }
-        
+
         [Fact]
         public async Task Can_Load_Story_With_Resolved_Relations()
         {
             var story = await _client.Story().WithSlug("/page-relation").ResolveRelations("component_reference.referenced_component").Load<PageComponent>();
             var reference = story?.Content?.Content?.FirstOrDefault() as ComponentReference;
             Assert.NotEqual(Guid.Empty, reference!.ReferencedComponent!.First().Uuid);
-            Assert.NotEmpty(reference!.ReferencedComponent!.First().Component);
+            Assert.NotEmpty(reference.ReferencedComponent!.First().Component);
         }
 
         [Fact]
@@ -78,9 +78,25 @@ namespace Adliance.Storyblok.Tests.Clients
             var story = await _client.Story().WithSlug("/page-asset").Load<PageComponent>();
             var image = story?.Content?.Content?.First() as ImageComponent;
             Assert.NotNull(image);
-            Assert.NotNull(image?.Asset);
-            Assert.Null(image?.Asset?.Original);
-            Assert.Equal("Original ALT Text", image!.Asset?.Alt);
+            Assert.NotNull(image.Asset);
+            Assert.Null(image.Asset?.Original);
+            Assert.Equal("Original ALT Text", image.Asset?.Alt);
+        }
+
+        [Fact]
+        public async Task Can_Load_Assets_Without_Assigned_File()
+        {
+            var story = await _client.Story().WithSlug("/page-asset").Load<PageComponent>();
+            // we have two images on the page - the first image has a file assigned, the second one does not
+            var firstImage = story?.Content?.Content?.First() as ImageComponent;
+            var secondImage = story?.Content?.Content?.Skip(1).First() as ImageComponent;
+            var thirdImage = story?.Content?.Content?.Skip(2).First() as ImageComponent;
+            Assert.NotNull(firstImage);
+            Assert.NotNull(firstImage.Asset);
+            Assert.NotNull(secondImage);
+            Assert.Null(secondImage.Asset);
+            Assert.NotNull(thirdImage);
+            Assert.Null(thirdImage.Asset);
         }
 
         [Fact(Skip = "Only works in Premium Plans :(")]
@@ -89,10 +105,10 @@ namespace Adliance.Storyblok.Tests.Clients
             var story = await _client.Story().WithSlug("/page-asset").ResolveAssets().Load<PageComponent>();
             var image = story?.Content?.Content?.First() as ImageComponent;
             Assert.NotNull(image);
-            Assert.NotNull(image?.Asset);
-            Assert.NotNull(image?.Asset?.Original);
-            Assert.Equal("Original ALT Text", image!.Asset?.Alt);
-            Assert.Equal("Updated ALT Text", image!.Asset?.Original?.Alt);
+            Assert.NotNull(image.Asset);
+            Assert.NotNull(image.Asset?.Original);
+            Assert.Equal("Original ALT Text", image.Asset?.Alt);
+            Assert.Equal("Updated ALT Text", image.Asset?.Original?.Alt);
         }
 
         [Fact]
@@ -101,13 +117,13 @@ namespace Adliance.Storyblok.Tests.Clients
             var story = await _client.Story().WithSlug("/page-table").ResolveLinks(ResolveLinksType.None).Load<PageComponent>();
             var table = story!.Content!.Content!.First() as TableComponent;
             Assert.NotNull(table);
-            Assert.Equal(3, table!.Table?.Header.Length);
-            Assert.Equal("Header 2", table!.Table?.Header[1].Value);
-            Assert.Equal(2, table!.Table?.Body.Length);
-            Assert.Equal(3, table!.Table?.Body[0].Columns.Length);
-            Assert.Equal(3, table!.Table?.Body[0].Columns.Length);
-            Assert.Equal("", table!.Table?.Body[0].Columns[1].Value);
-            Assert.Equal("Content D", table!.Table?.Body[1].Columns[1].Value);
+            Assert.Equal(3, table.Table?.Header.Length);
+            Assert.Equal("Header 2", table.Table?.Header[1].Value);
+            Assert.Equal(2, table.Table?.Body.Length);
+            Assert.Equal(3, table.Table?.Body[0].Columns.Length);
+            Assert.Equal(3, table.Table?.Body[0].Columns.Length);
+            Assert.Equal("", table.Table?.Body[0].Columns[1].Value);
+            Assert.Equal("Content D", table.Table?.Body[1].Columns[1].Value);
         }
 
         [Fact]
@@ -115,7 +131,7 @@ namespace Adliance.Storyblok.Tests.Clients
         {
             var story = await _client.Story().WithSlug("/page-translated-slug").Load<PageComponent>();
             Assert.NotNull(story);
-            Assert.NotEmpty(story!.TranslatedSlugs);
+            Assert.NotEmpty(story.TranslatedSlugs);
         }
 
         [Fact]
@@ -123,7 +139,7 @@ namespace Adliance.Storyblok.Tests.Clients
         {
             var story = await _client.Story().WithSlug("/en/page-translated-english-slug").Load<PageComponent>();
             Assert.NotNull(story);
-            Assert.Equal("page-translated-slug", story!.DefaultFullSlug);
+            Assert.Equal("page-translated-slug", story.DefaultFullSlug);
         }
     }
 }

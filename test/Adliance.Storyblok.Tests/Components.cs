@@ -45,7 +45,7 @@ namespace Adliance.Storyblok.Tests
     {
         [JsonPropertyName("referenced_component"), JsonConverter(typeof(StoryblokReferencedComponentConverter<ReferencedComponentContainer>))] public StoryblokComponent[]? ReferencedComponent { get; set; }
     }
-    
+
     [StoryblokComponent("global_component")]
     public class ReferencedComponentContainer : StoryblokReferencedComponentContainer
     {
@@ -57,5 +57,12 @@ namespace Adliance.Storyblok.Tests
     {
         [JsonPropertyName("left_column")] public StoryblokComponent[]? Left { get; set; }
         [JsonPropertyName("right_column")] public StoryblokComponent[]? Right { get; set; }
+    }
+
+    [StoryblokComponent("dropdown")]
+    public class DropdownComponent : StoryblokComponent
+    {
+        [JsonPropertyName("singleoption_self")] public string? SingleOptionSelf { get; set; }
+        [JsonPropertyName("singleoption_datasource")] public string? SingleOptionDatasource { get; set; }
     }
 }

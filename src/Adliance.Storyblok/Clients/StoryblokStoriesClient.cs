@@ -52,7 +52,7 @@ namespace Adliance.Storyblok.Clients
         internal async Task<IList<StoryblokStory>> LoadStories(string parameters)
         {
             var cacheKey = $"stories_{parameters}";
-            if (MemoryCache.TryGetValue(cacheKey, out IList<StoryblokStory> cachedStories))
+            if (MemoryCache.TryGetValue(cacheKey, out IList<StoryblokStory>? cachedStories) && cachedStories != null)
             {
                 Logger.LogTrace($"Using cached stories for \"{parameters}\".");
                 return cachedStories;
@@ -87,7 +87,7 @@ namespace Adliance.Storyblok.Clients
                 {
                     throw new Exception($"Unable to deserialize {responseString}.");
                 }
-                
+
                 var currentPageStories = stories.Stories.ToList();
                 currentPageStories.ForEach(x => x.LoadedAt = DateTime.UtcNow);
                 if (!currentPageStories.Any())
@@ -99,7 +99,7 @@ namespace Adliance.Storyblok.Clients
                 result.AddRange(currentPageStories);
 
                 var total = int.Parse(response.Headers.GetValues("Total").First());
-                maxPage = (int) Math.Ceiling(total / (double) PerPage);
+                maxPage = (int)Math.Ceiling(total / (double)PerPage);
                 page++;
             }
 

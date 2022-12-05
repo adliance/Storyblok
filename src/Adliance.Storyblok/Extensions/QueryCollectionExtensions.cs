@@ -28,7 +28,7 @@ namespace Adliance.Storyblok.Extensions
 
                 var validationToken = sb.ToString();
                 var timestamp = (int)Math.Floor((DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds) - 3600;
-                return query["_storyblok_tk[token]"] == validationToken && int.Parse(query["_storyblok_tk[timestamp]"]) > timestamp;
+                return query["_storyblok_tk[token]"] == validationToken && int.Parse(query["_storyblok_tk[timestamp]"]!) > timestamp;
             }
         }
     }

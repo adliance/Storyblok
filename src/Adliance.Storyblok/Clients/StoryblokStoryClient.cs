@@ -47,7 +47,7 @@ namespace Adliance.Storyblok.Clients
             }
 
             var cacheKey = $"{culture}_{slug}_{resolveLinks}_{resolveAssets}_{resolveRelations}";
-            if (MemoryCache.TryGetValue(cacheKey, out StoryblokStory cachedStory))
+            if (MemoryCache.TryGetValue(cacheKey, out StoryblokStory? cachedStory) && cachedStory != null)
             {
                 Logger.LogTrace($"Using cached story for slug \"{slug}\" (culture \"{culture}\").");
                 return cachedStory;

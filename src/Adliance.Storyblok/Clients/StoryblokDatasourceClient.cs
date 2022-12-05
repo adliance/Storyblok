@@ -42,7 +42,7 @@ namespace Adliance.Storyblok.Clients
             }
 
             var cacheKey = $"datasource_{name}_{dimension}";
-            if (MemoryCache.TryGetValue(cacheKey, out StoryblokDatasource cachedDatasource))
+            if (MemoryCache.TryGetValue(cacheKey, out StoryblokDatasource? cachedDatasource) && cachedDatasource != null)
             {
                 Logger.LogTrace($"Using cached datasource \"{name}\"{(string.IsNullOrWhiteSpace(dimension) ? "" : $" (dimension \"{dimension}\")")}.");
                 return cachedDatasource;
@@ -100,11 +100,11 @@ namespace Adliance.Storyblok.Clients
                 {
                     throw new Exception($"Unable to deserialize {responseString}.");
                 }
-                
+
                 items.AddRange(pageResults.Entries);
 
                 var total = int.Parse(response.Headers.GetValues("Total").First());
-                maxPage = (int) Math.Ceiling(total / (double) PerPage);
+                maxPage = (int)Math.Ceiling(total / (double)PerPage);
                 page++;
             }
 

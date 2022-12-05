@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <AssemblyName>Adliance.Storyblok</AssemblyName>
     <RootNamespace>Adliance.Storyblok</RootNamespace>
     <PackageId>Adliance.Storyblok</PackageId>
@@ -21,7 +21,7 @@
   
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Markdig" Version="0.30.2" />
+    <PackageReference Include="Markdig" Version="0.30.4" />
   </ItemGroup>
 </Project>
 

@@ -53,6 +53,11 @@ namespace Adliance.Storyblok
         public ResolveLinksType ResolveLinks { get; set; } = ResolveLinksType.Url;
         public string ResolveRelations { get; set; } = "";
         
+        /// <summary>
+        /// The name of the datasource that contains HTTP redirect information. Leave empty to not use the RedirectsMiddleware at all.
+        /// </summary>
+        public string? RedirectsDatasourceName { get; set; }
+        
         public Func<StoryblokStory, bool> SitemapFilter { get; set; } = _ => true;
     }
 }

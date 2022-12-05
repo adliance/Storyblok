@@ -18,6 +18,11 @@ namespace Adliance.Storyblok.Extensions
             {
                 var optionsValue = options.Value;
 
+                if (!string.IsNullOrWhiteSpace(optionsValue.RedirectsDatasourceName))
+                {
+                    app.UseMiddleware<StoryblokRedirectsMiddleware>();
+                }
+                
                 var supportedCultures = optionsValue.SupportedCultures.Select(x => new CultureInfo(x)).ToArray();
                 if (!supportedCultures.Any()) supportedCultures = new[] { CultureInfo.CurrentUICulture };
                 app.UseRequestLocalization(o =>

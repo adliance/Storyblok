@@ -22,7 +22,7 @@ namespace Adliance.Storyblok.Extensions
                 {
                     app.UseMiddleware<StoryblokRedirectsMiddleware>();
                 }
-                
+
                 var supportedCultures = optionsValue.SupportedCultures.Select(x => new CultureInfo(x)).ToArray();
                 if (!supportedCultures.Any()) supportedCultures = new[] { CultureInfo.CurrentUICulture };
                 app.UseRequestLocalization(o =>
@@ -30,6 +30,9 @@ namespace Adliance.Storyblok.Extensions
                     o.DefaultRequestCulture = new RequestCulture(supportedCultures[0].Name, supportedCultures[0].Name);
                     o.SupportedCultures = supportedCultures;
                     o.SupportedUICultures = supportedCultures;
+
+                    // don't load the culture from the HTTP request as this mixes stuff up with the cultured slugs of Storyblok
+                    o.RequestCultureProviders = o.RequestCultureProviders.Where(x => x.GetType() != typeof(AcceptLanguageHeaderRequestCultureProvider)).ToList();
 
                     if (!string.IsNullOrWhiteSpace(optionsValue.CultureCookieName))
                     {
@@ -43,7 +46,7 @@ namespace Adliance.Storyblok.Extensions
 
             app.MapWhen(context => options?.Value.EnableSitemap == true && context.Request.Path.StartsWithSegments("/sitemap.xml", StringComparison.OrdinalIgnoreCase), appBuilder => { appBuilder.UseMiddleware<StoryblokSitemapMiddleware>(); });
 
-            app.MapWhen(context => !string.IsNullOrWhiteSpace(options?.Value?.SlugForClearingCache) && context.Request.Path.StartsWithSegments("/" + options.Value?.SlugForClearingCache.Trim('/'), StringComparison.OrdinalIgnoreCase),
+            app.MapWhen(context => !string.IsNullOrWhiteSpace(options?.Value.SlugForClearingCache) && context.Request.Path.StartsWithSegments("/" + options.Value.SlugForClearingCache.Trim('/'), StringComparison.OrdinalIgnoreCase),
                 appBuilder => { appBuilder.UseMiddleware<StoryblokClearCacheMiddleware>(); });
 
             app.UseMiddleware<StoryblokMiddleware>();

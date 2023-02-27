@@ -27,6 +27,7 @@ namespace Adliance.Storyblok
             Language = story.Language;
             TranslatedSlugs = story.TranslatedSlugs;
             DefaultFullSlug = story.DefaultFullSlug;
+            TagList = story.TagList;
 
             var castContent = story.Content as T;
             Content = castContent ?? throw new Exception($"A component of type \"{story.Content?.GetType()}\" cannot be cast to \"{typeof(T)}\"");
@@ -57,6 +58,7 @@ namespace Adliance.Storyblok
         [JsonPropertyName("lang")] public string Language { get; set; } = "";
         [JsonPropertyName("translated_slugs")] public IList<StoryblokTranslatedSlug> TranslatedSlugs { get; set; } = new List<StoryblokTranslatedSlug>();
 
+        [JsonPropertyName("tag_list")] public List<string>? TagList { get; set; }
         public DateTime LoadedAt { get; set; }
 
         public override string ToString()

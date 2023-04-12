@@ -12,6 +12,7 @@ namespace Adliance.Storyblok
         [JsonPropertyName("cached_url")] public string? CachedValue { get; set; }
         [JsonPropertyName("anchor")] public string? Anchor { get; set; }
         [JsonPropertyName("email")] public string? Email { get; set; }
+        [JsonPropertyName("target")] public string? Target { get; set; }
         
         /// <summary>
         /// This property is available when the story has been requested via resolve_links parameters set.

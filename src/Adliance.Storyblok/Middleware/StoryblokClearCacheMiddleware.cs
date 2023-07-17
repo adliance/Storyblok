@@ -31,22 +31,14 @@ namespace Adliance.Storyblok.Middleware
         {
             try
             {
-                // this is sloow, but I was not able to find any other way to clear the memory cache
-                var field = typeof(MemoryCache).GetProperty("EntriesCollection", BindingFlags.NonPublic | BindingFlags.Instance);
-                if (field != null)
+                if (cache is MemoryCache memoryCache)
                 {
-                    // ReSharper disable PossibleNullReferenceException
-                    var entriesCollection = field.GetValue(cache);
-                    if (entriesCollection != null)
-                    {
-                        var clearMethod = entriesCollection.GetType().GetMethod("Clear");
-                        if (clearMethod != null)
-                        {
-                            clearMethod.Invoke(entriesCollection, null);
-                        }
-                    }
+                    memoryCache.Compact(1.0);
                 }
-                // ReSharper restore PossibleNullReferenceException
+                else
+                {
+                    throw new Exception("Only MemoryCache supported currently.");
+                }
             }
             catch (Exception ex)
             {

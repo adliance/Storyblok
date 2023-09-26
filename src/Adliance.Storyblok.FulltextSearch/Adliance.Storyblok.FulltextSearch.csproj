@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <AssemblyName>Adliance.Storyblok.FulltextSearch</AssemblyName>
+    <RootNamespace>Adliance.Storyblok.FulltextSearch</RootNamespace>
+    <PackageId>Adliance.Storyblok.FulltextSearch</PackageId>
+    <Version>0.0.0</Version>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+    <FileVersion>0.0.0.0</FileVersion>
+    <Authors>Hannes Sachsenhofer</Authors>
+    <Company>Adliance GmbH</Company>
+    <Product>Adliance.Storyblok</Product>
+    <Description>Extends the Adliance.Storyblok package with support for fulltext search.</Description>
+    <Copyright>(c) Adliance GmbH</Copyright>
+    <PackageProjectUrl>https://github.com/Adliance/Storyblok/</PackageProjectUrl>
+    
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Lucene.Net" Version="4.8.0-beta00016" />
+    <PackageReference Include="Lucene.Net.Analysis.Common" Version="4.8.0-beta00016" />
+    <PackageReference Include="Lucene.Net.Highlighter" Version="4.8.0-beta00016" />
+    <PackageReference Include="Lucene.Net.Queries" Version="4.8.0-beta00016" />
+    <PackageReference Include="Lucene.Net.QueryParser" Version="4.8.0-beta00016" />
+    
+    <ProjectReference Include="..\Adliance.Storyblok\Adliance.Storyblok.csproj" />
+  </ItemGroup>
+</Project>
+

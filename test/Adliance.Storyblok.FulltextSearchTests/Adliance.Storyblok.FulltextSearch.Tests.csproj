@@ -7,7 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\Adliance.Storyblok\Adliance.Storyblok.csproj" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.2" />
         <PackageReference Include="xunit" Version="2.5.1" />
         <PackageReference Include="xunit.runner.visualstudio" Version="2.5.1">
@@ -15,5 +14,9 @@
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="7.0.11" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\src\Adliance.Storyblok.FulltextSearch\Adliance.Storyblok.FulltextSearch.csproj" />
     </ItemGroup>
 </Project>

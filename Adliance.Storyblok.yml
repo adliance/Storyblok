@@ -1,7 +1,13 @@
-name: 7.0.$(rev:r)
+name: 7.1.$(rev:r)
 
 trigger:
-- master
+  batch: true
+  branches:
+    include:
+      - master
+  paths:
+    include:
+      - /src/Adliance.Storyblok/
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -19,29 +25,23 @@ steps:
     packageType: sdk
 
 - task: DotNetCoreCLI@2
-  displayName: Restore
-  inputs:
-    command: restore
-    projects: '**/*.csproj'
-
-- task: DotNetCoreCLI@2
   displayName: Build
   inputs:
-    projects: '**/*.csproj'
+    projects: 'src/Adliance.Storyblok/Adliance.Storyblok.csproj'
     arguments: '--configuration $(buildConfiguration)'
 
 - task: DotNetCoreCLI@2
   displayName: Test
   inputs:
     command: test
-    projects: 'test/**/*.csproj'
+    projects: 'test/Adliance.Storyblok.Tests/Adliance.Storyblok.Tests.csproj'
     arguments: '--configuration $(buildConfiguration)'
 
 - task: DotNetCoreCLI@2
   displayName: Pack
   inputs:
     command: pack
-    packagesToPack: 'src/Adliance.Storyblok/*.csproj'
+    packagesToPack: 'src/Adliance.Storyblok/Adliance.Storyblok.csproj'
     arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)'
     versioningScheme: byBuildNumber
 

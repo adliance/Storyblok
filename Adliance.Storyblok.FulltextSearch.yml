@@ -1,0 +1,54 @@
+name: 7.1.$(rev:r)
+
+trigger:
+  batch: true
+  branches:
+    include:
+      - master
+  paths:
+    include:
+      - /src/Adliance.Storyblok.FulltextSearch/
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  buildConfiguration: 'Release'
+
+steps:
+- checkout: self
+
+- task: UseDotNet@2
+  displayName: "Install .NET"
+  inputs:
+    version: '7.0.x'
+    packageType: sdk
+
+- task: DotNetCoreCLI@2
+  displayName: Build
+  inputs:
+    projects: 'src/Adliance.Storyblok.FulltextSearch/Adliance.Storyblok.FulltextSearch.csproj'
+    arguments: '--configuration $(buildConfiguration)'
+
+- task: DotNetCoreCLI@2
+  displayName: Test
+  inputs:
+    command: test
+    projects: 'test/Adliance.Storyblok.FulltextSearch.Tests/Adliance.Storyblok.FulltextSearch.Tests.csproj'
+    arguments: '--configuration $(buildConfiguration)'
+
+- task: DotNetCoreCLI@2
+  displayName: Pack
+  inputs:
+    command: pack
+    packagesToPack: 'src/Adliance.Storyblok.FulltextSearch/Adliance.Storyblok.FulltextSearch.csproj'
+    arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)'
+    versioningScheme: byBuildNumber
+
+- task: NuGetCommand@2
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
+  displayName: Push
+  inputs:
+    command: push
+    nuGetFeedType: external
+    publishFeedCredentials: 'Public NuGet'

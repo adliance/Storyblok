@@ -7,11 +7,16 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Adliance.Storyblok", "src\A
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8BDE9E1A-472F-40BA-A351-CB879CE2FDE6}"
 	ProjectSection(SolutionItems) = preProject
-		azure-pipelines.yml = azure-pipelines.yml
+		Adliance.Storyblok.yml = Adliance.Storyblok.yml
 		README.md = README.md
+		Adliance.Storyblok.FulltextSearch.yml = Adliance.Storyblok.FulltextSearch.yml
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Adliance.Storyblok.Tests", "test\Adliance.Storyblok.Tests\Adliance.Storyblok.Tests.csproj", "{4328AFE3-96BF-4C95-A2AC-A9A539068224}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Adliance.Storyblok.FulltextSearch", "src\Adliance.Storyblok.FulltextSearch\Adliance.Storyblok.FulltextSearch.csproj", "{FBBBF270-7530-47C6-9402-8FCEC4B7FE85}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Adliance.Storyblok.FulltextSearch.Tests", "test\Adliance.Storyblok.FulltextSearchTests\Adliance.Storyblok.FulltextSearch.Tests.csproj", "{F0970201-2E6B-47E6-B0AF-B76E8BD2BE76}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +32,14 @@ Global
 		{4328AFE3-96BF-4C95-A2AC-A9A539068224}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4328AFE3-96BF-4C95-A2AC-A9A539068224}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4328AFE3-96BF-4C95-A2AC-A9A539068224}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FBBBF270-7530-47C6-9402-8FCEC4B7FE85}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FBBBF270-7530-47C6-9402-8FCEC4B7FE85}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FBBBF270-7530-47C6-9402-8FCEC4B7FE85}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FBBBF270-7530-47C6-9402-8FCEC4B7FE85}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F0970201-2E6B-47E6-B0AF-B76E8BD2BE76}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F0970201-2E6B-47E6-B0AF-B76E8BD2BE76}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F0970201-2E6B-47E6-B0AF-B76E8BD2BE76}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F0970201-2E6B-47E6-B0AF-B76E8BD2BE76}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

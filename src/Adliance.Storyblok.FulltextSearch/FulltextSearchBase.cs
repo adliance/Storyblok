@@ -1,11 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Adliance.Storyblok.Clients;
 using Lucene.Net.Documents;
-using Lucene.Net.Store;
 
 namespace Adliance.Storyblok.FulltextSearch;
 
@@ -55,36 +53,16 @@ public abstract class FulltextSearchBase
     protected virtual async Task<Document?> HandleStory(string slug)
     {
         var story = await _storyClient.Story().WithSlug(slug).Load();
-        if (story == null) return null;
-
-        var sb = new StringBuilder();
-        HandleComponent(story.Content, sb);
-        return CreateDocument(story.FullSlug!, "", sb.ToString());
+        if (story?.FullSlug == null) return null;
+        
+        var title = GetTitle(story);
+        var content = GetContent(story);
+        return _luceneService.CreateDocument(story.FullSlug, title, content);
     }
 
-    protected abstract void HandleComponent(StoryblokComponent? component, StringBuilder content);
-
-    protected void HandleComponent(IEnumerable<StoryblokComponent?>? components, StringBuilder content)
-    {
-        if (components == null) return;
-        foreach (var c in components) HandleComponent(c, content);
-    }
-
-    private Document CreateDocument(string fullSlug, string title, string content)
-    {
-        return _luceneService.CreateDocument(fullSlug, title, content);
-    }
-
-    protected static void AddText(StringBuilder sb, string? s)
-    {
-        if (!string.IsNullOrWhiteSpace(s)) sb.AppendLine(s);
-    }
-
-    protected static void AddText(StringBuilder sb, Markdown? s)
-    {
-        AddText(sb, RemoveMarkdown(s?.Value));
-    }
-
+    protected abstract string GetTitle(StoryblokStory story);
+    protected abstract string GetContent(StoryblokStory story);
+    
     protected static string? RemoveMarkdown(string? s)
     {
         if (string.IsNullOrWhiteSpace(s)) return null;

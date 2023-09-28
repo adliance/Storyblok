@@ -6,6 +6,7 @@ public class SearchResultItem
 {
     public string Slug { get; init; } = "";
     public string Title { get; init; } = "";
+    public string[]? Roles { get; set; }
     public string? Preview { get; set; }
 }
 

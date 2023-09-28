@@ -1,5 +1,4 @@
 ﻿using Adliance.Storyblok.Extensions;
-using Adliance.Storyblok.FulltextSearch.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,7 +13,12 @@ namespace Adliance.Storyblok.FulltextSearch.Tests
                 o.ApiKeyPublic = "bhbAxSYj2PjrAwleHntSfQtt"; // the public API key of our special Unit Test Storyblok Space, nothing confidential in there
                 o.SupportedCultures = new[] { "de", "en" };
                 o.RedirectsDatasourceName = "redirects";
-            }).AddStoryblokFulltextSearch<FulltextSearch>();
+            });
+
+            // we don't call AddStoryblokFulltext here because I don't want to register the background job here
+            services.AddScoped<LuceneService>();
+            services.AddScoped<FulltextSearch>();
+            services.AddScoped<FulltextSearchBase, FulltextSearch>();
         }
 
         public void Configure(IApplicationBuilder app)

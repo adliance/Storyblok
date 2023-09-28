@@ -1,3 +1,4 @@
+using System;
 using System.Text;
 using Adliance.Storyblok.Clients;
 
@@ -19,6 +20,11 @@ public class FulltextSearch : FulltextSearchBase
         var sb = new StringBuilder();
         HandleComponent(sb, story.Content);
         return sb.ToString();
+    }
+
+    protected override string[] GetRoles(StoryblokStory story)
+    {
+        return Array.Empty<string>();
     }
 
     private void HandleComponent(StringBuilder sb, params StoryblokComponent?[]? components)

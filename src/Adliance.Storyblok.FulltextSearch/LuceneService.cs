@@ -116,7 +116,7 @@ public class LuceneService
         return null;
     }
 
-    public SearchResult Query(string culture, string queryText, int numberOfResults)
+    public SearchResult Query(string culture, string queryText, string[] userRoles, int numberOfResults)
     {
         using var indexDirectory = OpenIndexDirectory(culture);
         using var analyzer = GetAnalyzer(culture);
@@ -158,12 +158,12 @@ public class LuceneService
                 var content = doc.Get(ContentField, CultureInfo.CurrentCulture) ?? "";
 
                 var bestFragments = highlighter.GetBestFragments(analyzer, ContentField, content, 1);
-                string[]? roles = null;
+                string[]? documentRoles = null;
                 if (!string.IsNullOrWhiteSpace(rolesJson))
                 {
                     try
                     {
-                        roles = JsonSerializer.Deserialize<string[]>(rolesJson);
+                        documentRoles = JsonSerializer.Deserialize<string[]>(rolesJson);
                     }
                     catch
                     {
@@ -171,13 +171,38 @@ public class LuceneService
                     }
                 }
 
-                result.Results.Add(new SearchResultItem
+                // please note that there's still a problem here with this implementation of a role filter
+                // because if a user requests X results, and it will be filtered via role, the returned number of results will be lower EVEN if there would be more matches
+                // this could be fixed by doing a better search filter via the index itself, or a second query run that requests a corrected number of results
+                // but for now I'm okay with the current limited functionality because it's sufficient for my usecases
+
+                var hasAllRequiredRoles = true;
+                if (documentRoles != null && documentRoles.Any())
                 {
-                    Slug = slug,
-                    Title = title,
-                    Roles = roles,
-                    Preview = string.Join(" ", bestFragments)
-                });
+                    foreach (var documentRole in documentRoles)
+                    {
+                        if (!userRoles.Any(x => x.Equals(documentRole, StringComparison.OrdinalIgnoreCase)))
+                        {
+                            hasAllRequiredRoles = false;
+                            break;
+                        }
+                    }
+                }
+
+                if (hasAllRequiredRoles)
+                {
+                    result.Results.Add(new SearchResultItem
+                    {
+                        Slug = slug,
+                        Title = title,
+                        Roles = documentRoles,
+                        Preview = string.Join(" ", bestFragments)
+                    });
+                }
+                else
+                {
+                    result.TotalResults--;
+                }
             }
         }
         catch (Exception ex)

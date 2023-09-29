@@ -4,9 +4,9 @@ using Adliance.Storyblok.Clients;
 
 namespace Adliance.Storyblok.FulltextSearch.Tests;
 
-public class FulltextSearch : FulltextSearchBase
+public class MockedFulltextSearch : FulltextSearchBase
 {
-    public FulltextSearch(StoryblokStoriesClient storiesClient, StoryblokStoryClient storyClient, LuceneService luceneService) : base(storiesClient, storyClient, luceneService)
+    public MockedFulltextSearch(StoryblokStoriesClient storiesClient, StoryblokStoryClient storyClient, LuceneService luceneService) : base(storiesClient, storyClient, luceneService)
     {
     }
 
@@ -24,7 +24,8 @@ public class FulltextSearch : FulltextSearchBase
 
     protected override string[] GetRoles(StoryblokStory story)
     {
-        return Array.Empty<string>();
+       if (story.Slug?.Equals("page-table",StringComparison.OrdinalIgnoreCase) == true) return new[] { "some_role" };
+       return Array.Empty<string>();
     }
 
     private void HandleComponent(StringBuilder sb, params StoryblokComponent?[]? components)

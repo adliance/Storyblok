@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -46,9 +47,14 @@ public abstract class FulltextSearchBase
         return documents.Count;
     }
 
+    public SearchResult Query(string culture, string queryText, string[] userRoles, int numberOfResults)
+    {
+        return _luceneService.Query(culture, queryText, userRoles, numberOfResults);
+    }
+
     public SearchResult Query(string culture, string queryText, int numberOfResults)
     {
-        return _luceneService.Query(culture, queryText, numberOfResults);
+        return _luceneService.Query(culture, queryText, Array.Empty<string>(), numberOfResults);
     }
 
     public SearchResult Query(string queryText, int numberOfResults)

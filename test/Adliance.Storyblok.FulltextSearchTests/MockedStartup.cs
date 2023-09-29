@@ -17,8 +17,8 @@ namespace Adliance.Storyblok.FulltextSearch.Tests
 
             // we don't call AddStoryblokFulltext here because I don't want to register the background job here
             services.AddScoped<LuceneService>();
-            services.AddScoped<FulltextSearch>();
-            services.AddScoped<FulltextSearchBase, FulltextSearch>();
+            services.AddScoped<MockedFulltextSearch>();
+            services.AddScoped<FulltextSearchBase, MockedFulltextSearch>();
         }
 
         public void Configure(IApplicationBuilder app)

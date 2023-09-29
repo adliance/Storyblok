@@ -16,7 +16,7 @@ public class FulltextSearchTest
     }
 
     [Fact]
-    public async Task Can_Fill_Index_And_Query_In_English()
+    public async Task Can_Fill_Index_And_Query_In_English_With_Role()
     {
         _sut.DeleteFulltextIndex("en");
 
@@ -24,16 +24,59 @@ public class FulltextSearchTest
         Assert.NotNull(updatedPages);
         Assert.InRange(updatedPages.Value, 8, 8);
 
-        var searchResults = _sut.Query("en", "Content", 1);
-        Assert.InRange(searchResults.TotalResults,2,2);
+        var searchResults = _sut.Query("en", "Content", new[]
+        {
+            "some_role"
+        }, 1);
+        Assert.InRange(searchResults.TotalResults, 2, 2);
         Assert.InRange(searchResults.Results.Count, 1, 1);
 
-        searchResults = _sut.Query("en", "Inhalt", 1);
-        Assert.InRange(searchResults.TotalResults,0,0);
+        searchResults = _sut.Query("en", "Inhalt", new[]
+        {
+            "some_role"
+        }, 1);
+        Assert.InRange(searchResults.TotalResults, 0, 0);
     }
 
     [Fact]
-    public async Task Can_Fill_Index_And_Query_In_German()
+    public async Task Can_Fill_Index_And_Query_In_English_Without_Role()
+    {
+        _sut.DeleteFulltextIndex("en");
+
+        var updatedPages = await _sut.UpdateFulltextIndex("en");
+        Assert.NotNull(updatedPages);
+        Assert.InRange(updatedPages.Value, 8, 8);
+
+        var searchResults = _sut.Query("en", "Content",  2);
+        Assert.InRange(searchResults.TotalResults, 1, 1);
+        Assert.InRange(searchResults.Results.Count, 1, 1);
+    }
+
+    [Fact]
+    public async Task Can_Fill_Index_And_Query_In_German_With_Role()
+    {
+        _sut.DeleteFulltextIndex("de");
+
+        var updatedPages = await _sut.UpdateFulltextIndex("de");
+        Assert.NotNull(updatedPages);
+        Assert.InRange(updatedPages.Value, 8, 8);
+
+        var searchResults = _sut.Query("de", "Inhalt", new[]
+        {
+            "some_role"
+        }, 1);
+        Assert.InRange(searchResults.TotalResults, 1, 1);
+        Assert.InRange(searchResults.Results.Count, 1, 1);
+
+        searchResults = _sut.Query("de", "Content", new[]
+        {
+            "some_role"
+        }, 1);
+        Assert.InRange(searchResults.TotalResults, 1, 1);
+    }
+
+    [Fact]
+    public async Task Can_Fill_Index_And_Query_In_German_Without_Role()
     {
         _sut.DeleteFulltextIndex("de");
 
@@ -42,10 +85,10 @@ public class FulltextSearchTest
         Assert.InRange(updatedPages.Value, 8, 8);
 
         var searchResults = _sut.Query("de", "Inhalt", 1);
-        Assert.InRange(searchResults.TotalResults,1,1);
-        Assert.InRange(searchResults.Results.Count, 1, 1);
+        Assert.InRange(searchResults.TotalResults, 0, 0);
+        Assert.InRange(searchResults.Results.Count, 0, 0);
 
         searchResults = _sut.Query("de", "Content", 1);
-        Assert.InRange(searchResults.TotalResults,1,1);
+        Assert.InRange(searchResults.TotalResults, 1, 1);
     }
 }

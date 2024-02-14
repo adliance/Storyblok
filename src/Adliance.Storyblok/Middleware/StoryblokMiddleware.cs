@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Adliance.Storyblok.Clients;
 using Adliance.Storyblok.Extensions;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
@@ -104,7 +105,7 @@ namespace Adliance.Storyblok.Middleware
                     }
 
                     logger.LogTrace($"Trying to load story for slug \"{slugWithoutCulture}\" for culture {supportedCulture}.");
-                    CultureInfo.CurrentUICulture = CultureInfo.CurrentCulture = new CultureInfo(supportedCulture);
+
                     story = await storyblokClient.Story()
                         .WithCulture(CultureInfo.CurrentUICulture)
                         .WithSlug(slugWithoutCulture)
@@ -116,7 +117,7 @@ namespace Adliance.Storyblok.Middleware
                 }
             }
 
-            // load the story with the current culture (usually set by request localization
+            // load the story with the current culture (usually set by request localization)
             story ??= await storyblokClient.Story()
                 .WithCulture(CultureInfo.CurrentUICulture)
                 .WithSlug(slug)
@@ -150,21 +151,6 @@ namespace Adliance.Storyblok.Middleware
 
             // we have a story, yay! Lets render it and stop with the middleware chain
             logger.LogTrace($"Rendering slug \"{slug}\" with view \"{componentMapping.View}\".");
-
-            // store the culture in the cookie (if support more than 1 culture)
-            if (options.Value.SupportedCultures.Length > 1)
-            {
-                context.Response.Cookies.Append(
-                    options.Value.CultureCookieName,
-                    CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(CultureInfo.CurrentUICulture)),
-                    new CookieOptions
-                    {
-                        MaxAge = TimeSpan.FromDays(365),
-                        IsEssential = true,
-                        Secure = false,
-                        HttpOnly = true
-                    });
-            }
 
             var result = new ViewResult { ViewName = componentMapping.View };
             var modelMetadata = new EmptyModelMetadataProvider();

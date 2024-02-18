@@ -6,10 +6,8 @@ using System.Reflection;
 using System.Text.Json;
 using Adliance.Storyblok.Converters;
 using Adliance.Storyblok.Extensions;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -61,7 +59,6 @@ namespace Adliance.Storyblok.Clients
             {
                 throw new Exception("Define at least one supported culture.");
             }
-
         }
 
         protected string ApiKey => Settings.IncludeDraftStories || IsInEditor ? (Settings.ApiKeyPreview ?? "") : (Settings.ApiKeyPublic ?? "");

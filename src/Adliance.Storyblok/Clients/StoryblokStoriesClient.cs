@@ -6,7 +6,6 @@ using System.Reflection;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Adliance.Storyblok.Attributes;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;

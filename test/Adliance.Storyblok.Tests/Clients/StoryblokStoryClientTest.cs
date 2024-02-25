@@ -1,4 +1,5 @@
-using System;
+﻿using System;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Adliance.Storyblok.Clients;
@@ -82,9 +83,24 @@ public class StoryblokStoryClientTest
         Assert.Equal("Header 2", table.Table?.Header[1].Value);
         Assert.Equal(2, table.Table?.Body.Length);
         Assert.Equal(3, table.Table?.Body[0].Columns.Length);
-        Assert.Equal(3, table.Table?.Body[0].Columns.Length);
+        Assert.Equal(3, table.Table?.Body[1].Columns.Length);
         Assert.Equal("", table.Table?.Body[0].Columns[1].Value);
-        Assert.Equal("Content D", table.Table?.Body[1].Columns[1].Value);
+        Assert.Equal("Inhalt D", table.Table?.Body[1].Columns[1].Value);
+    }
+
+    [Fact]
+    public async Task Can_Load_Table_Translated()
+    {
+        var story = await _client.Story().WithSlug("/page-table").WithCulture(new CultureInfo("en")).ResolveLinks(ResolveLinksType.None).Load<PageComponent>();
+        var table = story!.Content!.Content!.First() as TableComponent;
+        Assert.NotNull(table);
+        Assert.Equal(2, table.Table?.Header.Length);
+        Assert.Equal("Content A", table.Table?.Header[0].Value);
+        Assert.Equal("", table.Table?.Header[1].Value);
+        Assert.Equal(1, table.Table?.Body.Length);
+        Assert.Equal(2, table.Table?.Body[0].Columns.Length);
+        Assert.Equal("Content B", table.Table?.Body[0].Columns[0].Value);
+        Assert.Equal("Content C", table.Table?.Body[0].Columns[1].Value);
     }
 
     [Fact]

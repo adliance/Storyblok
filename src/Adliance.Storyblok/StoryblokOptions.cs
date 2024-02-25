@@ -33,7 +33,7 @@ namespace Adliance.Storyblok
         /// The supported cultures, as specified in Storyblok.
         /// The first culture is also the default culture.
         /// </summary>
-        public string[] SupportedCultures { get; set; } = new string[0];
+        public string[] SupportedCultures { get; set; } = Array.Empty<string>();
 
         /// <summary>
         /// This is the slug that will be loaded from Storyblok as part of the health check middleware.
@@ -48,15 +48,15 @@ namespace Adliance.Storyblok
 
         public bool EnableSitemap { get; set; } = true;
 
-        public bool ResolveAssets { get; set; } = false;
+        public bool ResolveAssets { get; set; }
         public ResolveLinksType ResolveLinks { get; set; } = ResolveLinksType.Url;
         public string ResolveRelations { get; set; } = "";
-        
+
         /// <summary>
         /// The name of the datasource that contains HTTP redirect information. Leave empty to not use the RedirectsMiddleware at all.
         /// </summary>
         public string? RedirectsDatasourceName { get; set; }
-        
+
         public Func<StoryblokStory, bool> SitemapFilter { get; set; } = _ => true;
     }
 }

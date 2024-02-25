@@ -57,7 +57,7 @@ namespace Adliance.Storyblok.Tests.Middleware
             await AssertNotFound(await client.GetAsync(url));
         }
 
-        private async Task AssertNotFound(HttpResponseMessage response)
+        private static async Task AssertNotFound(HttpResponseMessage response)
         {
             var responseString = await response.Content.ReadAsStringAsync();
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);

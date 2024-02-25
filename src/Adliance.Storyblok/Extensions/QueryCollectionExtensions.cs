@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Http;
@@ -22,13 +23,13 @@ namespace Adliance.Storyblok.Extensions
                 var sb = new StringBuilder();
                 foreach (var b in hashBytes)
                 {
-                    var hex = b.ToString("x2");
+                    var hex = b.ToString("x2", CultureInfo.InvariantCulture);
                     sb.Append(hex);
                 }
 
                 var validationToken = sb.ToString();
                 var timestamp = (int)Math.Floor((DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds) - 3600;
-                return query["_storyblok_tk[token]"] == validationToken && int.Parse(query["_storyblok_tk[timestamp]"]!) > timestamp;
+                return query["_storyblok_tk[token]"] == validationToken && int.Parse(query["_storyblok_tk[timestamp]"]!, CultureInfo.InvariantCulture) > timestamp;
             }
         }
     }

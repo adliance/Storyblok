@@ -103,7 +103,7 @@ namespace Adliance.Storyblok.Clients
 
                 items.AddRange(pageResults.Entries);
 
-                var total = int.Parse(response.Headers.GetValues("Total").First());
+                var total = int.Parse(response.Headers.GetValues("Total").First(), CultureInfo.InvariantCulture);
                 maxPage = (int)Math.Ceiling(total / (double)PerPage);
                 page++;
             }

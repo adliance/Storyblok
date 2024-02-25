@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Adliance.Storyblok.Tests.Middleware
 {
-    public class StoryblokClearCacheMiddlewareTest 
+    public class StoryblokClearCacheMiddlewareTest
     {
         private readonly MockedWebApplicationFactory<MockedStartup> _factory;
 
@@ -24,14 +24,14 @@ namespace Adliance.Storyblok.Tests.Middleware
             var response = await client.GetAsync("/clear-storyblok-cache");
             await AssertCacheCleared(response);
         }
-        
+
         [Fact]
         public async Task Responds_With_Cleared_Cache_For_Configured_Slug()
         {
             var client = _factory.CreateClient();
             var options = _factory.Services.GetRequiredService<IOptions<StoryblokOptions>>();
             options.Value.SlugForClearingCache = "my-own-SLUG";
-            
+
             var response = await client.GetAsync("/my-own-slug");
             await AssertCacheCleared(response);
         }
@@ -56,14 +56,14 @@ namespace Adliance.Storyblok.Tests.Middleware
             await AssertNotFound(await client.GetAsync(url));
         }
 
-        private async Task AssertNotFound(HttpResponseMessage response)
+        private static async Task AssertNotFound(HttpResponseMessage response)
         {
             var responseString = await response.Content.ReadAsStringAsync();
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
             Assert.NotEqual("Cache cleared.", responseString);
         }
-        
-        private async Task AssertCacheCleared(HttpResponseMessage response)
+
+        private static async Task AssertCacheCleared(HttpResponseMessage response)
         {
             var responseString = await response.Content.ReadAsStringAsync();
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);

@@ -21,10 +21,7 @@ namespace Adliance.Storyblok.Middleware
         /// <inheritdoc />
         public override string Action(UrlActionContext urlActionContext)
         {
-            if (urlActionContext == null)
-            {
-                throw new ArgumentNullException(nameof(urlActionContext));
-            }
+            ArgumentNullException.ThrowIfNull(urlActionContext);
 
             var values = GetValuesDictionary(urlActionContext.Values);
 
@@ -66,10 +63,7 @@ namespace Adliance.Storyblok.Middleware
         /// <inheritdoc />
         public override string RouteUrl(UrlRouteContext routeContext)
         {
-            if (routeContext == null)
-            {
-                throw new ArgumentNullException(nameof(routeContext));
-            }
+            ArgumentNullException.ThrowIfNull(routeContext);
 
             var path = _linkGenerator.GetPathByRouteValues(
                 ActionContext.HttpContext,

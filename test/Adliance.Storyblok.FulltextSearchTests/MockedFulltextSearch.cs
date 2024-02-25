@@ -28,7 +28,7 @@ public class MockedFulltextSearch : FulltextSearchBase
        return Array.Empty<string>();
     }
 
-    private void HandleComponent(StringBuilder sb, params StoryblokComponent?[]? components)
+    private static void HandleComponent(StringBuilder sb, params StoryblokComponent?[]? components)
     {
         if (components == null) return;
         foreach (var component in components)

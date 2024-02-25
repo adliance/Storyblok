@@ -17,7 +17,7 @@ namespace Adliance.Storyblok.Middleware
         {
             _next = next;
         }
-        
+
         // ReSharper disable once UnusedMember.Global
         public async Task Invoke(HttpContext context, IMemoryCache cache, ILogger<StoryblokClearCacheMiddleware> logger)
         {
@@ -27,7 +27,7 @@ namespace Adliance.Storyblok.Middleware
             await context.Response.WriteAsync("Cache cleared.");
         }
 
-        private void ClearCache(IMemoryCache cache, ILogger<StoryblokClearCacheMiddleware> logger)
+        private static void ClearCache(IMemoryCache cache, ILogger<StoryblokClearCacheMiddleware> logger)
         {
             try
             {

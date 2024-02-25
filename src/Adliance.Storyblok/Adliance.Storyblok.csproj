@@ -1,27 +1,28 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
-    <AssemblyName>Adliance.Storyblok</AssemblyName>
-    <RootNamespace>Adliance.Storyblok</RootNamespace>
-    <PackageId>Adliance.Storyblok</PackageId>
-    <Version>0.0.0</Version>
-    <AssemblyVersion>0.0.0.0</AssemblyVersion>
-    <FileVersion>0.0.0.0</FileVersion>
-    <Authors>Hannes Sachsenhofer</Authors>
-    <Company>Adliance GmbH</Company>
-    <Product>Adliance.Storyblok</Product>
-    <Description>Easily integrate the Storyblok headless CMS into your ASP.NET core application.</Description>
-    <Copyright>(c) Adliance GmbH</Copyright>
-    <PackageProjectUrl>https://github.com/Adliance/Storyblok/</PackageProjectUrl>
-    
-    <Nullable>enable</Nullable>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-  </PropertyGroup>
-  
-  <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Markdig" Version="0.33.0" />
-  </ItemGroup>
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <AssemblyName>Adliance.Storyblok</AssemblyName>
+        <RootNamespace>Adliance.Storyblok</RootNamespace>
+        <PackageId>Adliance.Storyblok</PackageId>
+        <Version>0.0.0</Version>
+        <AssemblyVersion>0.0.0.0</AssemblyVersion>
+        <FileVersion>0.0.0.0</FileVersion>
+        <Authors>Hannes Sachsenhofer</Authors>
+        <Company>Adliance GmbH</Company>
+        <Product>Adliance.Storyblok</Product>
+        <Description>Easily integrate the Storyblok headless CMS into your ASP.NET core application.</Description>
+        <Copyright>(c) Adliance GmbH</Copyright>
+        <PackageProjectUrl>https://github.com/Adliance/Storyblok/</PackageProjectUrl>
+
+        <Nullable>enable</Nullable>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Adliance.Buddy.CodeStyle" Version="7.0.0.4"/>
+        <FrameworkReference Include="Microsoft.AspNetCore.App"/>
+        <PackageReference Include="Markdig" Version="0.33.0"/>
+    </ItemGroup>
 </Project>
 

@@ -35,7 +35,7 @@ namespace Adliance.Storyblok
         {
             return ForCulture(CultureInfo.CurrentUICulture);
         }
-        
+
         public StoryblokStoriesQuery ForCulture(CultureInfo culture)
         {
             _culture = culture.ToString();
@@ -116,7 +116,7 @@ namespace Adliance.Storyblok
             return result;
         }
 
-        private class Filter
+        private sealed class Filter
         {
             public string? Field { get; set; }
             public FilterOperation Operation { get; set; }

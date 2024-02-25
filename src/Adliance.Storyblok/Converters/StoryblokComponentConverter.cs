@@ -18,10 +18,8 @@ namespace Adliance.Storyblok.Converters
                 {
                     var componentMappings = StoryblokMappings.Mappings;
 
-                    if (componentMappings.ContainsKey(componentName))
+                    if (componentMappings.TryGetValue(componentName, out var mapping))
                     {
-                        var mapping = componentMappings[componentName];
-
                         var rawText = doc.RootElement.GetRawText();
                         try
                         {

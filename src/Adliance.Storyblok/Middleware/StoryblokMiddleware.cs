@@ -136,12 +136,11 @@ namespace Adliance.Storyblok.Middleware
 
             var componentName = story.Content.Component;
             var componentMappings = StoryblokMappings.Mappings;
-            if (!componentMappings.ContainsKey(componentName))
+            if (!componentMappings.TryGetValue(componentName, out var componentMapping))
             {
                 throw new Exception($"No component mapping found for a component '{componentName}'.");
             }
 
-            var componentMapping = componentMappings[componentName];
             if (string.IsNullOrWhiteSpace(componentMapping.View))
             {
                 logger.LogTrace($"Ignoring request, because no view specified on component of type \"{componentMapping.Type.FullName}\".");
@@ -168,10 +167,7 @@ namespace Adliance.Storyblok.Middleware
 
         private static Task WriteResultAsync<TResult>(HttpContext context, TResult result) where TResult : IActionResult
         {
-            if (context == null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
+            ArgumentNullException.ThrowIfNull(context);
 
             var executor = context.RequestServices.GetRequiredService<IActionResultExecutor<TResult>>();
             if (executor == null)

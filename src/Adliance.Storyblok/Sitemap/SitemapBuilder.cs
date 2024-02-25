@@ -31,7 +31,7 @@ namespace Adliance.Storyblok.Sitemap
                 .ForCurrentUiCulture()
                 .ExcludingFields("content")
                 .Load<StoryblokComponent>()).ToList();
-            
+
             foreach (var s in stories)
             {
                 var slug = s.FullSlug ?? "";
@@ -43,7 +43,8 @@ namespace Adliance.Storyblok.Sitemap
                         continue;
                     }
 
-                    if (_options.Value.IgnoreSlugs.Any(x => x.EndsWith("*", StringComparison.InvariantCultureIgnoreCase) && slug.StartsWith(x.TrimEnd('*').Trim('/'), StringComparison.InvariantCultureIgnoreCase)))
+                    if (_options.Value.IgnoreSlugs.Any(x =>
+                            x.EndsWith("*", StringComparison.InvariantCultureIgnoreCase) && slug.StartsWith(x.TrimEnd('*').Trim('/'), StringComparison.InvariantCultureIgnoreCase)))
                     {
                         continue;
                     }
@@ -71,10 +72,10 @@ namespace Adliance.Storyblok.Sitemap
             foreach (var l in sitemap.Locations)
             {
                 sb.AppendLine("\t<url>");
-                sb.AppendLine($"\t\t<loc>{l.Url}</loc>");
-                sb.AppendLine($"\t\t<lastmod>{l.LastModified.ToUniversalTime():yyyy-MM-ddTHH:mm:sszzz}</lastmod>");
-                sb.AppendLine($"\t\t<changefreq>{l.ChangeFrequency.ToString().ToLower()}</changefreq>");
-                sb.AppendLine($"\t\t<priority>{l.Priority.ToString(CultureInfo.InvariantCulture)}</priority>");
+                sb.AppendLine(CultureInfo.InvariantCulture, $"\t\t<loc>{l.Url}</loc>");
+                sb.AppendLine(CultureInfo.InvariantCulture, $"\t\t<lastmod>{l.LastModified.ToUniversalTime():yyyy-MM-ddTHH:mm:sszzz}</lastmod>");
+                sb.AppendLine(CultureInfo.InvariantCulture, $"\t\t<changefreq>{l.ChangeFrequency.ToString().ToLower()}</changefreq>");
+                sb.AppendLine(CultureInfo.InvariantCulture, $"\t\t<priority>{l.Priority.ToString(CultureInfo.InvariantCulture)}</priority>");
                 sb.AppendLine("\t</url>");
             }
 

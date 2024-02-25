@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
@@ -98,7 +99,7 @@ namespace Adliance.Storyblok.Clients
 
                 result.AddRange(currentPageStories);
 
-                var total = int.Parse(response.Headers.GetValues("Total").First());
+                var total = int.Parse(response.Headers.GetValues("Total").First(), CultureInfo.InvariantCulture);
                 maxPage = (int)Math.Ceiling(total / (double)PerPage);
                 page++;
             }

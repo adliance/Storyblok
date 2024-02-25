@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <AssemblyName>Adliance.Storyblok.FulltextSearch</AssemblyName>
     <RootNamespace>Adliance.Storyblok.FulltextSearch</RootNamespace>
     <PackageId>Adliance.Storyblok.FulltextSearch</PackageId>
@@ -16,13 +16,13 @@
     <PackageProjectUrl>https://github.com/Adliance/Storyblok/</PackageProjectUrl>
 
     <NoWarn>NU5104</NoWarn>
-    
+
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
-  
+
   <ItemGroup>
-    <PackageReference Include="Adliance.Buddy.CodeStyle" Version="7.0.0.4" />
+    <PackageReference Include="Adliance.Buddy.CodeStyle" Version="7.0.0.11" />
     <PackageReference Include="Adliance.Storyblok" Version="7.1.1" />
     <PackageReference Include="Lucene.Net" Version="4.8.0-beta00016" />
     <PackageReference Include="Lucene.Net.Analysis.Common" Version="4.8.0-beta00016" />

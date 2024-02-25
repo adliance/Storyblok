@@ -68,7 +68,7 @@ public class StoryblokMiddleware
         if (isInStoryblokEditor)
         {
             // make sure we can display inside of the Storyblok iframe
-            context.Response.Headers.Add("Content-Security-Policy", "frame-ancestors 'self' app.storyblok.com");
+            context.Response.Headers.Append("Content-Security-Policy", "frame-ancestors 'self' app.storyblok.com");
         }
 
         if (settings.IgnoreSlugs.Any(x => slug.Equals(x.Trim('/'), StringComparison.OrdinalIgnoreCase)))

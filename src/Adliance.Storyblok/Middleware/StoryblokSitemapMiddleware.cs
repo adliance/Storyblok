@@ -22,7 +22,7 @@ public class StoryblokSitemapMiddleware
         logger.LogTrace("Responding with sitemap XML ...");
         var xml = await sitemapBuilder.BuildXml();
         context.Response.ContentType = "application/xml";
-        context.Response.Headers.Add("cache-control", $"public; max-age={(60 * 60 * 12).ToString(CultureInfo.InvariantCulture)}");
+        context.Response.Headers.Append("cache-control", $"public; max-age={(60 * 60 * 12).ToString(CultureInfo.InvariantCulture)}");
         await context.Response.WriteAsync(xml);
     }
 }

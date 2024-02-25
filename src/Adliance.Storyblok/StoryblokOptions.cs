@@ -46,7 +46,6 @@ namespace Adliance.Storyblok
         /// </summary>
         public string SlugForClearingCache { get; set; } = "/clear-storyblok-cache";
 
-        public string CultureCookieName { get; set; } = "culture";
         public bool EnableSitemap { get; set; } = true;
 
         public bool ResolveAssets { get; set; } = false;

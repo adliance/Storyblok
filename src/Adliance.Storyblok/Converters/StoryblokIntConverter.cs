@@ -1,54 +1,53 @@
-﻿using System;
+using System;
 using System.Globalization;
 using System.Text.Json;
 
-namespace Adliance.Storyblok.Converters
+namespace Adliance.Storyblok.Converters;
+
+public class StoryblokIntConverter : System.Text.Json.Serialization.JsonConverter<int>
 {
-    public class StoryblokIntConverter : System.Text.Json.Serialization.JsonConverter<int>
+    public override int Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        public override int Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        if (reader.TokenType == JsonTokenType.Number)
         {
-            if (reader.TokenType == JsonTokenType.Number)
-            {
-                return reader.GetInt32();
-            }
-            
-            var s = reader.GetString();
-            if (int.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out var i))
-            {
-                return i;
-            }
-
-            return default;
+            return reader.GetInt32();
         }
 
-        public override void Write(Utf8JsonWriter writer, int value, JsonSerializerOptions options)
+        var s = reader.GetString();
+        if (int.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out var i))
         {
-            throw new NotImplementedException();
+            return i;
         }
+
+        return default;
     }
 
-    public class StoryblokNullableIntConverter : System.Text.Json.Serialization.JsonConverter<int?>
+    public override void Write(Utf8JsonWriter writer, int value, JsonSerializerOptions options)
     {
-        public override int? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        {
-            if (reader.TokenType == JsonTokenType.Number)
-            {
-                return reader.GetInt32();
-            }
-            
-            var s = reader.GetString();
-            if (int.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out var i))
-            {
-                return i;
-            }
+        throw new NotImplementedException();
+    }
+}
 
-            return null;
+public class StoryblokNullableIntConverter : System.Text.Json.Serialization.JsonConverter<int?>
+{
+    public override int? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        if (reader.TokenType == JsonTokenType.Number)
+        {
+            return reader.GetInt32();
         }
 
-        public override void Write(Utf8JsonWriter writer, int? value, JsonSerializerOptions options)
+        var s = reader.GetString();
+        if (int.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out var i))
         {
-            throw new NotImplementedException();
+            return i;
         }
+
+        return null;
+    }
+
+    public override void Write(Utf8JsonWriter writer, int? value, JsonSerializerOptions options)
+    {
+        throw new NotImplementedException();
     }
 }

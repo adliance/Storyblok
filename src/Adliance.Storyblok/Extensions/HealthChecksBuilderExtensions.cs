@@ -1,12 +1,11 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace Adliance.Storyblok.Extensions
+namespace Adliance.Storyblok.Extensions;
+
+public static class HealthChecksBuilderExtensions
 {
-    public static class HealthChecksBuilderExtensions
+    public static IHealthChecksBuilder AddStoryblok(this IHealthChecksBuilder builder)
     {
-        public static IHealthChecksBuilder AddStoryblok(this IHealthChecksBuilder builder)
-        {
-            return builder.AddCheck<StoryblokHealthCheck>("Storyblok");
-        }
+        return builder.AddCheck<StoryblokHealthCheck>("Storyblok");
     }
 }

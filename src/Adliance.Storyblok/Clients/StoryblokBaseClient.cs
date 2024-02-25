@@ -1,8 +1,7 @@
-﻿using System;
+using System;
 using System.Globalization;
 using System.Linq;
 using System.Net.Http;
-using System.Reflection;
 using System.Text.Json;
 using Adliance.Storyblok.Converters;
 using Adliance.Storyblok.Extensions;
@@ -11,84 +10,83 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Adliance.Storyblok.Clients
+namespace Adliance.Storyblok.Clients;
+
+public abstract class StoryblokBaseClient
 {
-    public abstract class StoryblokBaseClient
+    protected readonly IMemoryCache MemoryCache;
+    protected readonly ILogger<StoryblokBaseClient> Logger;
+    protected readonly HttpClient Client;
+    internal static bool IsInEditor;
+    protected readonly StoryblokOptions Settings;
+
+    protected StoryblokBaseClient(IOptions<StoryblokOptions> settings, IHttpClientFactory clientFactory, IHttpContextAccessor? httpContext, IMemoryCache memoryCache, ILogger<StoryblokBaseClient> logger)
     {
-        protected readonly IMemoryCache MemoryCache;
-        protected readonly ILogger<StoryblokBaseClient> Logger;
-        protected readonly HttpClient Client;
-        internal static bool IsInEditor;
-        protected readonly StoryblokOptions Settings;
+        Client = clientFactory.CreateClient();
+        MemoryCache = memoryCache;
+        Logger = logger;
+        Settings = settings.Value;
+        IsInEditor = httpContext?.HttpContext?.Request?.Query?.IsInStoryblokEditor(Settings) ?? false;
 
-        protected StoryblokBaseClient(IOptions<StoryblokOptions> settings, IHttpClientFactory clientFactory, IHttpContextAccessor? httpContext, IMemoryCache memoryCache, ILogger<StoryblokBaseClient> logger)
+        ValidateSettings();
+    }
+
+    // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
+    private void ValidateSettings()
+    {
+        if (string.IsNullOrWhiteSpace(Settings.BaseUrl))
         {
-            Client = clientFactory.CreateClient();
-            MemoryCache = memoryCache;
-            Logger = logger;
-            Settings = settings.Value;
-            IsInEditor = httpContext?.HttpContext?.Request?.Query?.IsInStoryblokEditor(Settings) ?? false;
-
-            ValidateSettings();
+            throw new Exception("Storyblok API URL is missing in app settings.");
         }
 
-        // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
-        private void ValidateSettings()
+        if (IsInEditor && string.IsNullOrWhiteSpace(Settings.ApiKeyPreview))
         {
-            if (string.IsNullOrWhiteSpace(Settings.BaseUrl))
-            {
-                throw new Exception("Storyblok API URL is missing in app settings.");
-            }
-
-            if (IsInEditor && string.IsNullOrWhiteSpace(Settings.ApiKeyPreview))
-            {
-                throw new Exception("Storyblok preview API key is missing in app settings.");
-            }
-
-            if (!IsInEditor && string.IsNullOrWhiteSpace(Settings.ApiKeyPublic))
-            {
-                throw new Exception("Storyblok public API key is missing in app settings.");
-            }
-
-            if (Settings.CacheDurationSeconds < 0)
-            {
-                throw new Exception("Cache duration (in seconds) must be equal or greater than zero.");
-            }
-
-            if (!Settings.SupportedCultures.Any())
-            {
-                throw new Exception("Define at least one supported culture.");
-            }
+            throw new Exception("Storyblok preview API key is missing in app settings.");
         }
 
-        protected string ApiKey => Settings.IncludeDraftStories || IsInEditor ? (Settings.ApiKeyPreview ?? "") : (Settings.ApiKeyPublic ?? "");
-
-        protected bool IsDefaultCulture(CultureInfo culture)
+        if (!IsInEditor && string.IsNullOrWhiteSpace(Settings.ApiKeyPublic))
         {
-            return IsDefaultCulture(culture.ToString());
+            throw new Exception("Storyblok public API key is missing in app settings.");
         }
 
-        private bool IsDefaultCulture(string culture)
+        if (Settings.CacheDurationSeconds < 0)
         {
-            return Settings.SupportedCultures[0].Equals(culture, StringComparison.OrdinalIgnoreCase);
+            throw new Exception("Cache duration (in seconds) must be equal or greater than zero.");
         }
 
-        protected JsonSerializerOptions JsonOptions
+        if (!Settings.SupportedCultures.Any())
         {
-            get
-            {
-                var options = new JsonSerializerOptions();
-                options.Converters.Add(new StoryblokComponentConverter());
-                options.Converters.Add(new StoryblokDateConverter());
-                options.Converters.Add(new StoryblokNullableDateConverter());
-                options.Converters.Add(new StoryblokIntConverter());
-                options.Converters.Add(new StoryblokNullableIntConverter());
-                options.Converters.Add(new StoryblokStringConverter());
-                options.Converters.Add(new StoryblokNullableStringConverter());
-                options.Converters.Add(new StoryblokMarkdownConverter());
-                options.Converters.Add(new StoryblokAssetConverter());
-                return options;
-            }
+            throw new Exception("Define at least one supported culture.");
+        }
+    }
+
+    protected string ApiKey => Settings.IncludeDraftStories || IsInEditor ? (Settings.ApiKeyPreview ?? "") : (Settings.ApiKeyPublic ?? "");
+
+    protected bool IsDefaultCulture(CultureInfo culture)
+    {
+        return IsDefaultCulture(culture.ToString());
+    }
+
+    private bool IsDefaultCulture(string culture)
+    {
+        return Settings.SupportedCultures[0].Equals(culture, StringComparison.OrdinalIgnoreCase);
+    }
+
+    protected JsonSerializerOptions JsonOptions
+    {
+        get
+        {
+            var options = new JsonSerializerOptions();
+            options.Converters.Add(new StoryblokComponentConverter());
+            options.Converters.Add(new StoryblokDateConverter());
+            options.Converters.Add(new StoryblokNullableDateConverter());
+            options.Converters.Add(new StoryblokIntConverter());
+            options.Converters.Add(new StoryblokNullableIntConverter());
+            options.Converters.Add(new StoryblokStringConverter());
+            options.Converters.Add(new StoryblokNullableStringConverter());
+            options.Converters.Add(new StoryblokMarkdownConverter());
+            options.Converters.Add(new StoryblokAssetConverter());
+            return options;
         }
     }
 }

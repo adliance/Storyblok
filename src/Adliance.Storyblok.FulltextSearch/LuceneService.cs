@@ -17,7 +17,6 @@ using Lucene.Net.Search.Highlight;
 using Lucene.Net.Store;
 using Lucene.Net.Util;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace Adliance.Storyblok.FulltextSearch;
 

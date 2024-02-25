@@ -1,49 +1,47 @@
-﻿using System;
+using System;
 using System.Net;
-using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
-namespace Adliance.Storyblok.Middleware
+namespace Adliance.Storyblok.Middleware;
+
+// ReSharper disable once ClassNeverInstantiated.Global
+public class StoryblokClearCacheMiddleware
 {
-    // ReSharper disable once ClassNeverInstantiated.Global
-    public class StoryblokClearCacheMiddleware
+    private readonly RequestDelegate _next;
+
+    public StoryblokClearCacheMiddleware(RequestDelegate next)
     {
-        private readonly RequestDelegate _next;
+        _next = next;
+    }
 
-        public StoryblokClearCacheMiddleware(RequestDelegate next)
-        {
-            _next = next;
-        }
+    // ReSharper disable once UnusedMember.Global
+    public async Task Invoke(HttpContext context, IMemoryCache cache, ILogger<StoryblokClearCacheMiddleware> logger)
+    {
+        logger.LogTrace("Clearing cache ...");
+        ClearCache(cache, logger);
+        context.Response.StatusCode = (int)HttpStatusCode.OK;
+        await context.Response.WriteAsync("Cache cleared.");
+    }
 
-        // ReSharper disable once UnusedMember.Global
-        public async Task Invoke(HttpContext context, IMemoryCache cache, ILogger<StoryblokClearCacheMiddleware> logger)
+    private static void ClearCache(IMemoryCache cache, ILogger<StoryblokClearCacheMiddleware> logger)
+    {
+        try
         {
-            logger.LogTrace("Clearing cache ...");
-            ClearCache(cache, logger);
-            context.Response.StatusCode = (int) HttpStatusCode.OK;
-            await context.Response.WriteAsync("Cache cleared.");
-        }
-
-        private static void ClearCache(IMemoryCache cache, ILogger<StoryblokClearCacheMiddleware> logger)
-        {
-            try
+            if (cache is MemoryCache memoryCache)
             {
-                if (cache is MemoryCache memoryCache)
-                {
-                    memoryCache.Compact(1.0);
-                }
-                else
-                {
-                    throw new Exception("Only MemoryCache supported currently.");
-                }
+                memoryCache.Compact(1.0);
             }
-            catch (Exception ex)
+            else
             {
-                logger.LogError(ex, "Unable to clear cache.");
+                throw new Exception("Only MemoryCache supported currently.");
             }
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Unable to clear cache.");
         }
     }
 }

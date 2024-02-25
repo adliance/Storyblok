@@ -1,76 +1,75 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Threading.Tasks;
 using Adliance.Storyblok.Clients;
 
-namespace Adliance.Storyblok
+namespace Adliance.Storyblok;
+
+public class StoryblokStoryQuery
 {
-    public class StoryblokStoryQuery
+    private readonly StoryblokStoryClient _client;
+
+    private CultureInfo? _culture;
+    private string _slug = "";
+    private ResolveLinksType _resolveLinks = ResolveLinksType.Url;
+    private bool _resolveAssets;
+    private string _resolveRelations = "";
+
+    public StoryblokStoryQuery(StoryblokStoryClient client)
     {
-        private readonly StoryblokStoryClient _client;
-
-        private CultureInfo? _culture;
-        private string _slug = "";
-        private ResolveLinksType _resolveLinks = ResolveLinksType.Url;
-        private bool _resolveAssets;
-        private string _resolveRelations = "";
-
-        public StoryblokStoryQuery(StoryblokStoryClient client)
-        {
-            _client = client;
-        }
-
-        public StoryblokStoryQuery WithSlug(string slug)
-        {
-            _slug = slug;
-            return this;
-        }
-
-        public StoryblokStoryQuery WithCulture(CultureInfo culture)
-        {
-            _culture = culture;
-            return this;
-        }
-
-        public StoryblokStoryQuery ResolveLinks(ResolveLinksType type)
-        {
-            _resolveLinks = type;
-            return this;
-        }
-
-        public StoryblokStoryQuery ResolveAssets(bool resolveAssets = true)
-        {
-            _resolveAssets = resolveAssets;
-            return this;
-        }
-        
-        public StoryblokStoryQuery ResolveRelations(string relations)
-        {
-            _resolveRelations = relations;
-            return this;
-        }
-
-        public async Task<StoryblokStory<T>?> Load<T>() where T : StoryblokComponent
-        {
-            return await _client.LoadStory<T>(_culture, _slug, _resolveLinks, _resolveAssets, _resolveRelations);
-        }
-
-        // ReSharper disable once UnusedMember.Global
-        public async Task<StoryblokStory?> Load()
-        {
-            return await _client.LoadStory(_culture, _slug, _resolveLinks, _resolveAssets, _resolveRelations);
-        }
+        _client = client;
     }
 
-    public enum ResolveLinksType
+    public StoryblokStoryQuery WithSlug(string slug)
     {
-        Url,
-        Story,
-        None
+        _slug = slug;
+        return this;
     }
 
-    public enum ResolveAssetsType
+    public StoryblokStoryQuery WithCulture(CultureInfo culture)
     {
-        DontResolve,
-        Resolve
+        _culture = culture;
+        return this;
     }
+
+    public StoryblokStoryQuery ResolveLinks(ResolveLinksType type)
+    {
+        _resolveLinks = type;
+        return this;
+    }
+
+    public StoryblokStoryQuery ResolveAssets(bool resolveAssets = true)
+    {
+        _resolveAssets = resolveAssets;
+        return this;
+    }
+
+    public StoryblokStoryQuery ResolveRelations(string relations)
+    {
+        _resolveRelations = relations;
+        return this;
+    }
+
+    public async Task<StoryblokStory<T>?> Load<T>() where T : StoryblokComponent
+    {
+        return await _client.LoadStory<T>(_culture, _slug, _resolveLinks, _resolveAssets, _resolveRelations);
+    }
+
+    // ReSharper disable once UnusedMember.Global
+    public async Task<StoryblokStory?> Load()
+    {
+        return await _client.LoadStory(_culture, _slug, _resolveLinks, _resolveAssets, _resolveRelations);
+    }
+}
+
+public enum ResolveLinksType
+{
+    Url,
+    Story,
+    None
+}
+
+public enum ResolveAssetsType
+{
+    DontResolve,
+    Resolve
 }

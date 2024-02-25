@@ -24,8 +24,8 @@ public class MockedFulltextSearch : FulltextSearchBase
 
     protected override string[] GetRoles(StoryblokStory story)
     {
-       if (story.Slug?.Equals("page-table",StringComparison.OrdinalIgnoreCase) == true) return new[] { "some_role" };
-       return Array.Empty<string>();
+        if (story.Slug?.Equals("page-table", StringComparison.OrdinalIgnoreCase) == true) return new[] { "some_role" };
+        return Array.Empty<string>();
     }
 
     private static void HandleComponent(StringBuilder sb, params StoryblokComponent?[]? components)
@@ -48,18 +48,18 @@ public class MockedFulltextSearch : FulltextSearchBase
                     HandleComponent(sb, grid1x1.Right);
                     break;
                 case TableComponent table:
-                {
-                    if (table.Table != null)
                     {
-                        foreach (var cell in table.Table.Header) sb.AppendLine(cell.ValueAsMarkdown.Value);
-                        foreach (var row in table.Table.Body)
+                        if (table.Table != null)
                         {
-                            foreach (var cell in row.Columns) sb.AppendLine(cell.ValueAsMarkdown.Value);
+                            foreach (var cell in table.Table.Header) sb.AppendLine(cell.ValueAsMarkdown.Value);
+                            foreach (var row in table.Table.Body)
+                            {
+                                foreach (var cell in row.Columns) sb.AppendLine(cell.ValueAsMarkdown.Value);
+                            }
                         }
-                    }
 
-                    break;
-                }
+                        break;
+                    }
             }
         }
     }

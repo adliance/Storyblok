@@ -47,7 +47,7 @@ public class FulltextSearchTest
         Assert.NotNull(updatedPages);
         Assert.InRange(updatedPages.Value, 8, 8);
 
-        var searchResults = _sut.Query("en", "Content",  2);
+        var searchResults = _sut.Query("en", "Content", 2);
         Assert.InRange(searchResults.TotalResults, 1, 1);
         Assert.InRange(searchResults.Results.Count, 1, 1);
     }

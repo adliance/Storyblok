@@ -1,24 +1,24 @@
-﻿using Markdig;
+using Markdig;
 
-namespace Adliance.Storyblok
+namespace Adliance.Storyblok;
+
+public class Markdown
 {
-    public class Markdown
-    {
-        public Markdown() {}
+    public Markdown() { }
 
-        public Markdown(string? value)
+    public Markdown(string? value)
+    {
+        Value = value;
+    }
+    public string? Value { get; set; }
+
+    // ReSharper disable once UnusedMember.Global
+    public string Html
+    {
+        get
         {
-            Value = value;
-        }
-        public string? Value { get; set; }
-        
-        // ReSharper disable once UnusedMember.Global
-        public string Html {
-            get
-            {
-                var pipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
-                return Markdig.Markdown.ToHtml(Value ?? "", pipeline);
-            }
+            var pipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
+            return Markdig.Markdown.ToHtml(Value ?? "", pipeline);
         }
     }
 }

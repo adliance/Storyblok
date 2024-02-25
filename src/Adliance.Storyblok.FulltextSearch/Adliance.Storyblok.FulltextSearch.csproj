@@ -14,16 +14,14 @@
     <Description>Extends the Adliance.Storyblok package with support for fulltext search.</Description>
     <Copyright>(c) Adliance GmbH</Copyright>
     <PackageProjectUrl>https://github.com/Adliance/Storyblok/</PackageProjectUrl>
-
     <NoWarn>NU5104</NoWarn>
-
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Adliance.Buddy.CodeStyle" Version="7.0.0.11" />
-    <PackageReference Include="Adliance.Storyblok" Version="7.1.1" />
+    <PackageReference Include="Adliance.Storyblok" Version="8.0.2" />
     <PackageReference Include="Lucene.Net" Version="4.8.0-beta00016" />
     <PackageReference Include="Lucene.Net.Analysis.Common" Version="4.8.0-beta00016" />
     <PackageReference Include="Lucene.Net.Highlighter" Version="4.8.0-beta00016" />

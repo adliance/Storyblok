@@ -55,10 +55,14 @@ public static class ApplicationBuilderExtensions
                 foreach (var culture in options.Value.SupportedCultures)
                 {
                     if (!requestLocalizationOptions.Value?.SupportedCultures?.Any(x => x.Name.Equals(culture, StringComparison.OrdinalIgnoreCase)) ?? false)
-                        requestLocalizationOptions.Value?.SupportedCultures?.Add(new System.Globalization.CultureInfo(culture));
+                    {
+                        requestLocalizationOptions.Value?.SupportedCultures?.Add(new CultureInfo(culture));
+                    }
 
                     if (!requestLocalizationOptions.Value?.SupportedUICultures?.Any(x => x.Name.Equals(culture, StringComparison.OrdinalIgnoreCase)) ?? false)
-                        requestLocalizationOptions.Value?.SupportedUICultures?.Add(new System.Globalization.CultureInfo(culture));
+                    {
+                        requestLocalizationOptions.Value?.SupportedUICultures?.Add(new CultureInfo(culture));
+                    }
                 }
             }
         }
@@ -71,24 +75,7 @@ public static class ApplicationBuilderExtensions
                        context.Request.Path.StartsWithSegments("/" + options.Value.SlugForClearingCache.Trim('/'), StringComparison.OrdinalIgnoreCase),
             appBuilder => { appBuilder.UseMiddleware<StoryblokClearCacheMiddleware>(); });
 
-
-        // request localization is also configured in .UseStoryblok(), but we need it earlier here as well or our RedirectToCulture middleware won't work correctly
-        var supportedCultures = options?.Value.SupportedCultures.Select(x => new CultureInfo(x)).ToArray();
-        if (supportedCultures == null || !supportedCultures.Any())
-            supportedCultures =
-            [
-                CultureInfo.CurrentUICulture
-            ];
-        app.UseRequestLocalization(o =>
-        {
-            o.DefaultRequestCulture = new RequestCulture(supportedCultures[0].Name, supportedCultures[0].Name);
-            o.SupportedCultures = supportedCultures;
-            o.SupportedUICultures = supportedCultures;
-
-            // don't load the culture from the HTTP request as this mixes stuff up with the cultured slugs of Storyblok
-            o.RequestCultureProviders = o.RequestCultureProviders.Where(x => x.GetType() != typeof(AcceptLanguageHeaderRequestCultureProvider)).ToList();
-        });
-
+        app.UseRequestLocalization();
         app.UseMiddleware<StoryblokMiddleware>();
 
         return app;

@@ -23,7 +23,12 @@ public abstract class FulltextSearchBase(ILogger logger, StoryblokStoriesClient 
         var stories = await storiesClient.Stories().ForCulture(new CultureInfo(culture)).ExcludingFields("content").Load();
         var latestStoryDate = stories.Max(x => x.PublishedAt);
         var latestIndexDate = luceneService.GetUpdatedDate(culture);
-        if (latestIndexDate != null && latestStoryDate != null && latestIndexDate >= latestStoryDate) return null;
+        if (latestIndexDate != null && latestStoryDate != null && latestIndexDate >= latestStoryDate)
+        {
+            logger.LogTrace($"Fulltext index is up-to-date, as latest story date is {latestStoryDate} and latest index date is {latestIndexDate}.");
+            return null;
+        }
+
         logger.LogInformation($"{stories.Count} stories loaded, latest story date is {latestStoryDate}, latest index date is {latestIndexDate}.");
 
         var documents = new List<Document>();
@@ -34,6 +39,7 @@ public abstract class FulltextSearchBase(ILogger logger, StoryblokStoriesClient 
                 logger.LogTrace($"Story {s.Slug} does not have a full slug.");
                 continue;
             }
+
             var document = await HandleStory(s.FullSlug); // we don't need to send the culture here, because it's included in FullSlug
             if (document != null)
             {

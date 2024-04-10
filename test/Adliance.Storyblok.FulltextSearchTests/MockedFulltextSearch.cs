@@ -1,15 +1,13 @@
 using System;
 using System.Text;
 using Adliance.Storyblok.Clients;
+using Microsoft.Extensions.Logging;
 
 namespace Adliance.Storyblok.FulltextSearch.Tests;
 
-public class MockedFulltextSearch : FulltextSearchBase
+public class MockedFulltextSearch(ILogger<MockedFulltextSearch> logger, StoryblokStoriesClient storiesClient, StoryblokStoryClient storyClient, LuceneService luceneService)
+    : FulltextSearchBase(logger, storiesClient, storyClient, luceneService)
 {
-    public MockedFulltextSearch(StoryblokStoriesClient storiesClient, StoryblokStoryClient storyClient, LuceneService luceneService) : base(storiesClient, storyClient, luceneService)
-    {
-    }
-
     protected override string GetTitle(StoryblokStory story)
     {
         return "";
@@ -24,8 +22,8 @@ public class MockedFulltextSearch : FulltextSearchBase
 
     protected override string[] GetRoles(StoryblokStory story)
     {
-        if (story.Slug?.Equals("page-table", StringComparison.OrdinalIgnoreCase) == true) return new[] { "some_role" };
-        return Array.Empty<string>();
+        if (story.Slug?.Equals("page-table", StringComparison.OrdinalIgnoreCase) == true) return ["some_role"];
+        return [];
     }
 
     private static void HandleComponent(StringBuilder sb, params StoryblokComponent?[]? components)

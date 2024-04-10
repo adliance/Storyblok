@@ -19,7 +19,7 @@ public class LocalisedMockedStartup
         services.AddStoryblok(o =>
         {
             o.ApiKeyPublic = "bhbAxSYj2PjrAwleHntSfQtt"; // the public API key of our special Unit Test Storyblok Space, nothing confidential in there
-            o.SupportedCultures = new[] { "de", "en", "mi-NZ" };
+            o.SupportedCultures = ["de", "en", "mi-NZ"];
             o.RedirectsDatasourceName = "redirects";
         });
     }

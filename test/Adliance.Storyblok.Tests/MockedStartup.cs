@@ -11,7 +11,7 @@ public class MockedStartup
         services.AddStoryblok(o =>
         {
             o.ApiKeyPublic = "bhbAxSYj2PjrAwleHntSfQtt"; // the public API key of our special Unit Test Storyblok Space, nothing confidential in there
-            o.SupportedCultures = new[] { "de", "en" };
+            o.SupportedCultures = ["de", "en"];
             o.RedirectsDatasourceName = "redirects";
         });
     }

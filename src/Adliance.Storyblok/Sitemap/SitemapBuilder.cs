@@ -9,24 +9,13 @@ using Microsoft.Extensions.Options;
 
 namespace Adliance.Storyblok.Sitemap;
 
-public class SitemapBuilder
+public class SitemapBuilder(IOptions<StoryblokOptions> options, StoryblokStoriesClient client, IHttpContextAccessor? httpContext)
 {
-    private readonly IOptions<StoryblokOptions> _options;
-    private readonly StoryblokStoriesClient _client;
-    private readonly IHttpContextAccessor? _httpContext;
-
-    public SitemapBuilder(IOptions<StoryblokOptions> options, StoryblokStoriesClient client, IHttpContextAccessor? httpContext)
-    {
-        _options = options;
-        _client = client;
-        _httpContext = httpContext;
-    }
-
     public async Task<SitemapResult> Build()
     {
         var result = new SitemapResult();
 
-        var stories = (await _client
+        var stories = (await client
             .Stories()
             .ForCurrentUiCulture()
             .ExcludingFields("content")
@@ -38,19 +27,19 @@ public class SitemapBuilder
 
             if (!string.IsNullOrWhiteSpace(slug))
             {
-                if (_options.Value.IgnoreSlugs.Any(x => slug.Equals(x.Trim('/'), StringComparison.InvariantCultureIgnoreCase)))
+                if (options.Value.IgnoreSlugs.Any(x => slug.Equals(x.Trim('/'), StringComparison.InvariantCultureIgnoreCase)))
                 {
                     continue;
                 }
 
-                if (_options.Value.IgnoreSlugs.Any(x =>
+                if (options.Value.IgnoreSlugs.Any(x =>
                         x.EndsWith("*", StringComparison.InvariantCultureIgnoreCase) && slug.StartsWith(x.TrimEnd('*').Trim('/'), StringComparison.InvariantCultureIgnoreCase)))
                 {
                     continue;
                 }
             }
 
-            if (_options.Value.SitemapFilter.Invoke(s))
+            if (options.Value.SitemapFilter.Invoke(s))
             {
                 result.Locations.Add(new SitemapResult.SitemapLocation(GetFullUrl(s.FullSlug), s.PublishedAt ?? s.CreatedAt));
             }
@@ -85,7 +74,7 @@ public class SitemapBuilder
 
     private string GetFullUrl(string? fullSlug)
     {
-        var request = _httpContext?.HttpContext?.Request;
+        var request = httpContext?.HttpContext?.Request;
         if (request != null)
         {
             return string.Concat(

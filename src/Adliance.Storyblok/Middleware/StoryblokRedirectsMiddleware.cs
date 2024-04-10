@@ -31,7 +31,7 @@ public class StoryblokRedirectsMiddleware(IOptions<StoryblokOptions> options, IL
         }
 
         var path = httpContext.Request.Path;
-        logger.LogTrace($"{configuredRedirects.Entries.Count()} redirects confiured in data source {options.Value.RedirectsDatasourceName}.");
+        logger.LogTrace($"{configuredRedirects.Entries.Count()} redirects configured in data source {options.Value.RedirectsDatasourceName}.");
 
         var matchingRedirect = configuredRedirects.Entries.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.Name) && x.Name.Equals(path, StringComparison.OrdinalIgnoreCase));
         if (matchingRedirect is { Value: not null })

@@ -5,13 +5,13 @@ namespace Adliance.Storyblok;
 
 public class StoryblokTable
 {
-    [JsonPropertyName("thead")] public StoryblokTableCell[] Header { get; set; } = Array.Empty<StoryblokTableCell>();
-    [JsonPropertyName("tbody")] public StoryblokTableRow[] Body { get; set; } = Array.Empty<StoryblokTableRow>();
+    [JsonPropertyName("thead")] public StoryblokTableCell[] Header { get; set; } = [];
+    [JsonPropertyName("tbody")] public StoryblokTableRow[] Body { get; set; } = [];
 }
 
 public class StoryblokTableRow
 {
-    [JsonPropertyName("body")] public StoryblokTableCell[] Columns { get; set; } = Array.Empty<StoryblokTableCell>();
+    [JsonPropertyName("body")] public StoryblokTableCell[] Columns { get; set; } = [];
 }
 
 public class StoryblokTableCell

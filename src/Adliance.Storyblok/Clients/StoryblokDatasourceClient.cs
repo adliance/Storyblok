@@ -13,17 +13,14 @@ using Microsoft.Extensions.Options;
 
 namespace Adliance.Storyblok.Clients;
 
-public class StoryblokDatasourceClient : StoryblokBaseClient
+public class StoryblokDatasourceClient(
+    IOptions<StoryblokOptions> settings,
+    IHttpClientFactory clientFactory,
+    IHttpContextAccessor? httpContext,
+    IMemoryCache memoryCache,
+    ILogger<StoryblokBaseClient> logger)
+    : StoryblokBaseClient(settings, clientFactory, httpContext, memoryCache, logger)
 {
-    public StoryblokDatasourceClient(
-        IOptions<StoryblokOptions> settings,
-        IHttpClientFactory clientFactory,
-        IHttpContextAccessor? httpContext,
-        IMemoryCache memoryCache,
-        ILogger<StoryblokBaseClient> logger) : base(settings, clientFactory, httpContext, memoryCache, logger)
-    {
-    }
-
     /// <summary>
     /// Gets or sets the number of items requested for each page when loading the datasource.
     /// </summary>

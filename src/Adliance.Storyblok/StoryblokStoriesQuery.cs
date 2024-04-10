@@ -9,21 +9,12 @@ using Adliance.Storyblok.Clients;
 
 namespace Adliance.Storyblok;
 
-public class StoryblokStoriesQuery
+public class StoryblokStoriesQuery(StoryblokStoriesClient client, StoryblokOptions options)
 {
-    private readonly StoryblokStoriesClient _client;
-    private readonly StoryblokOptions _options;
-
     private readonly IList<string> _excludingFields = new List<string>();
     private readonly IList<Filter> _filters = new List<Filter>();
     private string _startsWith = "";
     private string _culture = "";
-
-    public StoryblokStoriesQuery(StoryblokStoriesClient client, StoryblokOptions options)
-    {
-        _client = client;
-        _options = options;
-    }
 
     public StoryblokStoriesQuery StartingWith(string startingWith)
     {
@@ -39,11 +30,11 @@ public class StoryblokStoriesQuery
     public StoryblokStoriesQuery ForCulture(CultureInfo culture)
     {
         _culture = culture.ToString();
-        if (_options.SupportedCultures.First().Equals(_culture, StringComparison.OrdinalIgnoreCase))
+        if (options.SupportedCultures.First().Equals(_culture, StringComparison.OrdinalIgnoreCase))
         {
             _culture = "";
         }
-        else if (!_options.SupportedCultures.Any(x => x.Equals(_culture, StringComparison.OrdinalIgnoreCase)))
+        else if (!options.SupportedCultures.Any(x => x.Equals(_culture, StringComparison.OrdinalIgnoreCase)))
         {
             _culture = "";
         }
@@ -77,13 +68,13 @@ public class StoryblokStoriesQuery
 
     public async Task<IList<StoryblokStory<T>>> Load<T>() where T : StoryblokComponent
     {
-        return await _client.LoadStories<T>(GetParameters());
+        return await client.LoadStories<T>(GetParameters());
     }
 
     // ReSharper disable once UnusedMember.Global
     public async Task<IList<StoryblokStory>> Load()
     {
-        return await _client.LoadStories(GetParameters());
+        return await client.LoadStories(GetParameters());
     }
 
     private string GetParameters()

@@ -33,7 +33,7 @@ public class StoryblokOptions
     /// The supported cultures, as specified in Storyblok.
     /// The first culture is also the default culture.
     /// </summary>
-    public string[] SupportedCultures { get; set; } = Array.Empty<string>();
+    public string[] SupportedCultures { get; set; } = [];
 
     /// <summary>
     /// This is the slug that will be loaded from Storyblok as part of the health check middleware.

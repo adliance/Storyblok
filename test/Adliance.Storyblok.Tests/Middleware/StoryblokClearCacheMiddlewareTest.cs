@@ -9,12 +9,7 @@ namespace Adliance.Storyblok.Tests.Middleware;
 
 public class StoryblokClearCacheMiddlewareTest
 {
-    private readonly MockedWebApplicationFactory<MockedStartup> _factory;
-
-    public StoryblokClearCacheMiddlewareTest()
-    {
-        _factory = new MockedWebApplicationFactory<MockedStartup>();
-    }
+    private readonly MockedWebApplicationFactory<MockedStartup> _factory = new();
 
     [Fact]
     public async Task Responds_With_Cleared_Cache()

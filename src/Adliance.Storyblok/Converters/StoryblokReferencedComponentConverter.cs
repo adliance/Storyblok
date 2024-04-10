@@ -11,13 +11,13 @@ public class StoryblokReferencedComponentConverter<T> : JsonConverter<StoryblokC
         if (reader.TokenType == JsonTokenType.String)
         {
             var componentUid = reader.GetGuid();
-            return new[]
-            {
+            return
+            [
                 new StoryblokComponent
                 {
                     Uuid = componentUid
                 }
-            };
+            ];
         }
 
         if (reader.TokenType == JsonTokenType.StartObject)

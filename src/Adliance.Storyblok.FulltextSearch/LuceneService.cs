@@ -20,9 +20,8 @@ using Microsoft.Extensions.Logging;
 
 namespace Adliance.Storyblok.FulltextSearch;
 
-public class LuceneService
+public class LuceneService(ILogger<LuceneService> logger)
 {
-    private readonly ILogger<LuceneService> _logger;
     private const string SlugField = "slug";
     private const string RolesField = "roles";
     private const string TitleField = "title";
@@ -30,11 +29,6 @@ public class LuceneService
     private const string UpdatedField = "updated";
     private const string SpecialSlugNameForMetadataDocument = "___metdata";
     private const LuceneVersion LuceneVersion = Lucene.Net.Util.LuceneVersion.LUCENE_48;
-
-    public LuceneService(ILogger<LuceneService> logger)
-    {
-        _logger = logger;
-    }
 
     private static Analyzer GetAnalyzer(string culture)
     {
@@ -123,11 +117,10 @@ public class LuceneService
         using var reader = DirectoryReader.Open(indexDirectory);
         var searcher = new IndexSearcher(reader);
 
-        var queryParser = new MultiFieldQueryParser(LuceneVersion, new[]
-        {
+        var queryParser = new MultiFieldQueryParser(LuceneVersion, [
             TitleField,
             ContentField
-        }, analyzer);
+        ], analyzer);
 
         var result = new SearchResult();
 
@@ -206,7 +199,7 @@ public class LuceneService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unable to query.");
+            logger.LogError(ex, "Unable to query.");
         }
 
         return result;

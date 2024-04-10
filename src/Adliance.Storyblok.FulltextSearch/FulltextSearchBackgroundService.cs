@@ -9,23 +9,15 @@ using Microsoft.Extensions.Options;
 
 namespace Adliance.Storyblok.FulltextSearch;
 
-public class FulltextSearchBackgroundService : BackgroundService
+public class FulltextSearchBackgroundService(ILogger<FulltextSearchBackgroundService> logger, IServiceProvider services) : BackgroundService
 {
-    private readonly ILogger<FulltextSearchBackgroundService> _logger;
-    private readonly IServiceProvider _services;
     private readonly TimeSpan _period = TimeSpan.FromSeconds(3);
     private DateTime _lastRun = DateTime.MinValue;
 
-    public FulltextSearchBackgroundService(ILogger<FulltextSearchBackgroundService> logger, IServiceProvider services)
-    {
-        _logger = logger;
-        _services = services;
-    }
-
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("Fulltextindex background job started.");
-        using var scope = _services.CreateScope();
+        logger.LogInformation("Fulltext index background job started.");
+        using var scope = services.CreateScope();
         var fulltextService = scope.ServiceProvider.GetRequiredService<FulltextSearchBase>();
         var storyblokOptions = scope.ServiceProvider.GetRequiredService<IOptions<StoryblokOptions>>();
 
@@ -35,28 +27,28 @@ public class FulltextSearchBackgroundService : BackgroundService
             if (_lastRun < DateTime.UtcNow.AddHours(-1)) // run every hour
             {
                 var cultures = storyblokOptions.Value.SupportedCultures;
-                if (!cultures.Any()) cultures = new[] { "en" };
+                if (!cultures.Any()) cultures = ["en"];
 
                 foreach (var culture in cultures)
                 {
                     try
                     {
-                        _logger.LogInformation($"Updating fulltext index for culture {culture} ...");
+                        logger.LogInformation($"Updating fulltext index for culture {culture} ...");
 
                         var numberOfDocuments = await fulltextService.UpdateFulltextIndex(culture);
                         _lastRun = DateTime.UtcNow;
 
-                        if (numberOfDocuments.HasValue) _logger.LogInformation($"Updating fulltextindex completed {numberOfDocuments} documents).");
-                        else _logger.LogInformation("No update of fulltextindex required.");
+                        if (numberOfDocuments.HasValue) logger.LogInformation($"Updating fulltext index completed with {numberOfDocuments} documents).");
+                        else logger.LogInformation("No update of fulltext index required.");
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError($"Failed to execute {nameof(FulltextSearchBackgroundService)}: {ex.Message}");
+                        logger.LogError($"Failed to execute {nameof(FulltextSearchBackgroundService)}: {ex.Message}");
                     }
                 }
             }
         }
 
-        _logger.LogInformation("Fulltextindex background job ended.");
+        logger.LogInformation("Fulltext index background job ended.");
     }
 }

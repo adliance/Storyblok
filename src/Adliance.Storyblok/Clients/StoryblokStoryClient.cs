@@ -12,17 +12,14 @@ using Microsoft.Extensions.Options;
 
 namespace Adliance.Storyblok.Clients;
 
-public class StoryblokStoryClient : StoryblokBaseClient
+public class StoryblokStoryClient(
+    IOptions<StoryblokOptions> settings,
+    IHttpClientFactory clientFactory,
+    IHttpContextAccessor httpContext,
+    IMemoryCache memoryCache,
+    ILogger<StoryblokBaseClient> logger)
+    : StoryblokBaseClient(settings, clientFactory, httpContext, memoryCache, logger)
 {
-    public StoryblokStoryClient(
-        IOptions<StoryblokOptions> settings,
-        IHttpClientFactory clientFactory,
-        IHttpContextAccessor httpContext,
-        IMemoryCache memoryCache,
-        ILogger<StoryblokBaseClient> logger) : base(settings, clientFactory, httpContext, memoryCache, logger)
-    {
-    }
-
     public StoryblokStoryQuery Story()
     {
         return new(this);

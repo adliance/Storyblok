@@ -7,12 +7,7 @@ namespace Adliance.Storyblok.Tests.Clients;
 
 public class StoryblokStoriesClientTest
 {
-    private readonly MockedWebApplicationFactory<MockedStartup> _factory;
-
-    public StoryblokStoriesClientTest()
-    {
-        _factory = new MockedWebApplicationFactory<MockedStartup>();
-    }
+    private readonly MockedWebApplicationFactory<MockedStartup> _factory = new();
 
     [Fact]
     public async Task Can_Load_Stories()

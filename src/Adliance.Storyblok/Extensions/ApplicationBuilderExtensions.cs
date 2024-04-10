@@ -37,7 +37,7 @@ public static class ApplicationBuilderExtensions
                 // special handling of Storyblok preview URLs that contain the language, like ~/de/home vs. ~/home
                 // if we have such a URL, we also change the current culture accordingly
                 var slug = context.Request.Path.ToString().Trim('/');
-                var supportedCultures = context.RequestServices.GetService<IOptions<StoryblokOptions>>()?.Value?.SupportedCultures ?? Array.Empty<string>();
+                var supportedCultures = context.RequestServices.GetService<IOptions<StoryblokOptions>>()?.Value?.SupportedCultures ?? [];
 
                 foreach (var supportedCulture in supportedCultures)
                 {

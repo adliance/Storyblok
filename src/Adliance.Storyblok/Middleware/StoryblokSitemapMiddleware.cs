@@ -7,14 +7,12 @@ using Microsoft.Extensions.Logging;
 namespace Adliance.Storyblok.Middleware;
 
 // ReSharper disable once ClassNeverInstantiated.Global
-public class StoryblokSitemapMiddleware
+public class StoryblokSitemapMiddleware(RequestDelegate next)
 {
-    private readonly RequestDelegate _next;
-
-    public StoryblokSitemapMiddleware(RequestDelegate next)
-    {
-        _next = next;
-    }
+#pragma warning disable CA1823
+    // ReSharper disable once UnusedMember.Local
+    private readonly RequestDelegate _next = next;
+#pragma warning restore CA1823
 
     // ReSharper disable once UnusedMember.Global
     public async Task Invoke(HttpContext context, SitemapBuilder sitemapBuilder, ILogger<StoryblokSitemapMiddleware> logger)

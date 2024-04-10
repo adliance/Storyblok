@@ -24,17 +24,15 @@ public class FulltextSearchTest
         Assert.NotNull(updatedPages);
         Assert.InRange(updatedPages.Value, 8, 8);
 
-        var searchResults = _sut.Query("en", "Content", new[]
-        {
+        var searchResults = _sut.Query("en", "Content", [
             "some_role"
-        }, 1);
+        ], 1);
         Assert.InRange(searchResults.TotalResults, 2, 2);
         Assert.InRange(searchResults.Results.Count, 1, 1);
 
-        searchResults = _sut.Query("en", "Inhalt", new[]
-        {
+        searchResults = _sut.Query("en", "Inhalt", [
             "some_role"
-        }, 1);
+        ], 1);
         Assert.InRange(searchResults.TotalResults, 0, 0);
     }
 
@@ -61,17 +59,15 @@ public class FulltextSearchTest
         Assert.NotNull(updatedPages);
         Assert.InRange(updatedPages.Value, 8, 8);
 
-        var searchResults = _sut.Query("de", "Inhalt", new[]
-        {
+        var searchResults = _sut.Query("de", "Inhalt", [
             "some_role"
-        }, 1);
+        ], 1);
         Assert.InRange(searchResults.TotalResults, 1, 1);
         Assert.InRange(searchResults.Results.Count, 1, 1);
 
-        searchResults = _sut.Query("de", "Content", new[]
-        {
+        searchResults = _sut.Query("de", "Content", [
             "some_role"
-        }, 1);
+        ], 1);
         Assert.InRange(searchResults.TotalResults, 1, 1);
     }
 

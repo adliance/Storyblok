@@ -8,16 +8,13 @@ using Microsoft.Extensions.Logging;
 namespace Adliance.Storyblok.Middleware;
 
 // ReSharper disable once ClassNeverInstantiated.Global
-public class StoryblokClearCacheMiddleware
+public class StoryblokClearCacheMiddleware(RequestDelegate next)
 {
-    private readonly RequestDelegate _next;
+#pragma warning disable CA1823
+    // ReSharper disable once UnusedMember.Local
+    private readonly RequestDelegate _next = next;
+#pragma warning restore CA1823
 
-    public StoryblokClearCacheMiddleware(RequestDelegate next)
-    {
-        _next = next;
-    }
-
-    // ReSharper disable once UnusedMember.Global
     public async Task Invoke(HttpContext context, IMemoryCache cache, ILogger<StoryblokClearCacheMiddleware> logger)
     {
         logger.LogTrace("Clearing cache ...");

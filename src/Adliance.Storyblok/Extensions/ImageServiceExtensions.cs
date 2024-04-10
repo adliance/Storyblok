@@ -11,7 +11,7 @@ public interface IImageService
 public static class ImageServiceExtensions
 {
     // please note that SVG is not supported in ImageService
-    private static readonly string[] ImageExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
+    private static readonly string[] ImageExtensions = [".jpg", ".jpeg", ".png", ".gif", ".bmp"];
 
     public static string? ResizeByWidth(this IImageService image, int newWidth)
     {

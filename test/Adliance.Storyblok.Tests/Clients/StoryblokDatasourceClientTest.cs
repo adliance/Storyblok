@@ -8,12 +8,7 @@ namespace Adliance.Storyblok.Tests.Clients;
 
 public class StoryblokDatasourceClientTest
 {
-    private readonly MockedWebApplicationFactory<MockedStartup> _factory;
-
-    public StoryblokDatasourceClientTest()
-    {
-        _factory = new MockedWebApplicationFactory<MockedStartup>();
-    }
+    private readonly MockedWebApplicationFactory<MockedStartup> _factory = new();
 
     [Fact]
     public async Task Can_Load_Datasource()

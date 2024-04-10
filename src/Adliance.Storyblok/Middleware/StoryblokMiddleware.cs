@@ -18,15 +18,8 @@ using Microsoft.Extensions.Options;
 namespace Adliance.Storyblok.Middleware;
 
 // ReSharper disable once ClassNeverInstantiated.Global
-public class StoryblokMiddleware
+public class StoryblokMiddleware(RequestDelegate next)
 {
-    private readonly RequestDelegate _next;
-
-    public StoryblokMiddleware(RequestDelegate next)
-    {
-        _next = next;
-    }
-
     // ReSharper disable once UnusedMember.Global
     public async Task Invoke(HttpContext context, StoryblokStoryClient storyblokClient, IOptions<StoryblokOptions> options, ILogger<StoryblokMiddleware> logger)
     {
@@ -36,7 +29,7 @@ public class StoryblokMiddleware
         if (string.IsNullOrWhiteSpace(slug))
         {
             logger.LogTrace("Ignoring request, because no slug available.");
-            await _next.Invoke(context);
+            await next.Invoke(context);
             return;
         }
 
@@ -45,7 +38,7 @@ public class StoryblokMiddleware
         if (context.Request.Method != HttpMethods.Get)
         {
             logger.LogTrace("Ignoring request, because it's not GET.");
-            await _next.Invoke(context);
+            await next.Invoke(context);
             return;
         }
 
@@ -58,7 +51,7 @@ public class StoryblokMiddleware
         {
             // we are on the root path, and we shouldn't handle it - so we bail out
             logger.LogTrace("Ignoring request, because it's the root URL which is configured to be ignored.");
-            await _next.Invoke(context);
+            await next.Invoke(context);
             return;
         }
 
@@ -75,7 +68,7 @@ public class StoryblokMiddleware
         {
             // don't handle this slug in the middleware, because exact match of URL
             logger.LogTrace($"Ignoring request \"{slug}\", because it's configured to be ignored (exact match).");
-            await _next.Invoke(context);
+            await next.Invoke(context);
             return;
         }
 
@@ -83,7 +76,7 @@ public class StoryblokMiddleware
         {
             // don't handle this slug in the middleware, because the configuration ends with a *, which means we compare via StartsWith
             logger.LogTrace($"Ignoring request \"{slug}\", because it's configured to be ignored (partial match).");
-            await _next.Invoke(context);
+            await next.Invoke(context);
             return;
         }
 
@@ -128,7 +121,7 @@ public class StoryblokMiddleware
         if (story == null)
         {
             logger.LogTrace("Ignoring request, because no matching story found.");
-            await _next.Invoke(context);
+            await next.Invoke(context);
             return;
         }
 
@@ -142,7 +135,7 @@ public class StoryblokMiddleware
         if (string.IsNullOrWhiteSpace(componentMapping.View))
         {
             logger.LogTrace($"Ignoring request, because no view specified on component of type \"{componentMapping.Type.FullName}\".");
-            await _next.Invoke(context);
+            await next.Invoke(context);
             return;
         }
 

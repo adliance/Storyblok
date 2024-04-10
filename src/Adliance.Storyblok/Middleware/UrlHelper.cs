@@ -8,14 +8,9 @@ namespace Adliance.Storyblok.Middleware;
 
 // this is a copy of https://github.com/aspnet/AspNetCore/blob/master/src/Mvc/Mvc.Core/src/Routing/EndpointRoutingUrlHelper.cs
 // we need an UrlHelper for TagHelpers to work in our views that are being called by the Middleware
-public class UrlHelper : UrlHelperBase
+public class UrlHelper(ActionContext actionContext, LinkGenerator linkGenerator) : UrlHelperBase(actionContext)
 {
-    private readonly LinkGenerator _linkGenerator;
-
-    public UrlHelper(ActionContext actionContext, LinkGenerator linkGenerator) : base(actionContext)
-    {
-        _linkGenerator = linkGenerator ?? throw new ArgumentNullException(nameof(linkGenerator));
-    }
+    private readonly LinkGenerator _linkGenerator = linkGenerator ?? throw new ArgumentNullException(nameof(linkGenerator));
 
     /// <inheritdoc />
     public override string Action(UrlActionContext urlActionContext)

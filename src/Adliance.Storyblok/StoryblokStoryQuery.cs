@@ -4,20 +4,13 @@ using Adliance.Storyblok.Clients;
 
 namespace Adliance.Storyblok;
 
-public class StoryblokStoryQuery
+public class StoryblokStoryQuery(StoryblokStoryClient client)
 {
-    private readonly StoryblokStoryClient _client;
-
     private CultureInfo? _culture;
     private string _slug = "";
     private ResolveLinksType _resolveLinks = ResolveLinksType.Url;
     private bool _resolveAssets;
     private string _resolveRelations = "";
-
-    public StoryblokStoryQuery(StoryblokStoryClient client)
-    {
-        _client = client;
-    }
 
     public StoryblokStoryQuery WithSlug(string slug)
     {
@@ -51,13 +44,13 @@ public class StoryblokStoryQuery
 
     public async Task<StoryblokStory<T>?> Load<T>() where T : StoryblokComponent
     {
-        return await _client.LoadStory<T>(_culture, _slug, _resolveLinks, _resolveAssets, _resolveRelations);
+        return await client.LoadStory<T>(_culture, _slug, _resolveLinks, _resolveAssets, _resolveRelations);
     }
 
     // ReSharper disable once UnusedMember.Global
     public async Task<StoryblokStory?> Load()
     {
-        return await _client.LoadStory(_culture, _slug, _resolveLinks, _resolveAssets, _resolveRelations);
+        return await client.LoadStory(_culture, _slug, _resolveLinks, _resolveAssets, _resolveRelations);
     }
 }
 

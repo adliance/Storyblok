@@ -21,6 +21,8 @@ public class StoryblokRedirectsMiddlewareTest
     [Theory]
     [InlineData("/REDIRECT-from", "/redirect-to")]
     [InlineData("/redirect-from", "/redirect-to")]
+    [InlineData("/redirect-from-with-slash/", "/redirect-to")]
+    [InlineData("/redirect-from-with-slash", "/redirect-to")]
     public async Task Responds_With_Redirect(string url, string expectedRedirect)
     {
         var client = _factory.CreateClient(new WebApplicationFactoryClientOptions
@@ -36,6 +38,8 @@ public class StoryblokRedirectsMiddlewareTest
     [Theory]
     [InlineData("/REDIRECT-from")]
     [InlineData("/redirect-from")]
+    [InlineData("/redirect-from-with-slash/")]
+    [InlineData("/redirect-from-with-slash")]
     public async Task Does_Not_Respond_With_Redirect_If_Datasource_Not_Configured(string url)
     {
         using var scope = _factory.Services.CreateScope();

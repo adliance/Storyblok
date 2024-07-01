@@ -30,10 +30,19 @@ public class StoryblokRedirectsMiddleware(IOptions<StoryblokOptions> options, IL
             return;
         }
 
-        var path = httpContext.Request.Path;
-        logger.LogTrace($"{configuredRedirects.Entries.Count()} redirects configured in data source {options.Value.RedirectsDatasourceName}.");
+        var path = httpContext.Request.Path.Value;
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            await next(httpContext);
+            return;
+        }
 
-        var matchingRedirect = configuredRedirects.Entries.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.Name) && x.Name.Equals(path, StringComparison.OrdinalIgnoreCase));
+        if (path != "/") path = path.TrimEnd('/');
+
+        logger.LogTrace($"{configuredRedirects.Entries.Count()} redirects configured in data source {options.Value.RedirectsDatasourceName}.");
+        var matchingRedirect = configuredRedirects.Entries.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.Name)
+                                                                                && (x.Name.Equals(path, StringComparison.OrdinalIgnoreCase)
+                                                                               || x.Name.TrimEnd('/').Equals(path, StringComparison.OrdinalIgnoreCase)));
         if (matchingRedirect is { Value: not null })
         {
             logger.LogDebug($"Redirecting from {path} to {matchingRedirect.Value}.");

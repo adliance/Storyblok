@@ -44,11 +44,19 @@ public static class ApplicationBuilderExtensions
                 foreach (var supportedCulture in supportedCultures)
                 {
                     if (slug.StartsWith($"{supportedCulture}/", StringComparison.OrdinalIgnoreCase) || slug.Equals(supportedCulture, StringComparison.OrdinalIgnoreCase))
+                    {
                         return await Task.FromResult(new ProviderCultureResult(supportedCulture));
+                    }
                 }
 
                 return await Task.FromResult<ProviderCultureResult?>(null);
             }));
+
+            // this query parameter is added by Storyblok in preview mode. We ALWAYS want to use this one first so that the selected language in Storyblok UI matches the language displayed.
+            requestLocalizationOptions.Value.RequestCultureProviders.Insert(0, new QueryStringRequestCultureProvider
+            {
+                QueryStringKey = "_storyblok_lang"
+            });
 
             if (options?.Value != null)
             {

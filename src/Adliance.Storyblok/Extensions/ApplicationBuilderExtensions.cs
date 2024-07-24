@@ -34,6 +34,12 @@ public static class ApplicationBuilderExtensions
 
         if (requestLocalizationOptions?.Value != null)
         {
+            // this query parameter is added by Storyblok in preview mode. We ALWAYS want to use this one first so that the selected language in Storyblok UI matches the language displayed.
+            requestLocalizationOptions.Value.RequestCultureProviders.Insert(0, new QueryStringRequestCultureProvider
+            {
+                QueryStringKey = "_storyblok_lang"
+            });
+
             requestLocalizationOptions.Value.RequestCultureProviders.Insert(0, new CustomRequestCultureProvider(async context =>
             {
                 // special handling of Storyblok preview URLs that contain the language, like ~/de/home vs. ~/home
@@ -51,12 +57,6 @@ public static class ApplicationBuilderExtensions
 
                 return await Task.FromResult<ProviderCultureResult?>(null);
             }));
-
-            // this query parameter is added by Storyblok in preview mode. We ALWAYS want to use this one first so that the selected language in Storyblok UI matches the language displayed.
-            requestLocalizationOptions.Value.RequestCultureProviders.Insert(0, new QueryStringRequestCultureProvider
-            {
-                QueryStringKey = "_storyblok_lang"
-            });
 
             if (options?.Value != null)
             {

@@ -20,7 +20,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Adliance.Buddy.CodeStyle" Version="8.0.0.5" />
+        <PackageReference Include="Adliance.Buddy.CodeStyle" Version="8.0.0.7" />
         <FrameworkReference Include="Microsoft.AspNetCore.App"/>
         <PackageReference Include="Markdig" Version="0.37.0" />
     </ItemGroup>

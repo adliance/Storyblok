@@ -34,16 +34,10 @@ public static class ApplicationBuilderExtensions
 
         if (requestLocalizationOptions?.Value != null)
         {
-            // this query parameter is added by Storyblok in preview mode. We ALWAYS want to use this one first so that the selected language in Storyblok UI matches the language displayed.
-            requestLocalizationOptions.Value.RequestCultureProviders.Insert(0, new QueryStringRequestCultureProvider
-            {
-                QueryStringKey = "_storyblok_lang"
-            });
-
+            // special handling of Storyblok preview URLs that contain the language, like ~/de/home vs. ~/home
+            // if we have such a URL, we also change the current culture accordingly
             requestLocalizationOptions.Value.RequestCultureProviders.Insert(0, new CustomRequestCultureProvider(async context =>
             {
-                // special handling of Storyblok preview URLs that contain the language, like ~/de/home vs. ~/home
-                // if we have such a URL, we also change the current culture accordingly
                 var slug = context.Request.Path.ToString().Trim('/');
                 var supportedCultures = options?.Value.SupportedCultures ?? [];
 
@@ -58,18 +52,42 @@ public static class ApplicationBuilderExtensions
                 return await Task.FromResult<ProviderCultureResult?>(null);
             }));
 
+            // this query parameter is added by Storyblok in preview mode. We ALWAYS want to use this one first so that the selected language in Storyblok UI matches the language displayed.
+            requestLocalizationOptions.Value.RequestCultureProviders.Insert(0, new CustomRequestCultureProvider(async context =>
+            {
+                var storyblokEditorLanguage = context.Request.Query["_storyblok_lang"].FirstOrDefault();
+
+                if (!string.IsNullOrWhiteSpace(storyblokEditorLanguage))
+                {
+                    var supportedCultures = options?.Value.SupportedCultures ?? [];
+                    foreach (var supportedCulture in supportedCultures)
+                    {
+                        if (storyblokEditorLanguage.Equals(supportedCulture, StringComparison.OrdinalIgnoreCase)) return await Task.FromResult(new ProviderCultureResult(supportedCulture));
+                    }
+
+                    if (storyblokEditorLanguage.Equals("default", StringComparison.OrdinalIgnoreCase)) return await Task.FromResult(new ProviderCultureResult(supportedCultures.First()));
+                }
+
+                return await Task.FromResult<ProviderCultureResult?>(null);
+            }));
+
+            requestLocalizationOptions.Value.RequestCultureProviders.Insert(0, new QueryStringRequestCultureProvider
+            {
+                QueryStringKey = "_storyblok_lang"
+            });
+
             if (options?.Value != null)
             {
                 foreach (var culture in options.Value.SupportedCultures)
                 {
                     if (!requestLocalizationOptions.Value?.SupportedCultures?.Any(x => x.Name.Equals(culture, StringComparison.OrdinalIgnoreCase)) ?? false)
                     {
-                        requestLocalizationOptions.Value?.SupportedCultures?.Add(new CultureInfo(culture));
+                        requestLocalizationOptions.Value.SupportedCultures?.Add(new CultureInfo(culture));
                     }
 
                     if (!requestLocalizationOptions.Value?.SupportedUICultures?.Any(x => x.Name.Equals(culture, StringComparison.OrdinalIgnoreCase)) ?? false)
                     {
-                        requestLocalizationOptions.Value?.SupportedUICultures?.Add(new CultureInfo(culture));
+                        requestLocalizationOptions.Value.SupportedUICultures?.Add(new CultureInfo(culture));
                     }
                 }
             }

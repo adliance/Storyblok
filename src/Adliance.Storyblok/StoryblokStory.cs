@@ -48,9 +48,9 @@ public class StoryblokStory
 
     [JsonPropertyName("first_published_at")] public DateTime? FirstPublishedAt { get; set; }
 
-    [JsonPropertyName("id")] public int Id { get; set; }
+    [JsonPropertyName("id")] public long Id { get; set; }
     [JsonPropertyName("uuid")] public Guid Uuid { get; set; }
-    [JsonPropertyName("content")] public StoryblokComponent Content { get; set; } = new StoryblokComponent();
+    [JsonPropertyName("content")] public StoryblokComponent Content { get; set; } = new();
 
     [JsonPropertyName("position")] public int Position { get; set; }
     [JsonPropertyName("is_startpage")] public bool IsStartPage { get; set; }

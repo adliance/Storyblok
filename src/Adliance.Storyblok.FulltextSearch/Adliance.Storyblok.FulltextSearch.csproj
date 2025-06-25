@@ -20,8 +20,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Adliance.Buddy.CodeStyle" Version="8.0.0.7" />
-    <PackageReference Include="Adliance.Storyblok" Version="8.0.9" />
+    <PackageReference Include="Adliance.Storyblok" Version="8.0.12" />
     <PackageReference Include="Lucene.Net" Version="4.8.0-beta00016" />
     <PackageReference Include="Lucene.Net.Analysis.Common" Version="4.8.0-beta00016" />
     <PackageReference Include="Lucene.Net.Highlighter" Version="4.8.0-beta00016" />

@@ -8,18 +8,11 @@ public class StoryblokIntConverter : System.Text.Json.Serialization.JsonConverte
 {
     public override int Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        if (reader.TokenType == JsonTokenType.Number)
-        {
-            return reader.GetInt32();
-        }
-
+        if (reader.TokenType == JsonTokenType.Number) return reader.GetInt32();
         var s = reader.GetString();
-        if (int.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out var i))
-        {
-            return i;
-        }
+        if (int.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out var i)) return i;
 
-        return default;
+        return 0;
     }
 
     public override void Write(Utf8JsonWriter writer, int value, JsonSerializerOptions options)
@@ -32,16 +25,10 @@ public class StoryblokNullableIntConverter : System.Text.Json.Serialization.Json
 {
     public override int? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        if (reader.TokenType == JsonTokenType.Number)
-        {
-            return reader.GetInt32();
-        }
+        if (reader.TokenType == JsonTokenType.Number) return reader.GetInt32();
 
         var s = reader.GetString();
-        if (int.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out var i))
-        {
-            return i;
-        }
+        if (int.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out var i)) return i;
 
         return null;
     }

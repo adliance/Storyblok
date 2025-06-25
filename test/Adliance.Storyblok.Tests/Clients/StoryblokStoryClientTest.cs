@@ -31,6 +31,17 @@ public class StoryblokStoryClientTest
         Assert.NotEqual(button.Link?.CachedValue, button.Link?.Story?.FullSlug);
         Assert.Equal(button.Link?.Url, "/" + button.Link?.Story?.FullSlug);
     }
+    
+    [Fact]
+    public async Task Can_Load_Page_With_New_Much_Larger_Ids()
+    {
+        var story = await _client.Story().WithSlug("/page-with-section").Load<PageComponent>();
+        Assert.NotNull(story);
+        var section = story.Content!.Content!.First() as SectionComponent;
+        Assert.NotNull(section);
+        var button = section.Content!.First() as ButtonComponent;
+        Assert.NotNull(button);
+    }
 
     [Fact]
     public async Task Can_Load_Story_With_Resolved_Stories()

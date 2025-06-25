@@ -35,6 +35,6 @@ public class SitemapBuilderTest
 
         var sitemapXml = await builder.BuildXml();
         Assert.NotNull(sitemapXml);
-        Assert.InRange(sitemapXml.Length, 150, 1500);
+        Assert.InRange(sitemapXml.Length, 1000, 2500);
     }
 }

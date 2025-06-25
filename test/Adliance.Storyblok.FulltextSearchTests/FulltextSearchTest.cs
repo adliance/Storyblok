@@ -22,7 +22,7 @@ public class FulltextSearchTest
 
         var updatedPages = await _sut.UpdateFulltextIndex("en");
         Assert.NotNull(updatedPages);
-        Assert.InRange(updatedPages.Value, 8, 8);
+        Assert.InRange(updatedPages.Value, 9, 9);
 
         var searchResults = _sut.Query("en", "Content", [
             "some_role"
@@ -43,7 +43,7 @@ public class FulltextSearchTest
 
         var updatedPages = await _sut.UpdateFulltextIndex("en");
         Assert.NotNull(updatedPages);
-        Assert.InRange(updatedPages.Value, 8, 8);
+        Assert.InRange(updatedPages.Value, 9, 9);
 
         var searchResults = _sut.Query("en", "Content", 2);
         Assert.InRange(searchResults.TotalResults, 1, 1);
@@ -57,7 +57,7 @@ public class FulltextSearchTest
 
         var updatedPages = await _sut.UpdateFulltextIndex("de");
         Assert.NotNull(updatedPages);
-        Assert.InRange(updatedPages.Value, 8, 8);
+        Assert.InRange(updatedPages.Value, 9, 9);
 
         var searchResults = _sut.Query("de", "Inhalt", [
             "some_role"
@@ -78,7 +78,7 @@ public class FulltextSearchTest
 
         var updatedPages = await _sut.UpdateFulltextIndex("de");
         Assert.NotNull(updatedPages);
-        Assert.InRange(updatedPages.Value, 8, 8);
+        Assert.InRange(updatedPages.Value, 9, 9);
 
         var searchResults = _sut.Query("de", "Inhalt", 1);
         Assert.InRange(searchResults.TotalResults, 0, 0);

@@ -1,5 +1,8 @@
 name: 8.0.$(rev:r)
 
+variables:
+  - group: shared_buddy_variable_group
+
 trigger:
   batch: true
   branches:
@@ -11,9 +14,6 @@ trigger:
 
 pool:
   vmImage: 'ubuntu-latest'
-
-variables:
-  buildConfiguration: 'Release'
 
 steps:
 - checkout: self
@@ -28,27 +28,31 @@ steps:
   displayName: Build
   inputs:
     projects: 'src/Adliance.Storyblok/Adliance.Storyblok.csproj'
-    arguments: '--configuration $(buildConfiguration)'
+    arguments: '--configuration Release'
 
 - task: DotNetCoreCLI@2
   displayName: Test
   inputs:
     command: test
     projects: 'test/Adliance.Storyblok.Tests/Adliance.Storyblok.Tests.csproj'
-    arguments: '--configuration $(buildConfiguration)'
+    arguments: '--configuration Release'
 
 - task: DotNetCoreCLI@2
   displayName: Pack
   inputs:
     command: pack
     packagesToPack: 'src/Adliance.Storyblok/Adliance.Storyblok.csproj'
-    arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)'
+    configuration: 'Release'
     versioningScheme: byBuildNumber
+    outputDir: '$(Build.ArtifactStagingDirectory)'
 
-- task: NuGetCommand@2
+- task: DotNetCoreCLI@2
   condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
   displayName: Push
   inputs:
-    command: push
-    nuGetFeedType: external
-    publishFeedCredentials: 'Public NuGet'
+    command: 'custom'
+    custom: 'nuget'
+    arguments: >
+      push "$(Build.ArtifactStagingDirectory)/*.nupkg"
+      --source "https://api.nuget.org/v3/index.json"
+      --api-key "$(nuget_api_key)"

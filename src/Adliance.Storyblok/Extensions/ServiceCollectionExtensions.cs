@@ -18,6 +18,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<StoryblokStoryClient>();
         services.AddScoped<StoryblokStoriesClient>();
         services.AddScoped<StoryblokDatasourceClient>();
+        services.AddScoped<StoryblokAssetClient>();
         services.AddScoped<SitemapBuilder>();
         services.AddMemoryCache();
         return services;

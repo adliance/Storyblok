@@ -10,6 +10,7 @@ public class StoryblokOptions
 {
     public string? ApiKeyPreview { get; set; }
     public string? ApiKeyPublic { get; set; }
+    public string? AssetKey { get; set; }
     public bool IncludeDraftStories { get; set; }
     public string BaseUrl { get; set; } = "https://api.storyblok.com/v1/cdn";
 

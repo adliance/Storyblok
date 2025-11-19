@@ -39,7 +39,7 @@ public class AssetTest
         Assert.NotNull(firstImage);
         Assert.NotNull(firstImage.Asset);
         Assert.NotNull(secondImage);
-        Assert.Null(secondImage.Asset);
+        Assert.NotNull(secondImage.Asset);
         Assert.NotNull(thirdImage);
         Assert.Null(thirdImage.Asset);
     }

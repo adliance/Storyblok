@@ -20,6 +20,28 @@ public class StoryblokAssetClient(
 {
     public async Task<StoryblokAssetOriginal?> LoadAsset(string? assetUrl)
     {
+        if (IsInEditor) return await LoadAssetInternal(assetUrl);
+
+        var cacheKey = $"asset_{assetUrl}";
+        if (MemoryCache.TryGetValue(cacheKey, out StoryblokAssetOriginal? cachedAsset) && cachedAsset != null)
+        {
+            Logger.LogTrace($"Using cached asset \"{assetUrl}\".");
+            return cachedAsset;
+        }
+
+        Logger.LogTrace($"Loading asset \"{assetUrl}\" ...");
+        var asset = await LoadAssetInternal(assetUrl);
+        if (asset != null)
+        {
+            Logger.LogTrace($"Asset \"{assetUrl}\" loaded.");
+            MemoryCache.Set(cacheKey, asset, TimeSpan.FromSeconds(Settings.CacheDurationSeconds));
+        }
+
+        return asset;
+    }
+
+    private async Task<StoryblokAssetOriginal?> LoadAssetInternal(string? assetUrl)
+    {
         if (string.IsNullOrWhiteSpace(assetUrl)) return null;
         if (string.IsNullOrWhiteSpace(Settings.AssetKey)) throw new Exception("No Asset Key configured.");
 

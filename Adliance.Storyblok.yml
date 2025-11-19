@@ -1,4 +1,4 @@
-name: 8.0.$(rev:r)
+name: 8.1.$(rev:r)
 
 variables:
   - group: shared_buddy_variable_group

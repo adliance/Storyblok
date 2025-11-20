@@ -1,9 +1,10 @@
 using System;
 using System.Text.Json.Serialization;
+using Adliance.Storyblok.Extensions;
 
 namespace Adliance.Storyblok;
 
-public class StoryblokLink
+public class StoryblokLink : IAsset
 {
     [JsonPropertyName("id")] public string? Id { get; set; }
     [JsonPropertyName("url")] public string? Value { get; set; }
@@ -18,7 +19,8 @@ public class StoryblokLink
     /// This property is available when the story has been requested via resolve_links parameters set.
     /// See https://www.storyblok.com/cl/url-resolving for more information.
     /// </summary>
-    [JsonPropertyName("story")] public StoryblokStory? Story { get; set; }
+    [JsonPropertyName("story")]
+    public StoryblokStory? Story { get; set; }
 
     public string? Url
     {
@@ -27,9 +29,7 @@ public class StoryblokLink
             var url = LinkType switch
             {
                 "story" => Story?.FullSlug,
-                "url" => CachedValue ?? Value,
                 "email" => "mailto:" + Email,
-                "asset" => CachedValue ?? Value,
                 _ => CachedValue ?? Value
             };
             if (url != null && !url.StartsWith("http", StringComparison.OrdinalIgnoreCase) && !url.StartsWith("mailto:", StringComparison.OrdinalIgnoreCase))
@@ -45,5 +45,6 @@ public class StoryblokLink
 
             return url;
         }
+        set => Value = CachedValue = value;
     }
 }

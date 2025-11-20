@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Adliance.Storyblok.Clients;
+using Adliance.Storyblok.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -9,12 +10,14 @@ namespace Adliance.Storyblok.Tests.Converters;
 public class AssetTest
 {
     private readonly StoryblokStoryClient _client;
+    private readonly StoryblokAssetClient _assetClient;
 
     public AssetTest()
     {
         MockedWebApplicationFactory<MockedStartup> factory = new();
         factory.CreateClient();
         _client = factory.Services.GetRequiredService<StoryblokStoryClient>();
+        _assetClient = factory.Services.GetRequiredService<StoryblokAssetClient>();
     }
 
     [Fact]
@@ -26,6 +29,22 @@ public class AssetTest
         Assert.NotNull(image.Asset);
         Assert.Null(image.Asset?.Original);
         Assert.Equal("Original ALT Text", image.Asset?.Alt);
+    }
+    
+    [Fact]
+    public async Task Can_Ensure_SignedUrl_for_Assets()
+    {
+        var story = await _client.Story().WithSlug("/page-asset").Load<PageComponent>();
+        var firstImage = story?.Content?.Content?.First() as ImageComponent;
+        Assert.NotNull(firstImage?.Asset);
+        var originalUrl = firstImage.Asset!.Url;
+        
+        await firstImage.Asset.EnsureSignedUrl(_assetClient);
+        var signedUrl = firstImage.Asset.Url;
+        Assert.NotEqual(originalUrl, signedUrl);
+        
+        await firstImage.Asset.EnsureSignedUrl(_assetClient);
+        Assert.Equal(signedUrl, firstImage.Asset.Url);
     }
 
     [Fact]

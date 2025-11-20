@@ -47,12 +47,16 @@ public class StoryblokAssetClient(
 
         var response = await Client.GetAsync($"https://api.storyblok.com/v2/cdn/assets/me?token={Settings.AssetKey}&filename={assetUrl}");
         var responseString = await response.Content.ReadAsStringAsync();
-        response.EnsureSuccessStatusCode();
+
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new Exception($"Unable to load asset {assetUrl} ({response.StatusCode}: {responseString}");
+        }
 
         return JsonSerializer.Deserialize<StoryblokAssetContainer>(responseString)?.Asset;
     }
 
-    public async Task<string?> LoadSignedAssetUrl(IImageService? asset)
+    public async Task<string?> LoadSignedAssetUrl(IAsset? asset)
     {
         return await LoadSignedAssetUrl(asset?.Url);
     }
@@ -63,7 +67,7 @@ public class StoryblokAssetClient(
         return asset?.SignedUrl;
     }
 
-    public async Task<byte[]?> LoadSignedAssetBytes(IImageService? asset)
+    public async Task<byte[]?> LoadSignedAssetBytes(IAsset? asset)
     {
         return await LoadSignedAssetBytes(asset?.Url);
     }

@@ -4,7 +4,7 @@ using Adliance.Storyblok.Extensions;
 
 namespace Adliance.Storyblok;
 
-public class StoryblokAsset : IImageService
+public class StoryblokAsset : IAsset
 {
     [JsonPropertyName("filename")] public string? Url { get; set; }
     [JsonPropertyName("fieldtype")] public string? FieldType { get; set; }
@@ -15,7 +15,7 @@ public class StoryblokAsset : IImageService
     [JsonPropertyName("original")] public StoryblokAssetOriginal? Original { get; set; }
 }
 
-public class StoryblokAssetOriginal : IImageService
+public class StoryblokAssetOriginal : IAsset
 {
     [JsonPropertyName("filename")] public string? Url { get; set; }
     [JsonPropertyName("fieldtype")] public string? FieldType { get; set; }

@@ -130,6 +130,9 @@ public class StoryblokStoriesQuery(StoryblokStoriesClient client, StoryblokOptio
                 case FilterOperation.LessThanInt:
                     operation = "lt-int";
                     break;
+                case FilterOperation.Like:
+                    operation = "like";
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -144,5 +147,6 @@ public enum FilterOperation
     In,
     NotIn,
     GreaterThanInt,
-    LessThanInt
+    LessThanInt,
+    Like
 }

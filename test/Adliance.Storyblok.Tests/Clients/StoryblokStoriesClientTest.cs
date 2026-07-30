@@ -31,4 +31,18 @@ public class StoryblokStoriesClientTest
         Assert.NotNull(stories);
         Assert.InRange(stories.Count, 1, 10);
     }
+
+    [Fact]
+    public async Task Can_Load_Stories_With_Like_Filter()
+    {
+        _factory.CreateClient();
+        var client = _factory.Services.GetRequiredService<StoryblokStoriesClient>();
+
+        var stories = await client.Stories()
+            .Having("component", FilterOperation.Like, "page*")
+            .Load<StoryblokComponent>();
+
+        Assert.NotNull(stories);
+        Assert.InRange(stories.Count, 1, 10);
+    }
 }

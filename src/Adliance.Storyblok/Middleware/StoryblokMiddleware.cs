@@ -79,6 +79,14 @@ public class StoryblokMiddleware(RequestDelegate next)
             await next.Invoke(context);
             return;
         }
+        
+        if (settings.IgnoreSlugs.Any(x => x.StartsWith("*", StringComparison.OrdinalIgnoreCase) && slug.EndsWith(x.TrimStart('*').Trim('/'), StringComparison.OrdinalIgnoreCase)))
+        {
+            // don't handle this slug in the middleware, because the configuration starts with a *, which means we compare via EndsWith
+            logger.LogTrace($"Ignoring request \"{slug}\", because it's configured to be ignored (partial match).");
+            await next.Invoke(context);
+            return;
+        }
 
         StoryblokStory? story = null;
 

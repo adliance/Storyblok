@@ -14,6 +14,7 @@ public class MockedStartup
             o.SupportedCultures = ["de", "en"];
             o.RedirectsDatasourceName = "redirects";
             o.AssetKey = "wqPkoW0jchgnNKRYog51xQtt"; // only the asset key to our special Storyblok Testing Space, nothing confidential in here
+            o.IgnoreSlugs = ["/ignored", "/ignored-start/*", "*.ign", "/.git/*"];
         });
     }
 

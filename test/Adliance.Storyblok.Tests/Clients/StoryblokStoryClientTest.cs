@@ -31,7 +31,7 @@ public class StoryblokStoryClientTest
         Assert.NotEqual(button.Link?.CachedValue, button.Link?.Story?.FullSlug);
         Assert.Equal(button.Link?.Url, "/" + button.Link?.Story?.FullSlug);
     }
-    
+
     [Fact]
     public async Task Can_Load_Page_With_New_Much_Larger_Ids()
     {

@@ -30,7 +30,7 @@ public class AssetTest
         Assert.Null(image.Asset?.Original);
         Assert.Equal("Original ALT Text", image.Asset?.Alt);
     }
-    
+
     [Fact]
     public async Task Can_Ensure_SignedUrl_for_Assets()
     {
@@ -38,11 +38,11 @@ public class AssetTest
         var firstImage = story?.Content?.Content?.First() as ImageComponent;
         Assert.NotNull(firstImage?.Asset);
         var originalUrl = firstImage.Asset!.Url;
-        
+
         await firstImage.Asset.EnsureSignedUrl(_assetClient);
         var signedUrl = firstImage.Asset.Url;
         Assert.NotEqual(originalUrl, signedUrl);
-        
+
         await firstImage.Asset.EnsureSignedUrl(_assetClient);
         Assert.Equal(signedUrl, firstImage.Asset.Url);
     }

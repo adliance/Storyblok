@@ -31,18 +31,18 @@ public class StoryblokAssetClientTest
         var bytes = await _client.LoadAsset(assetUrl);
         Assert.InRange(bytes?.ContentLength ?? 0, 10_000, 15_000);
     }
-    
+
     [Fact]
     public async Task Can_Load_Private_Asset_Cached()
     {
         var assetUrl = "https://a.storyblok.com/f/114417/299x168/dd3573d706/private-asset.jpeg";
         var bytes = await _client.LoadAsset(assetUrl);
         Assert.InRange(bytes?.ContentLength ?? 0, 10_000, 15_000);
-        
+
         bytes = await _client.LoadAsset(assetUrl);
         Assert.InRange(bytes?.ContentLength ?? 0, 10_000, 15_000);
     }
-    
+
     [Fact]
     public async Task Can_Load_Public_Asset()
     {
@@ -50,7 +50,7 @@ public class StoryblokAssetClientTest
         var bytes = await _client.LoadAsset(assetUrl);
         Assert.InRange(bytes?.ContentLength ?? 0, 3000, 5_000);
     }
-    
+
     [Fact]
     public async Task Can_Load_Signed_Url_for_Public_Asset()
     {

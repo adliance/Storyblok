@@ -72,7 +72,7 @@ public static class AssetExtensions
     {
         await EnsureSignedUrl(image, assetClient, requiresSignedUrlCallback.Invoke());
     }
-    
+
     public static async Task EnsureSignedUrl(this IAsset image, StoryblokAssetClient assetClient, bool requiresSignedUrl)
     {
         if (requiresSignedUrl) await EnsureSignedUrl(image, assetClient);

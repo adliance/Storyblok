@@ -64,26 +64,8 @@ public class StoryblokMiddleware(RequestDelegate next)
             context.Response.Headers.Append("Content-Security-Policy", "frame-ancestors 'self' app.storyblok.com");
         }
 
-        if (settings.IgnoreSlugs.Any(x => slug.Equals(x.Trim('/'), StringComparison.OrdinalIgnoreCase)))
+        if (IsIgnoredSlug(settings, logger, slug))
         {
-            // don't handle this slug in the middleware, because exact match of URL
-            logger.LogTrace($"Ignoring request \"{slug}\", because it's configured to be ignored (exact match).");
-            await next.Invoke(context);
-            return;
-        }
-
-        if (settings.IgnoreSlugs.Any(x => x.EndsWith("*", StringComparison.OrdinalIgnoreCase) && slug.StartsWith(x.TrimEnd('*').Trim('/'), StringComparison.OrdinalIgnoreCase)))
-        {
-            // don't handle this slug in the middleware, because the configuration ends with a *, which means we compare via StartsWith
-            logger.LogTrace($"Ignoring request \"{slug}\", because it's configured to be ignored (partial match).");
-            await next.Invoke(context);
-            return;
-        }
-        
-        if (settings.IgnoreSlugs.Any(x => x.StartsWith("*", StringComparison.OrdinalIgnoreCase) && slug.EndsWith(x.TrimStart('*').Trim('/'), StringComparison.OrdinalIgnoreCase)))
-        {
-            // don't handle this slug in the middleware, because the configuration starts with a *, which means we compare via EndsWith
-            logger.LogTrace($"Ignoring request \"{slug}\", because it's configured to be ignored (partial match).");
             await next.Invoke(context);
             return;
         }
@@ -101,6 +83,12 @@ public class StoryblokMiddleware(RequestDelegate next)
                 {
                     logger.LogTrace($"Swapping slug from \"{slug}\" to \"{settings.HandleRootWithSlug}\", because it's the root URL.");
                     slugWithoutCulture = settings.HandleRootWithSlug;
+                }
+
+                if (IsIgnoredSlug(settings, logger, slugWithoutCulture))
+                {
+                    await next.Invoke(context);
+                    return;
                 }
 
                 logger.LogTrace($"Trying to load story for slug \"{slugWithoutCulture}\" for culture {supportedCulture}.");
@@ -192,5 +180,31 @@ public class StoryblokMiddleware(RequestDelegate next)
         }
 
         return executor.ExecuteAsync(actionContext, result);
+    }
+
+    private static bool IsIgnoredSlug(StoryblokOptions settings, ILogger logger, string slug)
+    {
+        if (settings.IgnoreSlugs.Any(x => slug.Equals(x.Trim('/'), StringComparison.OrdinalIgnoreCase)))
+        {
+            // don't handle this slug in the middleware, because exact match of URL
+            logger.LogTrace($"Ignoring request \"{slug}\", because it's configured to be ignored (exact match).");
+            return true;
+        }
+
+        if (settings.IgnoreSlugs.Any(x => x.EndsWith("*", StringComparison.OrdinalIgnoreCase) && slug.StartsWith(x.TrimEnd('*').Trim('/'), StringComparison.OrdinalIgnoreCase)))
+        {
+            // don't handle this slug in the middleware, because the configuration ends with a *, which means we compare via StartsWith
+            logger.LogTrace($"Ignoring request \"{slug}\", because it's configured to be ignored (partial match).");
+            return true;
+        }
+
+        if (settings.IgnoreSlugs.Any(x => x.StartsWith("*", StringComparison.OrdinalIgnoreCase) && slug.EndsWith(x.TrimStart('*').Trim('/'), StringComparison.OrdinalIgnoreCase)))
+        {
+            // don't handle this slug in the middleware, because the configuration starts with a *, which means we compare via EndsWith
+            logger.LogTrace($"Ignoring request \"{slug}\", because it's configured to be ignored (partial match).");
+            return true;
+        }
+
+        return false;
     }
 }

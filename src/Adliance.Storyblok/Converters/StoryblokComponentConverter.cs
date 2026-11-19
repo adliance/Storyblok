@@ -1,11 +1,14 @@
 using System;
 using System.Text.Json;
-using Adliance.Storyblok.Clients;
 
 namespace Adliance.Storyblok.Converters;
 
-public class StoryblokComponentConverter : System.Text.Json.Serialization.JsonConverter<StoryblokComponent>
+public class StoryblokComponentConverter(bool isInEditor) : System.Text.Json.Serialization.JsonConverter<StoryblokComponent>
 {
+    public StoryblokComponentConverter() : this(false)
+    {
+    }
+
     public override StoryblokComponent Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         // performance is probably abysmal, but System.Text.Json does not support polymorphic deserialization very well
@@ -30,12 +33,12 @@ public class StoryblokComponentConverter : System.Text.Json.Serialization.JsonCo
 
                         // we don't want the "editable" property set at all, when we're not in editor
                         // this makes it easier for the client, so he does not have to check if in the editor on each component, he just has to render the "editable" stuff into it
-                        if (!StoryblokBaseClient.IsInEditor)
+                        if (!isInEditor)
                         {
                             component.Editable = null;
                         }
 
-                        component.IsInEditor = StoryblokBaseClient.IsInEditor;
+                        component.IsInEditor = isInEditor;
 
                         return component;
                     }
@@ -52,7 +55,7 @@ public class StoryblokComponentConverter : System.Text.Json.Serialization.JsonCo
         {
             Uuid = doc.RootElement.GetProperty("_uid").GetGuid(),
             Component = doc.RootElement.GetProperty("component").GetString() ?? "",
-            IsInEditor = StoryblokBaseClient.IsInEditor
+            IsInEditor = isInEditor
         };
     }
 

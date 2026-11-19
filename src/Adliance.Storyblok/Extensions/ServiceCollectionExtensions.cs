@@ -3,6 +3,7 @@ using Adliance.Storyblok.Clients;
 using Adliance.Storyblok.Sitemap;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedMethodReturnValue.Global
@@ -15,6 +16,8 @@ public static class ServiceCollectionExtensions
     {
         services.AddHttpClient();
         services.AddHttpContextAccessor();
+        services.TryAddSingleton(TimeProvider.System);
+        services.AddSingleton<StoryblokStoryIndex>();
         services.AddScoped<StoryblokStoryClient>();
         services.AddScoped<StoryblokStoriesClient>();
         services.AddScoped<StoryblokDatasourceClient>();

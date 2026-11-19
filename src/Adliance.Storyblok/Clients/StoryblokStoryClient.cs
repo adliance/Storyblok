@@ -19,7 +19,8 @@ public class StoryblokStoryClient(
     IHttpClientFactory clientFactory,
     IHttpContextAccessor httpContext,
     IMemoryCache memoryCache,
-    ILogger<StoryblokBaseClient> logger)
+    ILogger<StoryblokBaseClient> logger,
+    StoryblokStoryIndex storyIndex)
     : StoryblokBaseClient(settings, clientFactory, httpContext, memoryCache, logger)
 {
     public StoryblokStoryQuery Story()
@@ -59,6 +60,13 @@ public class StoryblokStoryClient(
             return null;
         }
 
+        if (IsMissingInStoryIndex(culture, slug))
+        {
+            Logger.LogTrace($"Slug \"{slug}\" (culture \"{culture}\") not found in story index, skipping Storyblok API.");
+            MemoryCache.Set(cacheKeyUnavailable, true, TimeSpan.FromSeconds(Settings.CacheDurationSeconds));
+            return null;
+        }
+
         Logger.LogTrace($"Trying to load story for slug \"{slug}\" (culture \"{culture}\").");
         var story = await LoadStoryFromStoryblok(culture, slug, resolveLinks, resolveAssets, resolveRelations);
         if (story != null)
@@ -73,25 +81,21 @@ public class StoryblokStoryClient(
         return null;
     }
 
+    private bool IsMissingInStoryIndex(CultureInfo? culture, string slug)
+    {
+        // the index only contains published stories, so it must never be used for the editor (new pages are usually unpublished) or when drafts are included
+        if (!Settings.UseStoryIndexForNotFound || IsInEditor || Settings.IncludeDraftStories)
+        {
+            return false;
+        }
+
+        return storyIndex.Exists(ResolveCulture(culture), slug) == false;
+    }
+
     private async Task<StoryblokStory?> LoadStoryFromStoryblok(CultureInfo? culture, string slug, ResolveLinksType resolveLinks, bool resolveAssets, string resolveRelations)
     {
         var defaultCulture = new CultureInfo(Settings.SupportedCultures.First());
-        var currentCulture = defaultCulture;
-
-        if (culture != null)
-        {
-            // only use the culture if it's actually supported
-            // use only the short culture "en", if we get a full culture "en-US" but only support the short one
-            var matchingCultures = Settings.SupportedCultures
-                .Where(x => x.Equals(culture.ToString(), StringComparison.OrdinalIgnoreCase) || x.Equals(culture.TwoLetterISOLanguageName, StringComparison.OrdinalIgnoreCase))
-                .OrderByDescending(x => x.Length)
-                .ToArray();
-
-            if (matchingCultures.Any())
-            {
-                currentCulture = new CultureInfo(matchingCultures.First());
-            }
-        }
+        var currentCulture = ResolveCulture(culture);
 
         var url = $"{Settings.BaseUrl}/stories/{slug}?token={ApiKey}";
         if (!currentCulture.Equals(defaultCulture))

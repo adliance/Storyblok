@@ -6,9 +6,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## 10.0
 
+### Added
+
+- Opt-in option `UseStoryIndexForNotFound`: requests for non-existing slugs are answered from the cached list of all published stories (the same list used for the sitemap) instead of calling the Storyblok API for every unknown slug. The index is not used in the Storyblok editor or with `IncludeDraftStories`, and falls back to the Storyblok API if the list cannot be loaded. Requires a [Storyblok webhook](https://www.storyblok.com/docs/concepts/webhooks) to `SlugForClearingCache` for publishing, unpublishing, deleting and moving stories, otherwise newly published stories are not found until the cache expires. Requests never wait for the story list: without index (on startup or right after the cache is cleared) the Storyblok API is used while the index is loaded in the background, and an index older than `CacheDurationSeconds` is still used while a new one is loaded in the background.
+- Option `ClearCacheAllowedIpAddresses` to restrict calls to `SlugForClearingCache` to specific IP addresses or CIDR networks. Empty (default) allows all IP addresses.
+
 ### Changed
 
 - Both packages now target .NET 10 (.NET 8 support has ended).
+- `StoryblokStoryClient` has an additional constructor parameter `StoryblokStoryIndex`. This only affects code that creates the client manually instead of using dependency injection.
+
+### Fixed
+
+- The Storyblok editor mode is now evaluated per request. Previously a static flag was shared between all requests, so concurrent editor and public requests could influence each other (e.g. loading draft content or keeping `Editable` attributes for public requests).
 
 ### Deprecated
 

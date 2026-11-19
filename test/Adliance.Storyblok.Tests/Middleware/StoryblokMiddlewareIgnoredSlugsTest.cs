@@ -117,7 +117,7 @@ public class StoryblokMiddlewareIgnoredSlugsTest
             ApiKeyPublic = "unused-but-needed-for-validation",
             SupportedCultures = ["de"]
         };
-        return new StoryblokStoryClient(new OptionsWrapper<StoryblokOptions>(settings), new MockClientFactory(), null!, null!, null!);
+        return new StoryblokStoryClient(new OptionsWrapper<StoryblokOptions>(settings), new MockClientFactory(), null!, null!, null!, null!);
     }
 
     private class MockClientFactory : IHttpClientFactory

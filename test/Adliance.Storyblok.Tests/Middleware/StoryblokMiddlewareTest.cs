@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.Hosting;
 using Xunit;
 
 namespace Adliance.Storyblok.Tests.Middleware;
@@ -16,8 +17,16 @@ public class StoryblokMiddlewareTest
     public StoryblokMiddlewareTest()
     {
         Thread.DontBombardStoryblokApi();
-        _noExistingLocalisationApp = new TestServer(new WebHostBuilder().UseStartup<MockedStartup>());
-        _existingLocalisationApp = new TestServer(new WebHostBuilder().UseStartup<LocalisedMockedStartup>());
+        _noExistingLocalisationApp = CreateTestServer<MockedStartup>();
+        _existingLocalisationApp = CreateTestServer<LocalisedMockedStartup>();
+    }
+
+    private static TestServer CreateTestServer<TStartup>() where TStartup : class
+    {
+        var host = new HostBuilder()
+            .ConfigureWebHost(builder => builder.UseTestServer().UseStartup<TStartup>())
+            .Start();
+        return host.GetTestServer();
     }
 
     [Theory]

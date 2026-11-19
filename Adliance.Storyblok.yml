@@ -1,4 +1,4 @@
-name: 8.1.$(rev:r)
+name: 10.0.$(rev:r)
 
 variables:
   - group: shared_buddy_variable_group
@@ -21,7 +21,7 @@ steps:
 - task: UseDotNet@2
   displayName: "Install .NET"
   inputs:
-    version: '8.0.x'
+    version: '10.0.x'
     packageType: sdk
 
 - task: DotNetCoreCLI@2

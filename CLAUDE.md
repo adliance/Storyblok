@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-C# (.NET Core) client for the Storyblok headless CMS, shipped as two NuGet packages:
+C# (.NET 10) client for the Storyblok headless CMS, shipped as two NuGet packages:
 
 - `src/Adliance.Storyblok` – strongly typed API clients plus ASP.NET Core middleware that renders stories directly into Razor views based on the request slug.
 - `src/Adliance.Storyblok.FulltextSearch` – Lucene.Net-based fulltext index over Storyblok stories. **It references the published `Adliance.Storyblok` NuGet package (not the project)**, so changes in the core library are not visible to it until a new package version is published and the package reference is bumped.
@@ -14,7 +14,7 @@ All projects use `Nullable` enabled and `TreatWarningsAsErrors=true` – any com
 ## Commands
 
 ```bash
-dotnet build Adliance.Storyblok.sln
+dotnet build Adliance.Storyblok.slnx
 dotnet test test/Adliance.Storyblok.Tests/Adliance.Storyblok.Tests.csproj
 dotnet test test/Adliance.Storyblok.FulltextSearchTests/Adliance.Storyblok.FulltextSearch.Tests.csproj
 
@@ -23,7 +23,7 @@ dotnet test test/Adliance.Storyblok.Tests --filter "FullyQualifiedName~Storyblok
 dotnet test test/Adliance.Storyblok.Tests --filter "FullyQualifiedName~StoryblokMiddlewareTest"
 ```
 
-CI runs on Azure DevOps (`Adliance.Storyblok.yml`, `Adliance.Storyblok.FulltextSearch.yml`): build, test, pack with version `8.1.$(rev:r)` (resp. the fulltext equivalent), and push to nuget.org on `master`. Each pipeline only triggers on changes under its own `src/` folder.
+CI runs on Azure DevOps (`Adliance.Storyblok.yml`, `Adliance.Storyblok.FulltextSearch.yml`): build, test, pack with version `10.0.$(rev:r)`, and push to nuget.org on `master`. Each pipeline only triggers on changes under its own `src/` folder.
 
 ## Tests
 

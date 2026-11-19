@@ -43,9 +43,25 @@ public class StoryblokOptions
 
     /// <summary>
     /// If set, the middleware will clear all caches when this slug is being called.
-    /// This is useful for using it as the Storyblok webhook callback on content changes.
+    /// This is useful for using it as the Storyblok webhook callback on content changes (see https://www.storyblok.com/docs/concepts/webhooks).
     /// </summary>
     public string SlugForClearingCache { get; set; } = "/clear-storyblok-cache";
+
+    /// <summary>
+    /// IP addresses (e.g. "203.0.113.10") or networks in CIDR notation (e.g. "203.0.113.0/24") that are allowed to call <see cref="SlugForClearingCache"/>.
+    /// Requests from other IP addresses are answered with 403 Forbidden. If empty (default), requests from all IP addresses are allowed.
+    /// If the application runs behind a reverse proxy, configure the forwarded headers middleware so that the actual client IP address is used.
+    /// </summary>
+    public IList<string> ClearCacheAllowedIpAddresses { get; set; } = new List<string>();
+
+    /// <summary>
+    /// If enabled, the list of all published stories (the same list that is used for the sitemap) is used to answer requests for non-existing slugs
+    /// without calling the Storyblok API. This protects the Storyblok API (and its rate limits) from bots and crawlers requesting random URLs.
+    /// The index is never used in the Storyblok editor or if <see cref="IncludeDraftStories"/> is enabled.
+    /// Configure a Storyblok webhook to <see cref="SlugForClearingCache"/> for publishing, unpublishing, deleting and moving stories
+    /// (see https://www.storyblok.com/docs/concepts/webhooks), otherwise newly published stories will not be found until the cache expires.
+    /// </summary>
+    public bool UseStoryIndexForNotFound { get; set; }
 
     public bool EnableSitemap { get; set; } = true;
 

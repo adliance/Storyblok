@@ -50,6 +50,43 @@ public class StoryblokClearCacheMiddlewareTest
         await AssertNotFound(await client.GetAsync(url));
     }
 
+    [Theory]
+    [InlineData("203.0.113.10", HttpStatusCode.OK)]
+    [InlineData("::ffff:203.0.113.10", HttpStatusCode.OK)]
+    [InlineData("198.51.100.42", HttpStatusCode.OK)]
+    [InlineData("203.0.113.11", HttpStatusCode.Forbidden)]
+    [InlineData("198.51.101.1", HttpStatusCode.Forbidden)]
+    [InlineData(null, HttpStatusCode.Forbidden)]
+    public async Task Respects_Allowed_Ip_Addresses(string? remoteIpAddress, HttpStatusCode expectedStatusCode)
+    {
+        _factory.CreateClient();
+        var options = _factory.Services.GetRequiredService<IOptions<StoryblokOptions>>();
+        options.Value.ClearCacheAllowedIpAddresses = ["203.0.113.10", "198.51.100.0/24", "invalid"];
+
+        var context = await _factory.Server.SendAsync(c =>
+        {
+            c.Request.Method = "POST";
+            c.Request.Path = "/clear-storyblok-cache";
+            c.Connection.RemoteIpAddress = remoteIpAddress == null ? null : IPAddress.Parse(remoteIpAddress);
+        });
+
+        Assert.Equal((int)expectedStatusCode, context.Response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Allows_All_Ip_Addresses_By_Default()
+    {
+        _factory.CreateClient();
+        var context = await _factory.Server.SendAsync(c =>
+        {
+            c.Request.Method = "POST";
+            c.Request.Path = "/clear-storyblok-cache";
+            c.Connection.RemoteIpAddress = IPAddress.Parse("192.0.2.1");
+        });
+
+        Assert.Equal((int)HttpStatusCode.OK, context.Response.StatusCode);
+    }
+
     private static async Task AssertNotFound(HttpResponseMessage response)
     {
         var responseString = await response.Content.ReadAsStringAsync();

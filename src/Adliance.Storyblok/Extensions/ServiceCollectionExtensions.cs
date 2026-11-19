@@ -15,6 +15,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddHttpClient();
         services.AddHttpContextAccessor();
+        services.AddSingleton<StoryblokStoryIndex>();
         services.AddScoped<StoryblokStoryClient>();
         services.AddScoped<StoryblokStoriesClient>();
         services.AddScoped<StoryblokDatasourceClient>();

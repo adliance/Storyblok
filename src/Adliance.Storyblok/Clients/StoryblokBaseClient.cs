@@ -17,8 +17,13 @@ public abstract class StoryblokBaseClient
     protected readonly IMemoryCache MemoryCache;
     protected readonly ILogger<StoryblokBaseClient> Logger;
     protected readonly HttpClient Client;
-    internal static bool IsInEditor;
     protected readonly StoryblokOptions Settings;
+
+    /// <summary>
+    /// Whether the current request comes from the Storyblok editor (visual preview).
+    /// This is evaluated per client instance (i.e. per request), so concurrent editor and public requests don't influence each other.
+    /// </summary>
+    internal bool IsInEditor { get; }
 
     protected StoryblokBaseClient(IOptions<StoryblokOptions> settings, IHttpClientFactory clientFactory, IHttpContextAccessor? httpContext, IMemoryCache memoryCache, ILogger<StoryblokBaseClient> logger)
     {
@@ -62,6 +67,33 @@ public abstract class StoryblokBaseClient
 
     protected string ApiKey => Settings.IncludeDraftStories || IsInEditor ? (Settings.ApiKeyPreview ?? "") : (Settings.ApiKeyPublic ?? "");
 
+    /// <summary>
+    /// Returns the supported culture that should be used to load content for the requested culture.
+    /// Uses the exact culture if supported, otherwise the two-letter culture ("en" for "en-US") if supported, otherwise the default culture.
+    /// </summary>
+    internal CultureInfo ResolveCulture(CultureInfo? culture)
+    {
+        return ResolveCulture(Settings, culture);
+    }
+
+    internal static CultureInfo ResolveCulture(StoryblokOptions settings, CultureInfo? culture)
+    {
+        if (culture != null)
+        {
+            var matchingCulture = settings.SupportedCultures
+                .Where(x => x.Equals(culture.ToString(), StringComparison.OrdinalIgnoreCase) || x.Equals(culture.TwoLetterISOLanguageName, StringComparison.OrdinalIgnoreCase))
+                .OrderByDescending(x => x.Length)
+                .FirstOrDefault();
+
+            if (matchingCulture != null)
+            {
+                return new CultureInfo(matchingCulture);
+            }
+        }
+
+        return new CultureInfo(settings.SupportedCultures.First());
+    }
+
     protected bool IsDefaultCulture(CultureInfo culture)
     {
         return IsDefaultCulture(culture.ToString());
@@ -77,7 +109,7 @@ public abstract class StoryblokBaseClient
         get
         {
             var options = new JsonSerializerOptions();
-            options.Converters.Add(new StoryblokComponentConverter());
+            options.Converters.Add(new StoryblokComponentConverter(IsInEditor));
             options.Converters.Add(new StoryblokDateConverter());
             options.Converters.Add(new StoryblokNullableDateConverter());
             options.Converters.Add(new StoryblokIntConverter());

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
@@ -11,11 +12,16 @@ namespace Adliance.Storyblok.Tests;
 /// We hook in at the message handler, because that's the only method that all
 /// HttpClient methods (GetAsync, GetByteArrayAsync, ...) actually funnel through.
 /// This is mostly intended to test that no requests are made to the Storyblok API.
-/// Therefore, if a request is made, we return a 404 response.
+/// Therefore, if a request is made, we return a 404 response, unless <see cref="Responder"/> returns a response for the request.
 /// </summary>
 public class MockHttpMessageHandler : HttpMessageHandler
 {
     public List<string> Requests { get; } = [];
+
+    /// <summary>
+    /// Optional custom response for a request. If it returns <c>null</c>, a 404 response is returned.
+    /// </summary>
+    public Func<HttpRequestMessage, HttpResponseMessage?>? Responder { get; set; }
 
     protected override HttpResponseMessage Send(HttpRequestMessage request, CancellationToken cancellationToken)
     {
@@ -31,6 +37,8 @@ public class MockHttpMessageHandler : HttpMessageHandler
     {
         Requests.Add(request.RequestUri?.ToString() ?? "");
 
-        return new HttpResponseMessage(HttpStatusCode.NotFound) { RequestMessage = request };
+        var response = Responder?.Invoke(request) ?? new HttpResponseMessage(HttpStatusCode.NotFound);
+        response.RequestMessage = request;
+        return response;
     }
 }

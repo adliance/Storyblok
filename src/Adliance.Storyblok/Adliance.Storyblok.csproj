@@ -17,7 +17,7 @@
         <RepositoryUrl>https://github.com/Adliance/Storyblok/</RepositoryUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageReleaseNotes>$([System.IO.File]::ReadAllText("$(MSBuildThisFileDirectory)../../CHANGELOG.md"))</PackageReleaseNotes>
+        <PackageReleaseNotes>https://github.com/adliance/Storyblok/blob/master/CHANGELOG.md</PackageReleaseNotes>
 
         <Nullable>enable</Nullable>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>

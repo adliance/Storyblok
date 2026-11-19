@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".gitignore" />
+    <File Path="Adliance.Storyblok.FulltextSearch.yml" />
+    <File Path="Adliance.Storyblok.yml" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="src/Adliance.Storyblok.FulltextSearch/Adliance.Storyblok.FulltextSearch.csproj" />
+  <Project Path="src/Adliance.Storyblok/Adliance.Storyblok.csproj" />
+  <Project Path="test/Adliance.Storyblok.FulltextSearchTests/Adliance.Storyblok.FulltextSearch.Tests.csproj" />
+  <Project Path="test/Adliance.Storyblok.Tests/Adliance.Storyblok.Tests.csproj" />
+</Solution>

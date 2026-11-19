@@ -25,7 +25,7 @@
 
     <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App"/>
-        <PackageReference Include="Markdig" Version="0.43.0" />
+        <PackageReference Include="Markdig" Version="1.6.0" />
     </ItemGroup>
     <ItemGroup>
         <None Include="../../README.md" Pack="true" PackagePath="/" Visible="false" />

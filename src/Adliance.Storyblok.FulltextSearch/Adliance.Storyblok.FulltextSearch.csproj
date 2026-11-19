@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <AssemblyName>Adliance.Storyblok.FulltextSearch</AssemblyName>
     <RootNamespace>Adliance.Storyblok.FulltextSearch</RootNamespace>
     <PackageId>Adliance.Storyblok.FulltextSearch</PackageId>
@@ -14,18 +14,26 @@
     <Description>Extends the Adliance.Storyblok package with support for fulltext search.</Description>
     <Copyright>(c) Adliance GmbH</Copyright>
     <PackageProjectUrl>https://github.com/Adliance/Storyblok/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Adliance/Storyblok/</RepositoryUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReleaseNotes>$([System.IO.File]::ReadAllText("$(MSBuildThisFileDirectory)../../CHANGELOG.md"))</PackageReleaseNotes>
     <NoWarn>NU5104</NoWarn>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Adliance.Storyblok" Version="8.0.14" />
+    <PackageReference Include="Adliance.Storyblok" Version="8.1.9" />
     <PackageReference Include="Lucene.Net" Version="4.8.0-beta00017" />
     <PackageReference Include="Lucene.Net.Analysis.Common" Version="4.8.0-beta00017" />
     <PackageReference Include="Lucene.Net.Highlighter" Version="4.8.0-beta00017" />
     <PackageReference Include="Lucene.Net.Queries" Version="4.8.0-beta00017" />
     <PackageReference Include="Lucene.Net.QueryParser" Version="4.8.0-beta00017" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="/" Visible="false" />
+    <None Include="../../CHANGELOG.md" Pack="true" PackagePath="/" Visible="false" />
   </ItemGroup>
 </Project>
 

@@ -25,6 +25,8 @@ dotnet test test/Adliance.Storyblok.Tests --filter "FullyQualifiedName~Storyblok
 
 CI runs on Azure DevOps (`Adliance.Storyblok.yml`, `Adliance.Storyblok.FulltextSearch.yml`): build, test, pack with version `10.0.$(rev:r)`, and push to nuget.org on `master`. Each pipeline only triggers on changes under its own `src/` folder.
 
+Both packages embed the root `README.md` (shown on nuget.org) and `CHANGELOG.md` (included as file and as the package release notes) via their `.csproj`. Add user-facing changes to `CHANGELOG.md`.
+
 ## Tests
 
 - Tests are integration tests against a **real Storyblok test space** (public API key and asset key are hard-coded in `MockedStartup.cs`; they are intentionally non-confidential). They need network access and depend on content in that space (e.g. slugs like `page-sections-buttons`, the `redirects` datasource).

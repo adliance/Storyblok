@@ -14,6 +14,10 @@
         <Description>Easily integrate the Storyblok headless CMS into your ASP.NET core application.</Description>
         <Copyright>(c) Adliance GmbH</Copyright>
         <PackageProjectUrl>https://github.com/Adliance/Storyblok/</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/Adliance/Storyblok/</RepositoryUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageReleaseNotes>$([System.IO.File]::ReadAllText("$(MSBuildThisFileDirectory)../../CHANGELOG.md"))</PackageReleaseNotes>
 
         <Nullable>enable</Nullable>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -22,6 +26,10 @@
     <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App"/>
         <PackageReference Include="Markdig" Version="0.43.0" />
+    </ItemGroup>
+    <ItemGroup>
+        <None Include="../../README.md" Pack="true" PackagePath="/" Visible="false" />
+        <None Include="../../CHANGELOG.md" Pack="true" PackagePath="/" Visible="false" />
     </ItemGroup>
 </Project>
 

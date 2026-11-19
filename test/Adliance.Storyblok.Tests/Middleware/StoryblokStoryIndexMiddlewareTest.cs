@@ -1,11 +1,11 @@
 using System;
 using System.Globalization;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Adliance.Storyblok.Clients;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -32,6 +32,7 @@ public class StoryblokStoryIndexMiddlewareTest
     private readonly HttpClient _client;
     private readonly MockHttpMessageHandler _handler;
     private readonly StoryblokOptions _options;
+    private readonly StoryblokStoryIndex _index;
 
     public StoryblokStoryIndexMiddlewareTest()
     {
@@ -42,6 +43,7 @@ public class StoryblokStoryIndexMiddlewareTest
         _options.UseStoryIndexForNotFound = true;
         _options.RedirectsDatasourceName = null; // not relevant here, and would only add requests to the mocked API
         _handler.Responder = ServeStoriesList;
+        _index = _factory.Services.GetRequiredService<StoryblokStoryIndex>();
     }
 
     [Theory]
@@ -52,14 +54,33 @@ public class StoryblokStoryIndexMiddlewareTest
     [InlineData("/de/does-not-exist")]
     public async Task Does_Not_Request_Unknown_Slug(string url)
     {
-        await AssertNotFound(url);
+        await _index.Preload();
         Assert.Contains(_handler.Requests, IsListRequest);
+
+        await AssertNotFound(url);
         Assert.DoesNotContain(_handler.Requests, IsSingleStoryRequest);
+    }
+
+    [Fact]
+    public async Task Requests_Unknown_Slug_On_Cold_Start_And_Loads_Index_In_Background()
+    {
+        // without index, the request must not wait for the story list, but is answered by the Storyblok API
+        await AssertNotFound("/does-not-exist");
+        Assert.Contains(_handler.Requests, x => x.Contains("/stories/does-not-exist?"));
+
+        // ... while the index is loaded in the background
+        await _index.Preload();
+        Assert.Contains(_handler.Requests, IsListRequest);
+        _handler.Requests.Clear();
+
+        await AssertNotFound("/does-not-exist-either");
+        Assert.Empty(_handler.Requests);
     }
 
     [Fact]
     public async Task Does_Not_Request_Anything_For_Second_Unknown_Slug()
     {
+        await _index.Preload();
         await AssertNotFound("/does-not-exist");
         _handler.Requests.Clear();
 
@@ -75,6 +96,7 @@ public class StoryblokStoryIndexMiddlewareTest
     [InlineData("/en/known-page-translated", "/stories/en/known-page-translated?")]
     public async Task Requests_Known_Slug(string url, string expectedRequest)
     {
+        await _index.Preload();
         await AssertNotFound(url); // the mocked API returns 404 for single stories
         Assert.Contains(_handler.Requests, x => x.Contains(expectedRequest));
     }
@@ -118,6 +140,7 @@ public class StoryblokStoryIndexMiddlewareTest
         _handler.Responder = null; // the list request now fails with 404
 
         await AssertNotFound("/does-not-exist");
+        await _index.Preload(); // waits for the failing load started by the request, and does not start another one
         Assert.Contains(_handler.Requests, IsListRequest);
         Assert.Contains(_handler.Requests, x => x.Contains("/stories/does-not-exist?"));
 
@@ -131,16 +154,30 @@ public class StoryblokStoryIndexMiddlewareTest
     [Fact]
     public async Task Reloads_Index_After_Clearing_Cache()
     {
+        await _index.Preload();
         await AssertNotFound("/does-not-exist");
+        Assert.DoesNotContain(_handler.Requests, IsSingleStoryRequest);
+        _handler.Requests.Clear();
+
+        // clearing the cache discards the index and starts loading it in the background
+        var response = await _client.GetAsync("/clear-storyblok-cache");
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        await _index.Preload(); // waits for the load started by clearing the cache
         Assert.Contains(_handler.Requests, IsListRequest);
         _handler.Requests.Clear();
 
-        var response = await _client.GetAsync("/clear-storyblok-cache");
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        await AssertNotFound("/does-not-exist");
+        Assert.Empty(_handler.Requests);
+    }
+
+    [Fact]
+    public async Task Requests_Unknown_Slug_After_Clearing_Cache_Until_Index_Is_Loaded()
+    {
+        await _index.Preload();
+        _index.Clear(); // same as the webhook, but without starting the preload
 
         await AssertNotFound("/does-not-exist");
-        Assert.Contains(_handler.Requests, IsListRequest);
-        Assert.DoesNotContain(_handler.Requests, IsSingleStoryRequest);
+        Assert.Contains(_handler.Requests, x => x.Contains("/stories/does-not-exist?"));
     }
 
     private async Task AssertNotFound(string url)

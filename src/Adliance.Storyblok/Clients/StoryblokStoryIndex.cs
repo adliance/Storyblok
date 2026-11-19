@@ -17,25 +17,33 @@ namespace Adliance.Storyblok.Clients;
 /// It is used to answer requests for non-existing slugs without calling the Storyblok API for every single slug.
 /// The index only ever answers "definitely missing"; whenever it is unsure, it returns <c>null</c> and the Storyblok API is asked.
 /// </summary>
+/// <remarks>
+/// Requests never wait for the story list to be loaded:
+/// <list type="bullet">
+/// <item>If there is no index yet (cold start, after <see cref="Clear"/> or after a failed load), it is loaded in the background and <c>null</c> is returned meanwhile.</item>
+/// <item>If the index is older than <see cref="StoryblokOptions.CacheDurationSeconds"/>, the old index is still used while a new one is loaded in the background.</item>
+/// </list>
+/// </remarks>
 public class StoryblokStoryIndex(
     IOptions<StoryblokOptions> settings,
     IHttpClientFactory clientFactory,
     IMemoryCache memoryCache,
     ILogger<StoryblokBaseClient> clientLogger,
-    ILogger<StoryblokStoryIndex> logger)
+    ILogger<StoryblokStoryIndex> logger,
+    TimeProvider timeProvider)
 {
-    private const string CacheKeyPrefix = "storyindex_";
-    private static readonly TimeSpan FailureCacheDuration = TimeSpan.FromSeconds(30);
+    private static readonly TimeSpan RetryAfterFailure = TimeSpan.FromSeconds(30);
 
-    private readonly ConcurrentDictionary<string, SemaphoreSlim> _locks = new(StringComparer.OrdinalIgnoreCase);
+    private readonly ConcurrentDictionary<string, CultureIndex> _indexes = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     /// Checks whether a story with the specified slug exists in the published stories of the specified culture.
+    /// Never waits for the index to be loaded.
     /// </summary>
-    /// <returns><c>true</c> or <c>false</c> if the index could answer reliably, <c>null</c> if no reliable answer is possible (index not available, load failed, unexpected slug, ...).</returns>
-    public async Task<bool?> Exists(CultureInfo? culture, string slug)
+    /// <returns><c>true</c> or <c>false</c> if the index could answer reliably, <c>null</c> if no reliable answer is possible (index not loaded yet, load failed, unexpected slug, ...).</returns>
+    public bool? Exists(CultureInfo? culture, string slug)
     {
-        if (settings.Value.CacheDurationSeconds <= 0)
+        if (!IsEnabled)
         {
             return null;
         }
@@ -47,7 +55,7 @@ public class StoryblokStoryIndex(
         }
 
         var resolvedCulture = StoryblokBaseClient.ResolveCulture(settings.Value, culture);
-        var slugs = await GetSlugs(resolvedCulture);
+        var slugs = GetSlugs(resolvedCulture).Slugs;
         if (slugs == null)
         {
             return null;
@@ -64,7 +72,7 @@ public class StoryblokStoryIndex(
             var culturePrefix = supportedCulture + "/";
             if (normalizedSlug.StartsWith(culturePrefix, StringComparison.OrdinalIgnoreCase))
             {
-                var cultureSlugs = await GetSlugs(new CultureInfo(supportedCulture));
+                var cultureSlugs = GetSlugs(new CultureInfo(supportedCulture)).Slugs;
                 if (cultureSlugs == null)
                 {
                     return null;
@@ -87,59 +95,112 @@ public class StoryblokStoryIndex(
     }
 
     /// <summary>
-    /// Loads the index for all supported cultures (if not already cached), e.g. right after the cache has been cleared.
+    /// Starts loading the index for all supported cultures in the background, unless it is already loaded and up to date (or currently loading).
     /// </summary>
-    public async Task Preload()
+    /// <returns>A task that completes when all running loads have finished. Loading errors are logged, but never thrown.</returns>
+    public Task Preload()
     {
-        if (settings.Value.CacheDurationSeconds <= 0)
+        if (!IsEnabled)
         {
-            return;
+            return Task.CompletedTask;
         }
 
-        foreach (var culture in settings.Value.SupportedCultures)
+        return Task.WhenAll(settings.Value.SupportedCultures.Select(x => GetSlugs(new CultureInfo(x)).Loading));
+    }
+
+    /// <summary>
+    /// Discards the index of all cultures, e.g. because stories have been published.
+    /// Until the index is loaded again, <see cref="Exists"/> returns <c>null</c> (i.e. the Storyblok API is used).
+    /// Loads that are still running are discarded as well, because they might contain outdated data.
+    /// </summary>
+    public void Clear()
+    {
+        foreach (var index in _indexes.Values)
         {
-            await GetSlugs(new CultureInfo(culture));
+            lock (index.Lock)
+            {
+                index.Generation++;
+                index.Slugs = null;
+                index.LoadedAt = default;
+                index.RetryAfter = default;
+                index.Loading = null;
+            }
         }
     }
 
-    private async Task<HashSet<string>?> GetSlugs(CultureInfo culture)
+    private bool IsEnabled => settings.Value.CacheDurationSeconds > 0;
+
+    private (HashSet<string>? Slugs, Task Loading) GetSlugs(CultureInfo culture)
     {
         var cultureName = culture.ToString().ToLowerInvariant();
-        var cacheKey = CacheKeyPrefix + cultureName;
-        if (memoryCache.TryGetValue(cacheKey, out IndexEntry? entry) && entry != null)
-        {
-            return entry.Slugs;
-        }
+        var index = _indexes.GetOrAdd(cultureName, _ => new CultureIndex());
 
-        // make sure that a burst of requests (e.g. right after clearing the cache) only loads the story list once
-        var semaphore = _locks.GetOrAdd(cultureName, _ => new SemaphoreSlim(1, 1));
-        await semaphore.WaitAsync();
-        try
+        lock (index.Lock)
         {
-            if (memoryCache.TryGetValue(cacheKey, out entry) && entry != null)
+            var now = timeProvider.GetUtcNow();
+            var isOutdated = index.Slugs == null || now - index.LoadedAt >= TimeSpan.FromSeconds(settings.Value.CacheDurationSeconds);
+
+            // only one load per culture at a time, so that a burst of requests doesn't load the story list multiple times
+            if (isOutdated && index.Loading == null && now >= index.RetryAfter)
             {
-                return entry.Slugs;
+                logger.LogTrace(index.Slugs == null
+                    ? $"Story index for culture \"{cultureName}\" not available, loading it in the background."
+                    : $"Story index for culture \"{cultureName}\" is outdated, reloading it in the background.");
+
+                // the lock is still held here, so the load can't complete (and reset Loading) before Loading is assigned
+                index.Loading = LoadInBackground(index, culture, cultureName, index.Generation);
             }
 
+            return (index.Slugs, index.Loading ?? Task.CompletedTask);
+        }
+    }
+
+    private Task LoadInBackground(CultureIndex index, CultureInfo culture, string cultureName, int generation)
+    {
+        return Task.Run(async () =>
+        {
+            HashSet<string>? slugs = null;
+            Exception? error = null;
             try
             {
-                var slugs = await LoadSlugs(culture);
-                memoryCache.Set(cacheKey, new IndexEntry(slugs), TimeSpan.FromSeconds(settings.Value.CacheDurationSeconds));
-                logger.LogTrace($"Story index for culture \"{cultureName}\" loaded with {slugs.Count} slugs.");
-                return slugs;
+                slugs = await LoadSlugs(culture);
             }
             catch (Exception ex)
             {
-                // fail open: without index, every request is answered by the Storyblok API like before
-                logger.LogWarning(ex, $"Unable to load story index for culture \"{cultureName}\", falling back to the Storyblok API.");
-                memoryCache.Set(cacheKey, new IndexEntry(null), FailureCacheDuration);
-                return null;
+                error = ex;
             }
-        }
-        finally
-        {
-            semaphore.Release();
-        }
+
+            lock (index.Lock)
+            {
+                if (index.Generation != generation)
+                {
+                    // the index has been cleared while loading, so the loaded slugs might already be outdated
+                    logger.LogTrace($"Discarding story index for culture \"{cultureName}\", because it has been cleared while loading.");
+                    return;
+                }
+
+                index.Loading = null;
+                var now = timeProvider.GetUtcNow();
+
+                if (slugs != null)
+                {
+                    index.Slugs = slugs;
+                    index.LoadedAt = now;
+                    index.RetryAfter = default;
+                    logger.LogTrace($"Story index for culture \"{cultureName}\" loaded with {slugs.Count} slugs.");
+                }
+                else
+                {
+                    // fail open: without index, every request is answered by the Storyblok API like before
+                    // an outdated index is kept, because it's still better than calling the Storyblok API for every unknown slug
+                    // either way, we don't retry immediately to not hammer the Storyblok API
+                    index.RetryAfter = now + RetryAfterFailure;
+                    logger.LogWarning(error, index.Slugs == null
+                        ? $"Unable to load story index for culture \"{cultureName}\", falling back to the Storyblok API."
+                        : $"Unable to reload story index for culture \"{cultureName}\", keeping the outdated index.");
+                }
+            }
+        });
     }
 
     private async Task<HashSet<string>> LoadSlugs(CultureInfo culture)
@@ -200,5 +261,22 @@ public class StoryblokStoryIndex(
         return (slug ?? "").Trim().Trim('/');
     }
 
-    private sealed record IndexEntry(HashSet<string>? Slugs);
+    private sealed class CultureIndex
+    {
+        public readonly Lock Lock = new();
+
+        /// <summary>The slugs of the last successful load, <c>null</c> if there is none.</summary>
+        public HashSet<string>? Slugs;
+
+        public DateTimeOffset LoadedAt;
+
+        /// <summary>After a failed load, no new load is started before this point in time.</summary>
+        public DateTimeOffset RetryAfter;
+
+        /// <summary>The currently running load, <c>null</c> if none is running.</summary>
+        public Task? Loading;
+
+        /// <summary>Incremented by <see cref="StoryblokStoryIndex.Clear"/>, so that loads started before clearing are discarded.</summary>
+        public int Generation;
+    }
 }

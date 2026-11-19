@@ -1,7 +1,6 @@
 using System.Globalization;
 using System.Threading.Tasks;
 using Adliance.Storyblok.Clients;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Xunit;
@@ -42,18 +41,19 @@ public class StoryblokStoryIndexTest
     [InlineData("de", "", null)]
     public async Task Knows_Existing_Slugs(string culture, string slug, bool? expected)
     {
-        Assert.Equal(expected, await _index.Exists(new CultureInfo(culture), slug));
+        await _index.Preload();
+        Assert.Equal(expected, _index.Exists(new CultureInfo(culture), slug));
     }
 
     [Fact]
     public async Task Loads_Existing_Stories_And_Skips_Unknown_Ones()
     {
+        await _index.Preload();
+        Assert.False(_index.Exists(new CultureInfo("de"), "does-not-exist"));
+
         Assert.NotNull(await _client.Story().WithSlug("page-sections-buttons").Load());
         Assert.NotNull(await _client.Story().WithSlug("/en/page-sections-buttons").Load());
         Assert.NotNull(await _client.Story().WithCulture(new CultureInfo("en")).WithSlug("page-translated-english-slug").Load());
         Assert.Null(await _client.Story().WithSlug("does-not-exist").Load());
-
-        var cache = _factory.Services.GetRequiredService<IMemoryCache>();
-        Assert.True(cache.TryGetValue("storyindex_de", out _));
     }
 }

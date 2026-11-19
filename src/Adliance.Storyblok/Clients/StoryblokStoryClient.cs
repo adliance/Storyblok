@@ -60,7 +60,7 @@ public class StoryblokStoryClient(
             return null;
         }
 
-        if (await IsMissingInStoryIndex(culture, slug))
+        if (IsMissingInStoryIndex(culture, slug))
         {
             Logger.LogTrace($"Slug \"{slug}\" (culture \"{culture}\") not found in story index, skipping Storyblok API.");
             MemoryCache.Set(cacheKeyUnavailable, true, TimeSpan.FromSeconds(Settings.CacheDurationSeconds));
@@ -81,7 +81,7 @@ public class StoryblokStoryClient(
         return null;
     }
 
-    private async Task<bool> IsMissingInStoryIndex(CultureInfo? culture, string slug)
+    private bool IsMissingInStoryIndex(CultureInfo? culture, string slug)
     {
         // the index only contains published stories, so it must never be used for the editor (new pages are usually unpublished) or when drafts are included
         if (!Settings.UseStoryIndexForNotFound || IsInEditor || Settings.IncludeDraftStories)
@@ -89,7 +89,7 @@ public class StoryblokStoryClient(
             return false;
         }
 
-        return await storyIndex.Exists(ResolveCulture(culture), slug) == false;
+        return storyIndex.Exists(ResolveCulture(culture), slug) == false;
     }
 
     private async Task<StoryblokStory?> LoadStoryFromStoryblok(CultureInfo? culture, string slug, ResolveLinksType resolveLinks, bool resolveAssets, string resolveRelations)

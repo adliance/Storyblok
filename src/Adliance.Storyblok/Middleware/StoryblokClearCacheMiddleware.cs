@@ -31,20 +31,15 @@ public class StoryblokClearCacheMiddleware(RequestDelegate next)
         logger.LogTrace("Clearing cache ...");
         ClearCache(cache, logger);
 
+        // the story index is not part of the memory cache (an outdated index is kept while reloading), so it has to be cleared explicitly
+        // after publishing, the old index might not contain new stories, so we don't keep it, but use the Storyblok API until the new index is loaded
+        storyIndex.Clear();
+
         if (settings.UseStoryIndexForNotFound && !settings.IncludeDraftStories)
         {
-            // pre-warm the story index, so that the first visitor after publishing does not have to wait for loading the full story list
-            _ = Task.Run(async () =>
-            {
-                try
-                {
-                    await storyIndex.Preload();
-                }
-                catch (Exception ex)
-                {
-                    logger.LogWarning(ex, "Unable to preload story index.");
-                }
-            });
+            // load the story index in the background right away, so that it's available as soon as possible
+            // we don't wait for it, the task never throws (errors are logged by the index)
+            _ = storyIndex.Preload();
         }
 
         context.Response.StatusCode = (int)HttpStatusCode.OK;

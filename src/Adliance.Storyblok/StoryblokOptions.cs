@@ -58,6 +58,8 @@ public class StoryblokOptions
     /// If enabled, the list of all published stories (the same list that is used for the sitemap) is used to answer requests for non-existing slugs
     /// without calling the Storyblok API. This protects the Storyblok API (and its rate limits) from bots and crawlers requesting random URLs.
     /// The index is never used in the Storyblok editor or if <see cref="IncludeDraftStories"/> is enabled.
+    /// The index is loaded in the background, requests never wait for it: until it is available (on startup or after clearing the cache), the Storyblok API is used;
+    /// once it is older than <see cref="CacheDurationSeconds"/>, it is still used while the new one is loaded in the background.
     /// Configure a Storyblok webhook to <see cref="SlugForClearingCache"/> for publishing, unpublishing, deleting and moving stories
     /// (see https://www.storyblok.com/docs/concepts/webhooks), otherwise newly published stories will not be found until the cache expires.
     /// </summary>

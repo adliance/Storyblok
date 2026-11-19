@@ -35,7 +35,11 @@ public class MockHttpMessageHandler : HttpMessageHandler
 
     private HttpResponseMessage Record(HttpRequestMessage request)
     {
-        Requests.Add(request.RequestUri?.ToString() ?? "");
+        // requests can also be sent from background tasks (e.g. loading the story index)
+        lock (Requests)
+        {
+            Requests.Add(request.RequestUri?.ToString() ?? "");
+        }
 
         var response = Responder?.Invoke(request) ?? new HttpResponseMessage(HttpStatusCode.NotFound);
         response.RequestMessage = request;
